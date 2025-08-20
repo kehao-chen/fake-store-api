@@ -1,0 +1,96 @@
+# Webhook 相關 API 端點定義
+stripe_webhook:
+  post:
+    tags:
+      - Orders
+      - Admin
+    summary: Stripe Webhook 處理
+    description: |
+      處理來自 Stripe 的 Webhook 事件通知。
+      
+      ## 支援的事件類型
+      - `payment_intent.succeeded` - 支付成功
+      - `payment_intent.payment_failed` - 支付失敗
+      - `payment_intent.canceled` - 支付取消
+      - `charge.dispute.created` - 爭議建立
+      
+      ## 安全驗證
+      - Stripe Webhook 簽名驗證
+      - 冪等性保證 (使用 Event ID)
+      - 重試機制支援
+      
+    operationId: handleStripeWebhook
+    security: []  # Webhook 使用簽名驗證，不需要 Bearer Token
+    parameters:
+      - name: Stripe-Signature
+        in: header
+        required: true
+        description: Stripe Webhook 簽名
+        schema:
+          type: string
+          example: "t=1692454800,v1=abc123def456"
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/webhook.yaml#/StripeWebhookEvent'
+          examples:
+            payment_succeeded:
+              summary: 支付成功事件
+              value:
+                id: "evt_1A2B3C4D5E"
+                object: "event"
+                type: "payment_intent.succeeded"
+                data:
+                  object:
+                    id: "pi_1A2B3C4D5E"
+                    amount: 2999
+                    currency: "usd"
+                    status: "succeeded"
+            payment_failed:
+              summary: 支付失敗事件
+              value:
+                id: "evt_1F2G3H4I5J"
+                object: "event"
+                type: "payment_intent.payment_failed"
+                data:
+                  object:
+                    id: "pi_1F2G3H4I5J"
+                    amount: 2999
+                    currency: "usd"
+                    status: "requires_payment_method"
+                    last_payment_error:
+                      code: "card_declined"
+                      message: "Your card was declined."
+    responses:
+      '200':
+        description: Webhook 處理成功
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/webhook.yaml#/WebhookResponse'
+      '400':
+        $ref: '../components/responses/errors.yaml#/BadRequest'
+      '401':
+        description: Webhook 簽名驗證失敗
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/Error'
+            example:
+              error:
+                code: "WEBHOOK_SIGNATURE_INVALID"
+                message: "Invalid webhook signature"
+      '409':
+        description: 重複的事件 (已處理)
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/webhook.yaml#/WebhookResponse'
+            example:
+              received: true
+              processed: true
+              message: "Event already processed"
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalError'

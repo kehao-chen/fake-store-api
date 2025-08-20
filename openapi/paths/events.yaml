@@ -1,0 +1,263 @@
+# 事件驅動架構端點定義 (符合 Google AIP-136 Custom Methods 標準)
+
+# 產品事件觸發 Custom Methods
+products_publish:
+  post:
+    tags:
+      - Products
+      - Admin
+      - Events
+    summary: 發布產品事件
+    description: |
+      將產品設為公開狀態並觸發 product.published 事件。
+      符合 AIP-136 Custom Methods 設計規範。
+      
+      ## 觸發的事件
+      - `product.published`: 產品發布事件
+      - `inventory.updated`: 庫存狀態更新
+      - `catalog.refreshed`: 目錄刷新事件
+      
+    operationId: publishProduct
+    security:
+      - BearerAuth: ['write', 'admin']
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: 產品 ID
+        schema:
+          type: string
+          pattern: '^prod_[a-zA-Z0-9]+$'
+          example: "prod_1a2b3c"
+    requestBody:
+      required: false
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              publish_at:
+                type: string
+                format: date-time
+                nullable: true
+                description: 預定發布時間 (可選，null 表示立即發布)
+              notify_subscribers:
+                type: boolean
+                default: true
+                description: 是否通知訂閱者
+              reason:
+                type: string
+                maxLength: 500
+                nullable: true
+                description: 發布原因說明
+    responses:
+      '200':
+        description: 產品發布成功
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '../components/schemas/product.yaml#/Product'
+                - type: object
+                  properties:
+                    event_id:
+                      type: string
+                      pattern: '^evt_[a-zA-Z0-9]+$'
+                      description: 觸發的事件 ID
+                      example: "evt_publish_123"
+        headers:
+          X-Event-ID:
+            description: 觸發的事件 ID
+            schema:
+              type: string
+              example: "evt_publish_123"
+      '400':
+        $ref: '../components/responses/errors.yaml#/ValidationError'
+      '401':
+        $ref: '../components/responses/errors.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses/errors.yaml#/Forbidden'
+      '404':
+        $ref: '../components/responses/errors.yaml#/NotFound'
+
+# 產品下架事件
+products_unpublish:
+  post:
+    tags:
+      - Products
+      - Admin
+      - Events
+    summary: 下架產品事件
+    description: |
+      將產品設為下架狀態並觸發相關事件。
+      
+    operationId: unpublishProduct
+    security:
+      - BearerAuth: ['write', 'admin']
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: 產品 ID
+        schema:
+          type: string
+          pattern: '^prod_[a-zA-Z0-9]+$'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [reason]
+            properties:
+              reason:
+                type: string
+                maxLength: 500
+                description: 下架原因
+                example: "庫存不足，暫時下架"
+              notify_customers:
+                type: boolean
+                default: false
+                description: 是否通知已購買的客戶
+    responses:
+      '200':
+        description: 產品下架成功
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/product.yaml#/Product'
+
+# 訂單狀態更新事件
+orders_update_status:
+  post:
+    tags:
+      - Orders
+      - Admin
+      - Events
+    summary: 更新訂單狀態
+    description: |
+      更新訂單狀態並觸發相關事件。符合 AIP-136 設計規範。
+      
+      ## 支援的狀態轉換
+      - `pending` → `processing`
+      - `processing` → `shipped`
+      - `shipped` → `delivered`
+      - `any` → `cancelled`
+      
+    operationId: updateOrderStatus
+    security:
+      - BearerAuth: ['write', 'admin']
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: 訂單 ID
+        schema:
+          type: string
+          pattern: '^order_[a-zA-Z0-9]+$'
+          example: "order_abc123"
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [status]
+            properties:
+              status:
+                type: string
+                enum: [processing, shipped, delivered, cancelled]
+                description: 新的訂單狀態
+                example: "shipped"
+              reason:
+                type: string
+                maxLength: 500
+                nullable: true
+                description: 狀態變更原因
+                example: "已通過快遞發貨"
+              tracking_number:
+                type: string
+                nullable: true
+                description: 物流追蹤號碼 (狀態為 shipped 時)
+                example: "TW123456789"
+              estimated_delivery:
+                type: string
+                format: date-time
+                nullable: true
+                description: 預計送達時間
+    responses:
+      '200':
+        description: 訂單狀態更新成功
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/order.yaml#/Order'
+
+# 使用者通知事件
+users_send_notification:
+  post:
+    tags:
+      - Users
+      - Admin
+      - Events
+    summary: 發送使用者通知
+    description: |
+      向指定使用者發送通知事件。
+      
+    operationId: sendUserNotification
+    security:
+      - BearerAuth: ['write', 'admin']
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: 使用者 ID
+        schema:
+          type: string
+          pattern: '^user_[a-zA-Z0-9]+$'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [type, message]
+            properties:
+              type:
+                type: string
+                enum: [email, sms, push, in_app]
+                description: 通知類型
+                example: "email"
+              message:
+                type: string
+                maxLength: 1000
+                description: 通知內容
+                example: "您的訂單已發貨"
+              subject:
+                type: string
+                maxLength: 200
+                nullable: true
+                description: 通知主題 (email 類型需要)
+                example: "訂單發貨通知"
+              scheduled_at:
+                type: string
+                format: date-time
+                nullable: true
+                description: 預定發送時間 (可選)
+    responses:
+      '200':
+        description: 通知發送成功
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                notification_id:
+                  type: string
+                  example: "notif_abc123"
+                sent:
+                  type: boolean
+                  example: true
+                scheduled:
+                  type: boolean
+                  example: false

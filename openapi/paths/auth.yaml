@@ -1,0 +1,185 @@
+# 認證相關 API 端點定義
+auth_token:
+  post:
+    tags:
+      - Authentication
+    summary: 建立身份令牌
+    description: |
+      使用使用者憑證建立 JWT 存取令牌和刷新令牌。
+      
+      ## 支援的認證方式
+      - Email + 密碼
+      - OAuth 授權碼 (Google/GitHub)
+      
+      ## 令牌有效期
+      - 存取令牌：1 小時
+      - 刷新令牌：7 天
+      
+    operationId: createToken
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: '../components/schemas/auth.yaml#/EmailLoginRequest'
+              - $ref: '../components/schemas/auth.yaml#/OAuthTokenRequest'
+              - $ref: '../components/schemas/auth.yaml#/RefreshTokenRequest'
+          examples:
+            email_login:
+              summary: Email 登入
+              value:
+                grant_type: "password"
+                email: "user@example.com"
+                password: "securePassword123"
+            oauth_code:
+              summary: OAuth 授權碼
+              value:
+                grant_type: "authorization_code"
+                code: "oauth_authorization_code"
+                code_verifier: "pkce_code_verifier"
+            refresh_token:
+              summary: 刷新令牌
+              value:
+                grant_type: "refresh_token"
+                refresh_token: "refresh_token_value"
+    responses:
+      '200':
+        description: 令牌建立成功
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/auth.yaml#/TokenResponse'
+        headers:
+          Cache-Control:
+            description: 快取控制
+            schema:
+              type: string
+              example: "no-store"
+      '400':
+        $ref: '../components/responses/errors.yaml#/BadRequest'
+      '401':
+        $ref: '../components/responses/errors.yaml#/Unauthorized'
+      '429':
+        $ref: '../components/responses/errors.yaml#/RateLimitExceeded'
+
+auth_google:
+  get:
+    tags:
+      - Authentication
+    summary: Google OAuth 2.0 登入
+    description: |
+      啟動 Google OAuth 2.0 認證流程。
+      
+      ## 流程說明
+      1. 重定向到 Google 授權頁面
+      2. 使用者授權後返回授權碼
+      3. 使用授權碼呼叫 `/auth/token` 取得令牌
+      
+      ## PKCE 支援
+      - 必須使用 PKCE (RFC 7636) 增強安全性
+      - 支援 `code_challenge` 和 `code_verifier`
+      
+    operationId: loginWithGoogle
+    parameters:
+      - name: redirect_uri
+        in: query
+        required: true
+        description: 授權後重定向 URI
+        schema:
+          type: string
+          format: uri
+          example: "https://yourapp.com/callback"
+      - name: state
+        in: query
+        required: true
+        description: CSRF 防護狀態參數
+        schema:
+          type: string
+          minLength: 8
+          example: "random_state_string"
+      - name: code_challenge
+        in: query
+        required: true
+        description: PKCE 代碼挑戰
+        schema:
+          type: string
+          example: "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM"
+      - name: code_challenge_method
+        in: query
+        required: true
+        description: PKCE 代碼挑戰方法
+        schema:
+          type: string
+          enum: ["S256"]
+    responses:
+      '302':
+        description: 重定向到 Google 授權頁面
+        headers:
+          Location:
+            description: Google OAuth 授權 URL
+            schema:
+              type: string
+              format: uri
+      '400':
+        $ref: '../components/responses/errors.yaml#/BadRequest'
+
+auth_github:
+  get:
+    tags:
+      - Authentication
+    summary: GitHub OAuth 2.0 登入
+    description: |
+      啟動 GitHub OAuth 2.0 認證流程。
+      
+      ## 流程說明
+      1. 重定向到 GitHub 授權頁面
+      2. 使用者授權後返回授權碼
+      3. 使用授權碼呼叫 `/auth/token` 取得令牌
+      
+      ## 權限範圍
+      - `read:user` - 讀取基本使用者資訊
+      - `user:email` - 讀取使用者 Email
+      
+    operationId: loginWithGithub
+    parameters:
+      - name: redirect_uri
+        in: query
+        required: true
+        description: 授權後重定向 URI
+        schema:
+          type: string
+          format: uri
+          example: "https://yourapp.com/callback"
+      - name: state
+        in: query
+        required: true
+        description: CSRF 防護狀態參數
+        schema:
+          type: string
+          minLength: 8
+          example: "random_state_string"
+      - name: code_challenge
+        in: query
+        required: true
+        description: PKCE 代碼挑戰
+        schema:
+          type: string
+      - name: code_challenge_method
+        in: query
+        required: true
+        description: PKCE 代碼挑戰方法
+        schema:
+          type: string
+          enum: ["S256"]
+    responses:
+      '302':
+        description: 重定向到 GitHub 授權頁面
+        headers:
+          Location:
+            description: GitHub OAuth 授權 URL
+            schema:
+              type: string
+              format: uri
+      '400':
+        $ref: '../components/responses/errors.yaml#/BadRequest'

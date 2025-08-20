@@ -1,0 +1,48 @@
+# 識別符參數定義
+ProductId:
+  name: id
+  in: path
+  description: 產品唯一識別碼
+  required: true
+  schema:
+    type: string
+    pattern: '^prod_[a-zA-Z0-9]+$'
+    minLength: 6
+    maxLength: 50
+  example: "prod_1a2b3c"
+
+CategoryId:
+  name: id
+  in: path
+  description: 分類唯一識別碼
+  required: true
+  schema:
+    type: string
+    pattern: '^cat_[a-zA-Z0-9]+$'
+    minLength: 5
+    maxLength: 50
+  example: "cat_electronics"
+
+UserId:
+  name: id
+  in: path
+  description: 使用者唯一識別碼
+  required: true
+  schema:
+    type: string
+    pattern: '^user_[a-zA-Z0-9]+$'
+    minLength: 6
+    maxLength: 50
+  example: "user_123abc"
+
+OrderId:
+  name: id
+  in: path
+  description: 訂單唯一識別碼
+  required: true
+  schema:
+    type: string
+    pattern: '^order_[a-zA-Z0-9]+$'
+    minLength: 7
+    maxLength: 50
+  example: "order_abc123"

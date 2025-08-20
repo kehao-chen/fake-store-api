@@ -1,0 +1,261 @@
+# 產品相關資料模型定義
+Product:
+  allOf:
+    - $ref: './common.yaml#/AuditableEntity'
+    - type: object
+      required:
+        - id
+        - name
+        - price
+        - category_id
+      properties:
+        id:
+          type: string
+          pattern: '^prod_[a-zA-Z0-9]+$'
+          description: 產品唯一識別碼
+          example: "prod_1a2b3c"
+          
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: 產品名稱
+          example: "高效能無線滑鼠"
+          
+        description:
+          type: string
+          nullable: true
+          maxLength: 2000
+          description: 產品詳細描述
+          example: "一款符合人體工學的高效能無線滑鼠，具有超長電池續航。"
+          
+        price:
+          type: number
+          format: decimal
+          minimum: 0
+          multipleOf: 0.01
+          description: 產品價格 (USD)
+          example: 79.99
+          
+        category_id:
+          type: string
+          pattern: '^cat_[a-zA-Z0-9]+$'
+          description: 產品分類 ID
+          example: "cat_electronics"
+          
+        category_name:
+          type: string
+          description: 產品分類名稱 (唯讀)
+          readOnly: true
+          example: "Electronics"
+          
+        image_url:
+          type: string
+          format: uri
+          nullable: true
+          description: 產品圖片 URL
+          example: "https://fakestore.happyhacking.ninja/images/mouse.jpg"
+          
+        sku:
+          type: string
+          nullable: true
+          maxLength: 100
+          description: 產品 SKU 編號
+          example: "MOUSE-WIRELESS-001"
+          
+        stock_quantity:
+          type: integer
+          minimum: 0
+          description: 庫存數量
+          example: 150
+          
+        is_active:
+          type: boolean
+          description: 產品是否啟用
+          default: true
+          example: true
+          
+        created_at:
+          type: string
+          format: date-time
+          description: 建立時間
+          readOnly: true
+          example: "2025-08-19T10:30:00Z"
+          
+        updated_at:
+          type: string
+          format: date-time
+          description: 更新時間
+          readOnly: true
+          example: "2025-08-19T14:20:00Z"
+          
+      example:
+        id: "prod_1a2b3c"
+        name: "高效能無線滑鼠"
+        description: "一款符合人體工學的高效能無線滑鼠，具有超長電池續航。"
+        price: 79.99
+        category_id: "cat_electronics"
+        category_name: "Electronics"
+        image_url: "https://fakestore.happyhacking.ninja/images/mouse.jpg"
+        sku: "MOUSE-WIRELESS-001"
+        stock_quantity: 150
+        is_active: true
+        version: 1
+        created_by: "user_admin123"
+        updated_by: "user_admin456"
+        deleted_at: null
+        deleted_by: null
+        created_at: "2025-08-19T10:30:00Z"
+        updated_at: "2025-08-19T14:20:00Z"
+
+ProductList:
+  type: object
+  required:
+    - products
+    - total_size
+  properties:
+    products:
+      type: array
+      items:
+        $ref: '#/Product'
+      description: 產品列表
+      
+    next_page_token:
+      type: string
+      nullable: true
+      description: 下一頁分頁令牌
+      example: "xyz789"
+      
+    total_size:
+      type: integer
+      minimum: 0
+      description: 符合條件的產品總數
+      example: 150
+      
+  example:
+    products:
+      - id: "prod_1a2b3c"
+        name: "高效能無線滑鼠"
+        price: 79.99
+        category_id: "cat_electronics"
+        category_name: "Electronics"
+        image_url: "https://fakestore.happyhacking.ninja/images/mouse.jpg"
+        stock_quantity: 150
+        is_active: true
+        created_at: "2025-08-19T10:30:00Z"
+        updated_at: "2025-08-19T14:20:00Z"
+    next_page_token: "xyz789"
+    total_size: 150
+
+CreateProductRequest:
+  type: object
+  required:
+    - name
+    - price
+    - category_id
+  properties:
+    name:
+      type: string
+      minLength: 1
+      maxLength: 200
+      description: 產品名稱
+      example: "新產品名稱"
+      
+    description:
+      type: string
+      nullable: true
+      maxLength: 2000
+      description: 產品描述
+      example: "詳細的產品描述"
+      
+    price:
+      type: number
+      format: decimal
+      minimum: 0
+      multipleOf: 0.01
+      description: 產品價格 (USD)
+      example: 99.99
+      
+    category_id:
+      type: string
+      pattern: '^cat_[a-zA-Z0-9]+$'
+      description: 產品分類 ID
+      example: "cat_electronics"
+      
+    image_url:
+      type: string
+      format: uri
+      nullable: true
+      description: 產品圖片 URL
+      
+    sku:
+      type: string
+      nullable: true
+      maxLength: 100
+      description: 產品 SKU 編號
+      
+    stock_quantity:
+      type: integer
+      minimum: 0
+      description: 初始庫存數量
+      default: 0
+      example: 100
+      
+    is_active:
+      type: boolean
+      description: 產品是否啟用
+      default: true
+
+UpdateProductRequest:
+  type: object
+  properties:
+    name:
+      type: string
+      minLength: 1
+      maxLength: 200
+      description: 產品名稱
+      
+    description:
+      type: string
+      nullable: true
+      maxLength: 2000
+      description: 產品描述
+      
+    price:
+      type: number
+      format: decimal
+      minimum: 0
+      multipleOf: 0.01
+      description: 產品價格 (USD)
+      
+    category_id:
+      type: string
+      pattern: '^cat_[a-zA-Z0-9]+$'
+      description: 產品分類 ID
+      
+    image_url:
+      type: string
+      format: uri
+      nullable: true
+      description: 產品圖片 URL
+      
+    sku:
+      type: string
+      nullable: true
+      maxLength: 100
+      description: 產品 SKU 編號
+      
+    stock_quantity:
+      type: integer
+      minimum: 0
+      description: 庫存數量
+      
+    is_active:
+      type: boolean
+      description: 產品是否啟用
+      
+  example:
+    name: "更新的產品名稱"
+    price: 89.99
+    stock_quantity: 200
+    is_active: true

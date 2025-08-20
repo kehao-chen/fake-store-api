@@ -1,0 +1,85 @@
+# Schema 索引文件 - 統一引用所有資料模型
+Product:
+  $ref: './product.yaml#/Product'
+ProductList:
+  $ref: './product.yaml#/ProductList'
+CreateProductRequest:
+  $ref: './product.yaml#/CreateProductRequest'
+UpdateProductRequest:
+  $ref: './product.yaml#/UpdateProductRequest'
+
+Category:
+  $ref: './category.yaml#/Category'
+CategoryList:
+  $ref: './category.yaml#/CategoryList'
+CreateCategoryRequest:
+  $ref: './category.yaml#/CreateCategoryRequest'
+UpdateCategoryRequest:
+  $ref: './category.yaml#/UpdateCategoryRequest'
+CategoryProductsRequest:
+  $ref: './category.yaml#/CategoryProductsRequest'
+
+User:
+  $ref: './user.yaml#/User'
+UpdateUserRequest:
+  $ref: './user.yaml#/UpdateUserRequest'
+
+Cart:
+  $ref: './cart.yaml#/Cart'
+CartItem:
+  $ref: './cart.yaml#/CartItem'
+AddProductRequest:
+  $ref: './cart.yaml#/AddProductRequest'
+UpdateProductRequest:
+  $ref: './cart.yaml#/UpdateProductRequest'
+RemoveProductRequest:
+  $ref: './cart.yaml#/RemoveProductRequest'
+
+Order:
+  $ref: './order.yaml#/Order'
+CheckoutRequest:
+  $ref: './order.yaml#/CheckoutRequest'
+CheckoutResponse:
+  $ref: './order.yaml#/CheckoutResponse'
+BillingAddress:
+  $ref: './order.yaml#/BillingAddress'
+
+Auth:
+  $ref: './auth.yaml#/TokenResponse'
+EmailLoginRequest:
+  $ref: './auth.yaml#/EmailLoginRequest'
+OAuthTokenRequest:
+  $ref: './auth.yaml#/OAuthTokenRequest'
+RefreshTokenRequest:
+  $ref: './auth.yaml#/RefreshTokenRequest'
+
+StripeWebhookEvent:
+  $ref: './webhook.yaml#/StripeWebhookEvent'
+WebhookResponse:
+  $ref: './webhook.yaml#/WebhookResponse'
+
+# 事件系統相關模型
+SystemEvent:
+  $ref: './events.yaml#/SystemEvent'
+ProductPublishedEvent:
+  $ref: './events.yaml#/ProductPublishedEvent'
+OrderStatusChangedEvent:
+  $ref: './events.yaml#/OrderStatusChangedEvent'
+WebhookSubscription:
+  $ref: './events.yaml#/WebhookSubscription'
+CreateSubscriptionRequest:
+  $ref: './events.yaml#/CreateSubscriptionRequest'
+UpdateSubscriptionRequest:
+  $ref: './events.yaml#/UpdateSubscriptionRequest'
+
+# 通用模型
+Error:
+  $ref: './common.yaml#/Error'
+Pagination:
+  $ref: './common.yaml#/Pagination'
+AuditableEntity:
+  $ref: './common.yaml#/AuditableEntity'
+SoftDeleteRequest:
+  $ref: './common.yaml#/SoftDeleteRequest'
+SoftDeleteResponse:
+  $ref: './common.yaml#/SoftDeleteResponse'

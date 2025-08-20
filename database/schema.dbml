@@ -1,0 +1,194 @@
+// ==================================================
+// Fake Store API 資料庫架構設計
+// 資料庫標記語言 (DBML) 定義
+// ==================================================
+
+Project fake_store_api {
+  database_type: 'PostgreSQL'
+  Note: '''
+    Fake Store API 專案的完整資料庫架構設計。
+    特色功能: 多重驗證、購物車管理、訂單處理、OAuth 2.0
+    設計原則: 資源導向、效能優化、稽核準備
+  '''
+}
+
+// ==================================================
+// 核心業務資料表
+// ==================================================
+
+Table categories {
+  id varchar(50) [pk, default: `'cat_' || generate_random_uuid()::TEXT`]
+  name varchar(100) [not null, unique]
+  display_name varchar(100)
+  description text
+  is_active boolean [not null, default: true]
+  created_at timestamptz [not null, default: `NOW()`]
+  updated_at timestamptz [not null, default: `NOW()`]
+  
+  Note: '產品分類主表 - 支援階層式分類架構'
+}
+
+Table products {
+  id varchar(50) [pk, default: `'prod_' || generate_random_uuid()::TEXT`]
+  name varchar(200) [not null]
+  description text
+  price decimal(10,2) [not null, note: '必須 >= 0']
+  category_id varchar(50) [not null, ref: > categories.id]
+  image_url varchar(500)
+  sku varchar(100) [unique]
+  stock_quantity integer [not null, default: 0, note: '必須 >= 0']
+  is_active boolean [not null, default: true]
+  created_at timestamptz [not null, default: `NOW()`]
+  updated_at timestamptz [not null, default: `NOW()`]
+  
+  Note: '產品主表 - 支援庫存管理與價格控制'
+}
+
+// ==================================================
+// 使用者管理與身份驗證
+// ==================================================
+
+Table users {
+  id varchar(50) [pk, default: `'user_' || generate_random_uuid()::TEXT`]
+  email varchar(255) [not null, unique]
+  password_hash varchar(255) [note: 'bcrypt 雜湊，OAuth 專用帳戶可為空']
+  username varchar(50) [unique, note: '選用顯示名稱']
+  first_name varchar(100)
+  last_name varchar(100)
+  phone varchar(50)
+  is_active boolean [not null, default: true]
+  is_email_verified boolean [not null, default: false]
+  last_login_at timestamptz
+  created_at timestamptz [not null, default: `NOW()`]
+  updated_at timestamptz [not null, default: `NOW()`]
+  
+  Note: '使用者主表 - 支援多種驗證方式與帳戶狀態管理'
+}
+
+Table user_oauth_providers {
+  id bigserial [pk]
+  user_id varchar(50) [not null, ref: > users.id]
+  provider varchar(50) [not null, note: 'google, github 等']
+  provider_user_id varchar(255) [not null]
+  provider_username varchar(100)
+  access_token_hash varchar(255) [note: '加密儲存']
+  refresh_token_hash varchar(255) [note: '加密儲存']
+  expires_at timestamptz
+  created_at timestamptz [not null, default: `NOW()`]
+  updated_at timestamptz [not null, default: `NOW()`]
+  
+  indexes {
+    (user_id, provider) [unique]
+    (provider, provider_user_id) [unique]
+  }
+  
+  Note: 'OAuth 提供者整合 - 支援多平台社交登入'
+}
+
+// ==================================================
+// 購物車系統
+// ==================================================
+
+Table carts {
+  id varchar(50) [pk, default: `'cart_' || generate_random_uuid()::TEXT`]
+  user_id varchar(50) [unique, ref: > users.id, note: '每位使用者一個購物車']
+  session_id varchar(255) [unique, note: '訪客購物車支援']
+  created_at timestamptz [not null, default: `NOW()`]
+  updated_at timestamptz [not null, default: `NOW()`]
+  
+  Note: '購物車主表 - 支援會員與訪客購物車，強制單一擁有者邏輯'
+}
+
+Table cart_items {
+  id bigserial [pk]
+  cart_id varchar(50) [not null, ref: > carts.id]
+  product_id varchar(50) [not null, ref: > products.id]
+  quantity integer [not null, note: '必須 > 0']
+  unit_price decimal(10,2) [not null, note: '價格快照磺保一致性']
+  created_at timestamptz [not null, default: `NOW()`]
+  updated_at timestamptz [not null, default: `NOW()`]
+  
+  indexes {
+    (cart_id, product_id) [unique]
+  }
+  
+  Note: '購物車項目 - 價格快照機制確保結帳一致性'
+}
+
+// ==================================================
+// 訂單管理系統
+// ==================================================
+
+Table orders {
+  id varchar(50) [pk, default: `'order_' || generate_random_uuid()::TEXT`]
+  user_id varchar(50) [not null, ref: > users.id]
+  status varchar(50) [not null, default: 'pending', note: 'pending, processing, paid, cancelled, refunded']
+  total_amount decimal(10,2) [not null, note: '必須 >= 0']
+  currency varchar(3) [not null, default: 'USD']
+  stripe_session_id varchar(255) [unique]
+  stripe_payment_intent_id varchar(255) [unique]
+  billing_email varchar(255)
+  created_at timestamptz [not null, default: `NOW()`]
+  updated_at timestamptz [not null, default: `NOW()`]
+  
+  Note: '訂單主表 - 整合 Stripe 支付流程與狀態管理'
+}
+
+Table order_items {
+  id bigserial [pk]
+  order_id varchar(50) [not null, ref: > orders.id]
+  product_id varchar(50) [not null, ref: > products.id]
+  product_name varchar(200) [not null, note: '產品名稱快照']
+  quantity integer [not null, note: '必須 > 0']
+  unit_price decimal(10,2) [not null, note: '必須 >= 0']
+  total_price decimal(10,2) [note: '計算欄位: quantity * unit_price']
+  created_at timestamptz [not null, default: `NOW()`]
+  
+  Note: '訂單項目 - 完整的產品與價格快照保證訂單一致性'
+}
+
+// ==================================================
+// OAuth 2.0 客戶端管理
+// ==================================================
+
+Table oauth_clients {
+  id varchar(50) [pk]
+  client_secret_hash varchar(255) [not null]
+  name varchar(100) [not null]
+  description text
+  grant_types varchar(200) [not null, default: 'client_credentials']
+  scopes text [note: 'JSON 陣列或逗號分隔的範圍']
+  is_active boolean [not null, default: true]
+  created_at timestamptz [not null, default: `NOW()`]
+  updated_at timestamptz [not null, default: `NOW()`]
+  
+  Note: 'OAuth 2.0 客戶端管理 - 支援 Client Credentials Grant 流程'
+}
+
+// ==================================================
+// 資料庫約束與業務規則
+// ==================================================
+
+// 電子郵件格式驗證
+TableGroup user_validation {
+  users
+  Note: '電子郵件格式: ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'
+}
+
+// 使用者名稱格式驗證
+TableGroup username_validation {
+  users
+  Note: '使用者名稱格式: 長度 >= 3, 模式 ^[a-zA-Z0-9_]{3,}$'
+}
+
+// 購物車擁有權驗證
+TableGroup cart_ownership {
+  carts
+  Note: '業務規則: user_id XOR session_id (必須設定其中一個)'
+}
+
+// 訂單狀態驗證  
+TableGroup order_status {
+  orders
+  Note: '有效狀態: pending, processing, paid, cancelled, refunded'
+}

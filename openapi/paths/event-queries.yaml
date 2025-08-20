@@ -1,0 +1,268 @@
+# 事件查詢和管理相關端點
+
+# 事件列表查詢 (符合 AIP-132 標準方法)
+events_collection:
+  get:
+    tags:
+      - Events
+      - Admin
+    summary: 列出系統事件
+    description: |
+      查詢系統事件日誌，支援篩選和分頁。
+      符合 Google AIP-132 標準列表方法設計。
+      
+      ## 支援的事件類型
+      - `product.*`: 產品相關事件
+      - `order.*`: 訂單相關事件
+      - `user.*`: 使用者相關事件
+      - `system.*`: 系統相關事件
+      
+    operationId: listEvents
+    security:
+      - BearerAuth: ['read', 'admin']
+    parameters:
+      - name: page_size
+        in: query
+        description: 每頁結果數量
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 50
+      - name: page_token
+        in: query
+        description: 分頁令牌
+        schema:
+          type: string
+      - name: filter
+        in: query
+        description: |
+          事件篩選條件 (符合 AIP-160 語法)
+          
+          ## 篩選範例
+          - `event_type:"product.created"`
+          - `timestamp>"2025-08-19T00:00:00Z"`
+          - `actor:"user_admin123"`
+          - `resource_name:"products/prod_123"`
+          
+        schema:
+          type: string
+        examples:
+          product_events:
+            summary: 產品相關事件
+            value: 'event_type:"product.*"'
+          recent_events:
+            summary: 最近 24 小時事件
+            value: 'timestamp>"2025-08-19T00:00:00Z"'
+          user_actions:
+            summary: 特定使用者操作
+            value: 'actor:"user_admin123"'
+      - name: order_by
+        in: query
+        description: 排序方式
+        schema:
+          type: string
+          default: "timestamp desc"
+          enum: ["timestamp asc", "timestamp desc", "event_type asc"]
+    responses:
+      '200':
+        description: 成功返回事件列表
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [events, total_size]
+              properties:
+                events:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/events.yaml#/SystemEvent'
+                next_page_token:
+                  type: string
+                  nullable: true
+                total_size:
+                  type: integer
+                  minimum: 0
+        headers:
+          Cache-Control:
+            description: 快取控制
+            schema:
+              type: string
+              example: "private, max-age=60"
+      '400':
+        $ref: '../components/responses/errors.yaml#/BadRequest'
+      '401':
+        $ref: '../components/responses/errors.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses/errors.yaml#/Forbidden'
+
+# 單一事件查詢
+events_item:
+  get:
+    tags:
+      - Events
+      - Admin
+    summary: 取得特定事件詳情
+    description: 根據事件 ID 獲取詳細事件資訊
+    operationId: getEvent
+    security:
+      - BearerAuth: ['read', 'admin']
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: 事件 ID
+        schema:
+          type: string
+          pattern: '^evt_[a-zA-Z0-9]+$'
+          example: "evt_123abc"
+    responses:
+      '200':
+        description: 成功返回事件詳情
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/events.yaml#/SystemEvent'
+      '404':
+        $ref: '../components/responses/errors.yaml#/NotFound'
+      '401':
+        $ref: '../components/responses/errors.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses/errors.yaml#/Forbidden'
+
+# Webhook 訂閱管理
+webhook_subscriptions_collection:
+  get:
+    tags:
+      - Events
+      - Webhooks
+    summary: 列出我的事件訂閱
+    description: 獲取當前使用者的所有事件訂閱配置
+    operationId: listWebhookSubscriptions
+    security:
+      - BearerAuth: ['read']
+    responses:
+      '200':
+        description: 成功返回訂閱列表
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                subscriptions:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/events.yaml#/WebhookSubscription'
+                total_size:
+                  type: integer
+  
+  post:
+    tags:
+      - Events
+      - Webhooks
+    summary: 創建事件訂閱
+    description: |
+      創建新的 Webhook 事件訂閱。
+      
+      ## 支援的事件類型
+      - `product.created`, `product.updated`, `product.deleted`
+      - `order.created`, `order.updated`, `order.completed`
+      - `user.registered`, `user.updated`
+      
+    operationId: createWebhookSubscription
+    security:
+      - BearerAuth: ['write']
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/events.yaml#/CreateSubscriptionRequest'
+    responses:
+      '201':
+        description: 訂閱創建成功
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/events.yaml#/WebhookSubscription'
+        headers:
+          Location:
+            description: 新創建訂閱的 URL
+            schema:
+              type: string
+              format: uri
+      '400':
+        $ref: '../components/responses/errors.yaml#/ValidationError'
+
+# 單一訂閱管理
+webhook_subscriptions_item:
+  get:
+    tags:
+      - Events
+      - Webhooks
+    summary: 取得訂閱詳情
+    operationId: getWebhookSubscription
+    security:
+      - BearerAuth: ['read']
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: '^sub_[a-zA-Z0-9]+$'
+    responses:
+      '200':
+        description: 訂閱詳情
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/events.yaml#/WebhookSubscription'
+  
+  patch:
+    tags:
+      - Events
+      - Webhooks
+    summary: 更新事件訂閱
+    operationId: updateWebhookSubscription
+    security:
+      - BearerAuth: ['write']
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: '^sub_[a-zA-Z0-9]+$'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/events.yaml#/UpdateSubscriptionRequest'
+    responses:
+      '200':
+        description: 訂閱更新成功
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/events.yaml#/WebhookSubscription'
+  
+  delete:
+    tags:
+      - Events
+      - Webhooks
+    summary: 刪除事件訂閱
+    operationId: deleteWebhookSubscription
+    security:
+      - BearerAuth: ['write']
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: '^sub_[a-zA-Z0-9]+$'
+    responses:
+      '204':
+        description: 訂閱刪除成功

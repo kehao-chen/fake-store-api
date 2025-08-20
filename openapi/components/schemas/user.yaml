@@ -1,0 +1,213 @@
+# 使用者相關資料模型定義
+User:
+  type: object
+  required:
+    - id
+    - email
+  properties:
+    id:
+      type: string
+      pattern: '^user_[a-zA-Z0-9]+$'
+      description: 使用者唯一識別碼
+      example: "user_123abc"
+      
+    email:
+      type: string
+      format: email
+      description: 使用者電子信箱
+      example: "user@example.com"
+      
+    first_name:
+      type: string
+      nullable: true
+      maxLength: 50
+      description: 名字
+      example: "John"
+      
+    last_name:
+      type: string
+      nullable: true
+      maxLength: 50
+      description: 姓氏
+      example: "Doe"
+      
+    display_name:
+      type: string
+      nullable: true
+      maxLength: 100
+      description: 顯示名稱
+      example: "John D."
+      
+    avatar_url:
+      type: string
+      format: uri
+      nullable: true
+      description: 使用者頭像 URL
+      example: "https://gravatar.com/avatar/abc123"
+      
+    phone:
+      type: string
+      nullable: true
+      pattern: '^\+?[1-9]\d{1,14}$'
+      description: 電話號碼 (E.164 格式)
+      example: "+1-555-0123"
+      
+    address:
+      $ref: '#/Address'
+      nullable: true
+      description: 使用者地址
+      
+    email_verified:
+      type: boolean
+      description: 電子信箱是否已驗證
+      readOnly: true
+      example: true
+      
+    is_active:
+      type: boolean
+      description: 使用者帳號是否啟用
+      readOnly: true
+      example: true
+      
+    last_login_at:
+      type: string
+      format: date-time
+      nullable: true
+      description: 最後登入時間
+      readOnly: true
+      example: "2025-08-19T15:30:00Z"
+      
+    created_at:
+      type: string
+      format: date-time
+      description: 帳號建立時間
+      readOnly: true
+      example: "2025-08-15T10:00:00Z"
+      
+    updated_at:
+      type: string
+      format: date-time
+      description: 資料更新時間
+      readOnly: true
+      example: "2025-08-19T14:20:00Z"
+      
+  example:
+    id: "user_123abc"
+    email: "user@example.com"
+    first_name: "John"
+    last_name: "Doe"
+    display_name: "John D."
+    avatar_url: "https://gravatar.com/avatar/abc123"
+    phone: "+1-555-0123"
+    address:
+      line1: "123 Main St"
+      city: "San Francisco"
+      state: "CA"
+      postal_code: "94105"
+      country: "US"
+    email_verified: true
+    is_active: true
+    last_login_at: "2025-08-19T15:30:00Z"
+    created_at: "2025-08-15T10:00:00Z"
+    updated_at: "2025-08-19T14:20:00Z"
+
+Address:
+  type: object
+  properties:
+    line1:
+      type: string
+      maxLength: 200
+      description: 地址第一行
+      example: "123 Main St"
+      
+    line2:
+      type: string
+      nullable: true
+      maxLength: 200
+      description: 地址第二行
+      example: "Apt 4B"
+      
+    city:
+      type: string
+      maxLength: 100
+      description: 城市
+      example: "San Francisco"
+      
+    state:
+      type: string
+      nullable: true
+      maxLength: 100
+      description: 州/省
+      example: "CA"
+      
+    postal_code:
+      type: string
+      maxLength: 20
+      description: 郵政編碼
+      example: "94105"
+      
+    country:
+      type: string
+      minLength: 2
+      maxLength: 2
+      pattern: '^[A-Z]{2}$'
+      description: 國家代碼 (ISO 3166-1 alpha-2)
+      example: "US"
+      
+  example:
+    line1: "123 Main St"
+    line2: "Apt 4B"
+    city: "San Francisco"
+    state: "CA"
+    postal_code: "94105"
+    country: "US"
+
+UpdateUserRequest:
+  type: object
+  properties:
+    first_name:
+      type: string
+      nullable: true
+      maxLength: 50
+      description: 名字
+      
+    last_name:
+      type: string
+      nullable: true
+      maxLength: 50
+      description: 姓氏
+      
+    display_name:
+      type: string
+      nullable: true
+      maxLength: 100
+      description: 顯示名稱
+      
+    avatar_url:
+      type: string
+      format: uri
+      nullable: true
+      description: 使用者頭像 URL
+      
+    phone:
+      type: string
+      nullable: true
+      pattern: '^\+?[1-9]\d{1,14}$'
+      description: 電話號碼 (E.164 格式)
+      
+    address:
+      $ref: '#/Address'
+      nullable: true
+      description: 使用者地址
+      
+  example:
+    first_name: "John"
+    last_name: "Doe"
+    display_name: "John D."
+    phone: "+1-555-0123"
+    address:
+      line1: "456 New St"
+      city: "Oakland"
+      state: "CA"
+      postal_code: "94601"
+      country: "US"

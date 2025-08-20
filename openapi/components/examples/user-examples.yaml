@@ -1,0 +1,48 @@
+# 使用者範例資料
+UserExample:
+  summary: 一般使用者範例
+  value:
+    id: "usr_1234567890"
+    email: "john.doe@example.com"
+    username: "johndoe"
+    firstName: "John"
+    lastName: "Doe"
+    phone: "+886912345678"
+    avatar: "https://api.fakestore.happyhacking.ninja/avatars/johndoe.jpg"
+    role: "customer"
+    emailVerified: true
+    createdAt: "2025-01-15T08:30:00Z"
+    updatedAt: "2025-01-20T10:15:00Z"
+
+AdminUserExample:
+  summary: 管理員使用者範例
+  value:
+    id: "usr_admin_001"
+    email: "admin@fakestore.happyhacking.ninja"
+    username: "admin"
+    firstName: "System"
+    lastName: "Admin"
+    phone: "+886900000000"
+    avatar: "https://api.fakestore.happyhacking.ninja/avatars/admin.jpg"
+    role: "admin"
+    emailVerified: true
+    createdAt: "2025-01-01T00:00:00Z"
+    updatedAt: "2025-01-20T12:00:00Z"
+
+UserRegistrationExample:
+  summary: 使用者註冊請求範例
+  value:
+    email: "newuser@example.com"
+    password: "SecureP@ssw0rd123"
+    username: "newuser"
+    firstName: "New"
+    lastName: "User"
+    phone: "+886987654321"
+
+UserUpdateExample:
+  summary: 使用者資料更新範例
+  value:
+    firstName: "Updated"
+    lastName: "Name"
+    phone: "+886911111111"
+    avatar: "https://api.fakestore.happyhacking.ninja/avatars/updated.jpg"

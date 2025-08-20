@@ -1,0 +1,209 @@
+# 購物車相關資料模型定義
+Cart:
+  type: object
+  required:
+    - id
+    - user_id
+    - items
+    - total_amount
+    - item_count
+  properties:
+    id:
+      type: string
+      pattern: '^cart_[a-zA-Z0-9]+$'
+      description: 購物車唯一識別碼
+      example: "cart_user123"
+      
+    user_id:
+      type: string
+      pattern: '^user_[a-zA-Z0-9]+$'
+      description: 使用者 ID
+      example: "user_123abc"
+      
+    items:
+      type: array
+      items:
+        $ref: '#/CartItem'
+      description: 購物車產品列表
+      
+    item_count:
+      type: integer
+      minimum: 0
+      description: 購物車產品總數量
+      example: 5
+      
+    total_amount:
+      type: number
+      format: decimal
+      minimum: 0
+      multipleOf: 0.01
+      description: 購物車總金額 (USD)
+      example: 299.97
+      
+    currency:
+      type: string
+      enum: ["USD"]
+      description: 貨幣代碼
+      default: "USD"
+      example: "USD"
+      
+    created_at:
+      type: string
+      format: date-time
+      description: 購物車建立時間
+      readOnly: true
+      example: "2025-08-19T10:00:00Z"
+      
+    updated_at:
+      type: string
+      format: date-time
+      description: 最後更新時間
+      readOnly: true
+      example: "2025-08-19T15:30:00Z"
+      
+  example:
+    id: "cart_user123"
+    user_id: "user_123abc"
+    items:
+      - product_id: "prod_1a2b3c"
+        product_name: "高效能無線滑鼠"
+        product_price: 79.99
+        product_image_url: "https://fakestore.happyhacking.ninja/images/mouse.jpg"
+        quantity: 2
+        subtotal: 159.98
+      - product_id: "prod_4d5e6f"
+        product_name: "機械鍵盤"
+        product_price: 139.99
+        product_image_url: "https://fakestore.happyhacking.ninja/images/keyboard.jpg"
+        quantity: 1
+        subtotal: 139.99
+    item_count: 3
+    total_amount: 299.97
+    currency: "USD"
+    created_at: "2025-08-19T10:00:00Z"
+    updated_at: "2025-08-19T15:30:00Z"
+
+CartItem:
+  type: object
+  required:
+    - product_id
+    - product_name
+    - product_price
+    - quantity
+    - subtotal
+  properties:
+    product_id:
+      type: string
+      pattern: '^prod_[a-zA-Z0-9]+$'
+      description: 產品 ID
+      example: "prod_1a2b3c"
+      
+    product_name:
+      type: string
+      description: 產品名稱 (快照)
+      example: "高效能無線滑鼠"
+      
+    product_price:
+      type: number
+      format: decimal
+      minimum: 0
+      multipleOf: 0.01
+      description: 產品單價 (快照)
+      example: 79.99
+      
+    product_image_url:
+      type: string
+      format: uri
+      nullable: true
+      description: 產品圖片 URL (快照)
+      example: "https://fakestore.happyhacking.ninja/images/mouse.jpg"
+      
+    quantity:
+      type: integer
+      minimum: 1
+      description: 產品數量
+      example: 2
+      
+    subtotal:
+      type: number
+      format: decimal
+      minimum: 0
+      multipleOf: 0.01
+      description: 小計金額 (price × quantity)
+      example: 159.98
+      
+    added_at:
+      type: string
+      format: date-time
+      description: 加入購物車時間
+      readOnly: true
+      example: "2025-08-19T14:30:00Z"
+      
+  example:
+    product_id: "prod_1a2b3c"
+    product_name: "高效能無線滑鼠"
+    product_price: 79.99
+    product_image_url: "https://fakestore.happyhacking.ninja/images/mouse.jpg"
+    quantity: 2
+    subtotal: 159.98
+    added_at: "2025-08-19T14:30:00Z"
+
+AddProductRequest:
+  type: object
+  required:
+    - product_id
+    - quantity
+  properties:
+    product_id:
+      type: string
+      pattern: '^prod_[a-zA-Z0-9]+$'
+      description: 要加入的產品 ID
+      example: "prod_1a2b3c"
+      
+    quantity:
+      type: integer
+      minimum: 1
+      maximum: 99
+      description: 產品數量
+      example: 2
+      
+  example:
+    product_id: "prod_1a2b3c"
+    quantity: 2
+
+UpdateProductRequest:
+  type: object
+  required:
+    - product_id
+    - quantity
+  properties:
+    product_id:
+      type: string
+      pattern: '^prod_[a-zA-Z0-9]+$'
+      description: 要更新的產品 ID
+      example: "prod_1a2b3c"
+      
+    quantity:
+      type: integer
+      minimum: 1
+      maximum: 99
+      description: 新的產品數量
+      example: 5
+      
+  example:
+    product_id: "prod_1a2b3c"
+    quantity: 5
+
+RemoveProductRequest:
+  type: object
+  required:
+    - product_id
+  properties:
+    product_id:
+      type: string
+      pattern: '^prod_[a-zA-Z0-9]+$'
+      description: 要移除的產品 ID
+      example: "prod_1a2b3c"
+      
+  example:
+    product_id: "prod_1a2b3c"

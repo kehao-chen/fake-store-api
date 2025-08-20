@@ -1,0 +1,83 @@
+# 認證範例資料
+LoginRequestExample:
+  summary: 登入請求範例
+  value:
+    email: "john.doe@example.com"
+    password: "SecureP@ssw0rd123"
+
+LoginResponseExample:
+  summary: 登入成功回應範例
+  value:
+    accessToken: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c3JfMTIzNDU2Nzg5MCIsImVtYWlsIjoiam9obi5kb2VAZXhhbXBsZS5jb20iLCJyb2xlIjoiY3VzdG9tZXIiLCJpYXQiOjE3MDU3MzQwMDAsImV4cCI6MTcwNTczNzYwMH0.signature"
+    refreshToken: "refresh_token_1234567890abcdef"
+    tokenType: "Bearer"
+    expiresIn: 3600
+    user:
+      id: "usr_1234567890"
+      email: "john.doe@example.com"
+      username: "johndoe"
+      firstName: "John"
+      lastName: "Doe"
+      role: "customer"
+
+RefreshTokenExample:
+  summary: Token 更新請求範例
+  value:
+    refreshToken: "refresh_token_1234567890abcdef"
+
+OAuth2AuthorizeExample:
+  summary: OAuth2 授權請求範例
+  value:
+    clientId: "fake-store-web-app"
+    redirectUri: "https://app.fakestore.happyhacking.ninja/auth/callback"
+    responseType: "code"
+    scope: "read write"
+    state: "random_state_string_12345"
+    codeChallenge: "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM"
+    codeChallengeMethod: "S256"
+
+OAuth2TokenExample:
+  summary: OAuth2 Token 交換請求範例
+  value:
+    grantType: "authorization_code"
+    code: "auth_code_1234567890"
+    redirectUri: "https://app.fakestore.happyhacking.ninja/auth/callback"
+    clientId: "fake-store-web-app"
+    clientSecret: "client_secret_abcdef123456"
+    codeVerifier: "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"
+
+RegisterRequestExample:
+  summary: 註冊請求範例
+  value:
+    email: "newuser@example.com"
+    password: "SecureP@ssw0rd123"
+    confirmPassword: "SecureP@ssw0rd123"
+    username: "newuser"
+    firstName: "New"
+    lastName: "User"
+    phone: "+886987654321"
+    acceptTerms: true
+
+PasswordResetRequestExample:
+  summary: 密碼重設請求範例
+  value:
+    email: "john.doe@example.com"
+
+PasswordResetConfirmExample:
+  summary: 密碼重設確認範例
+  value:
+    token: "reset_token_1234567890"
+    newPassword: "NewSecureP@ssw0rd456"
+    confirmPassword: "NewSecureP@ssw0rd456"
+
+UnauthorizedExample:
+  summary: 未授權錯誤範例
+  value:
+    error:
+      code: "UNAUTHORIZED"
+      message: "Authentication required"
+      details:
+        - field: "Authorization"
+          message: "Missing or invalid authentication token"
+      timestamp: "2025-01-20T10:30:00Z"
+      path: "/v1/users/me"

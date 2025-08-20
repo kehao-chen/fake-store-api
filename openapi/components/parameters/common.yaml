@@ -1,0 +1,96 @@
+# 通用參數定義
+PageSize:
+  name: page_size
+  in: query
+  description: 每頁結果數量
+  required: false
+  schema:
+    type: integer
+    minimum: 1
+    maximum: 100
+    default: 20
+  example: 20
+
+PageToken:
+  name: page_token
+  in: query
+  description: 分頁令牌
+  required: false
+  schema:
+    type: string
+  example: "eyJvZmZzZXQiOjIwfQ"
+
+Filter:
+  name: filter
+  in: query
+  description: |
+    篩選條件，使用結構化查詢語法 (符合 AIP-160 標準)
+    
+    ## 支援的操作符
+    - `=` 或 `:` - 相等比較
+    - `!=` 或 `<>` - 不相等比較
+    - `>` - 大於
+    - `>=` - 大於或等於
+    - `<` - 小於
+    - `<=` - 小於或等於
+    - `AND` - 邏輯 AND
+    - `OR` - 邏輯 OR
+    - `NOT` - 邏輯 NOT
+    
+    ## 範例
+    - `category:"electronics"` - 分類為 electronics
+    - `price>50 AND price<100` - 價格在 50-100 之間
+    - `name:"mouse" OR description:"wireless"` - 名稱包含 mouse 或描述包含 wireless
+    
+  required: false
+  schema:
+    type: string
+  examples:
+    category_filter:
+      summary: 按分類篩選
+      value: 'category:"electronics"'
+    price_range:
+      summary: 價格範圍篩選
+      value: 'price>50 AND price<100'
+    text_search:
+      summary: 文字搜尋
+      value: 'name:"mouse" OR description:"wireless"'
+    complex_filter:
+      summary: 複合條件
+      value: 'category:"electronics" AND price>20 AND is_active=true'
+
+OrderBy:
+  name: order_by
+  in: query
+  description: |
+    排序欄位和方向
+    
+    ## 格式
+    `field_name [asc|desc]`
+    
+    ## 支援的欄位
+    - `name` - 名稱
+    - `price` - 價格
+    - `created_at` - 建立時間
+    - `updated_at` - 更新時間
+    
+    ## 預設排序
+    大多數端點預設為 `created_at desc` (最新的在前面)
+    
+  required: false
+  schema:
+    type: string
+    default: "created_at desc"
+  examples:
+    name_asc:
+      summary: 名稱升序
+      value: "name asc"
+    price_desc:
+      summary: 價格降序
+      value: "price desc"
+    newest_first:
+      summary: 最新的在前面
+      value: "created_at desc"
+    oldest_first:
+      summary: 最舊的在前面
+      value: "created_at asc"

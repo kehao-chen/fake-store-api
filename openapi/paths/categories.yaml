@@ -1,0 +1,238 @@
+# 分類相關 API 端點定義
+categories_collection:
+  get:
+    tags:
+      - Categories
+    summary: 列出產品分類
+    description: |
+      獲取所有產品分類列表。
+      
+      ## 特色功能
+      - 支援階層分類結構
+      - 包含產品計數資訊
+      - 支援排序與篩選
+      
+    operationId: listCategories
+    parameters:
+      - name: include_inactive
+        in: query
+        description: 是否包含停用的分類
+        schema:
+          type: boolean
+          default: false
+      - name: order_by
+        in: query
+        description: 排序欄位和方向
+        schema:
+          type: string
+          default: "name asc"
+          enum: ["name asc", "name desc", "created_at asc", "created_at desc"]
+    responses:
+      '200':
+        description: 成功返回分類列表
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/category.yaml#/CategoryList'
+        headers:
+          Cache-Control:
+            description: 快取控制
+            schema:
+              type: string
+              example: "public, max-age=600"
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalError'
+  
+  post:
+    tags:
+      - Categories
+      - Admin
+    summary: 建立分類
+    description: 建立新的產品分類，需要管理員權限
+    operationId: createCategory
+    security:
+      - BearerAuth: ['write', 'admin']
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/category.yaml#/CreateCategoryRequest'
+          examples:
+            basic_category:
+              summary: 基本分類建立
+              value:
+                name: "Electronics"
+                description: "Electronic devices and accessories"
+                parent_id: null
+    responses:
+      '201':
+        description: 分類建立成功
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/category.yaml#/Category'
+        headers:
+          Location:
+            description: 新建立分類的 URL
+            schema:
+              type: string
+              format: uri
+      '400':
+        $ref: '../components/responses/errors.yaml#/ValidationError'
+      '401':
+        $ref: '../components/responses/errors.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses/errors.yaml#/Forbidden'
+
+categories_item:
+  get:
+    tags:
+      - Categories
+    summary: 取得分類詳情
+    description: 根據分類 ID 獲取詳細分類資訊
+    operationId: getCategory
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: 分類 ID
+        schema:
+          type: string
+          pattern: '^cat_[a-zA-Z0-9]+$'
+          example: "cat_electronics"
+    responses:
+      '200':
+        description: 成功返回分類詳情
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/category.yaml#/Category'
+      '404':
+        $ref: '../components/responses/errors.yaml#/NotFound'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalError'
+  
+  patch:
+    tags:
+      - Categories
+      - Admin
+    summary: 更新分類
+    description: 部分更新分類資訊，需要管理員權限
+    operationId: updateCategory
+    security:
+      - BearerAuth: ['write', 'admin']
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: 分類 ID
+        schema:
+          type: string
+          pattern: '^cat_[a-zA-Z0-9]+$'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/category.yaml#/UpdateCategoryRequest'
+    responses:
+      '200':
+        description: 分類更新成功
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/category.yaml#/Category'
+      '400':
+        $ref: '../components/responses/errors.yaml#/ValidationError'
+      '401':
+        $ref: '../components/responses/errors.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses/errors.yaml#/Forbidden'
+      '404':
+        $ref: '../components/responses/errors.yaml#/NotFound'
+  
+  delete:
+    tags:
+      - Categories
+      - Admin
+    summary: 刪除分類
+    description: 刪除指定分類，需要管理員權限
+    operationId: deleteCategory
+    security:
+      - BearerAuth: ['write', 'admin']
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: 分類 ID
+        schema:
+          type: string
+          pattern: '^cat_[a-zA-Z0-9]+$'
+    responses:
+      '204':
+        description: 分類刪除成功
+      '400':
+        $ref: '../components/responses/errors.yaml#/BadRequest'
+      '401':
+        $ref: '../components/responses/errors.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses/errors.yaml#/Forbidden'
+      '404':
+        $ref: '../components/responses/errors.yaml#/NotFound'
+
+categories_list_products:
+  post:
+    tags:
+      - Categories
+    summary: 列出分類下的產品
+    description: |
+      獲取指定分類下的所有產品。使用 POST 方法支援複雜查詢。
+      
+      ## 查詢功能
+      - 支援子分類包含
+      - 支援產品篩選
+      - 支援排序與分頁
+      
+    operationId: listCategoryProducts
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: 分類 ID
+        schema:
+          type: string
+          pattern: '^cat_[a-zA-Z0-9]+$'
+          example: "cat_electronics"
+    requestBody:
+      required: false
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/category.yaml#/CategoryProductsRequest'
+          examples:
+            basic_query:
+              summary: 基本查詢
+              value:
+                page_size: 20
+                include_subcategories: true
+            filtered_query:
+              summary: 篩選查詢
+              value:
+                page_size: 10
+                include_subcategories: false
+                filter: "price>50 AND price<200"
+                order_by: "price desc"
+    responses:
+      '200':
+        description: 成功返回分類產品列表
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/product.yaml#/ProductList'
+      '400':
+        $ref: '../components/responses/errors.yaml#/BadRequest'
+      '404':
+        $ref: '../components/responses/errors.yaml#/NotFound'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalError'

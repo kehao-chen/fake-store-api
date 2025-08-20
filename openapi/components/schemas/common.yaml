@@ -1,0 +1,231 @@
+# 通用資料模型定義
+
+# 審計和版本控制基礎模型
+AuditableEntity:
+  type: object
+  properties:
+    version:
+      type: integer
+      minimum: 0
+      description: 樂觀鎖版本控制，防止併發衝突
+      example: 1
+      
+    created_by:
+      type: string
+      pattern: '^user_[a-zA-Z0-9]+$'
+      nullable: true
+      description: 建立者 ID
+      example: "user_admin123"
+      
+    updated_by:
+      type: string
+      pattern: '^user_[a-zA-Z0-9]+$'
+      nullable: true
+      description: 最後更新者 ID
+      example: "user_admin456"
+      
+    deleted_at:
+      type: string
+      format: date-time
+      nullable: true
+      description: 軟刪除時間戳，null 表示未刪除
+      example: null
+      
+    deleted_by:
+      type: string
+      pattern: '^user_[a-zA-Z0-9]+$'
+      nullable: true
+      description: 軟刪除操作者 ID
+      example: null
+
+# 軟刪除操作請求
+SoftDeleteRequest:
+  type: object
+  properties:
+    reason:
+      type: string
+      maxLength: 500
+      nullable: true
+      description: 刪除原因說明
+      example: "產品已停產"
+    permanent:
+      type: boolean
+      default: false
+      description: 是否為永久刪除（需要額外權限）
+
+# 軟刪除回應
+SoftDeleteResponse:
+  type: object
+  required: [deleted, deleted_at]
+  properties:
+    deleted:
+      type: boolean
+      description: 是否成功刪除
+      example: true
+    deleted_at:
+      type: string
+      format: date-time
+      description: 刪除時間
+      example: "2025-08-20T15:30:00Z"
+    can_restore:
+      type: boolean
+      description: 是否可以恢復
+      example: true
+    permanent:
+      type: boolean
+      description: 是否為永久刪除
+      example: false
+
+# 統一錯誤格式
+Error:
+  type: object
+  required:
+    - error
+  properties:
+    error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: 錯誤代碼 (符合 Google AIP-193 標準)
+          enum:
+            # 4xx Client Errors
+            - "INVALID_ARGUMENT"
+            - "UNAUTHENTICATED" 
+            - "PERMISSION_DENIED"
+            - "NOT_FOUND"
+            - "ALREADY_EXISTS"
+            - "RESOURCE_EXHAUSTED"
+            - "FAILED_PRECONDITION"
+            - "OUT_OF_RANGE"
+            # 5xx Server Errors
+            - "INTERNAL"
+            - "NOT_IMPLEMENTED"
+            - "UNAVAILABLE"
+            - "DEADLINE_EXCEEDED"
+            # Custom Business Errors
+            - "RATE_LIMIT_EXCEEDED"
+            - "PAYMENT_REQUIRED"
+            - "WEBHOOK_SIGNATURE_INVALID"
+          example: "INVALID_ARGUMENT"
+          
+        message:
+          type: string
+          description: 人類可讀的錯誤訊息
+          example: "The request contains invalid parameters."
+          
+        details:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+          description: 詳細錯誤資訊
+          example:
+            - "@type": "type.googleapis.com/google.rpc.BadRequest"
+              field_violations:
+                - field: "product.price"
+                  description: "Price must be greater than 0"
+                - field: "user.email"
+                  description: "Invalid email format"
+    
+    request_id:
+      type: string
+      description: 請求追蹤 ID
+      example: "req_abc123def456"
+      
+    timestamp:
+      type: string
+      format: date-time
+      description: 錯誤發生時間
+      example: "2025-08-19T15:30:00Z"
+      
+  example:
+    error:
+      code: "INVALID_ARGUMENT"
+      message: "The request contains invalid parameters."
+      details:
+        - "@type": "type.googleapis.com/google.rpc.BadRequest"
+          field_violations:
+            - field: "product.price"
+              description: "Price must be greater than 0"
+            - field: "user.email"
+              description: "Invalid email format"
+    request_id: "req_abc123def456"
+    timestamp: "2025-08-19T15:30:00Z"
+
+Pagination:
+  type: object
+  properties:
+    page_size:
+      type: integer
+      minimum: 1
+      maximum: 100
+      description: 每頁結果數量
+      example: 20
+      
+    page_token:
+      type: string
+      nullable: true
+      description: 分頁令牌
+      example: "eyJvZmZzZXQiOjIwfQ"
+      
+    next_page_token:
+      type: string
+      nullable: true
+      description: 下一頁分頁令牌
+      example: "eyJvZmZzZXQiOjQwfQ"
+      
+    total_size:
+      type: integer
+      minimum: 0
+      description: 符合條件的總結果數
+      example: 150
+      
+  example:
+    page_size: 20
+    page_token: "eyJvZmZzZXQiOjIwfQ"
+    next_page_token: "eyJvZmZzZXQiOjQwfQ"
+    total_size: 150
+
+ValidationError:
+  allOf:
+    - $ref: '#/Error'
+    - type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              enum: ["INVALID_ARGUMENT"]
+              example: "INVALID_ARGUMENT"
+            message:
+              type: string
+              example: "Request validation failed."
+
+MetaInfo:
+  type: object
+  properties:
+    api_version:
+      type: string
+      description: API 版本
+      example: "1.0.0"
+      
+    server_time:
+      type: string
+      format: date-time
+      description: 伺服器時間
+      example: "2025-08-19T15:30:00Z"
+      
+    request_id:
+      type: string
+      description: 請求 ID
+      example: "req_abc123def456"
+      
+  example:
+    api_version: "1.0.0"
+    server_time: "2025-08-19T15:30:00Z"
+    request_id: "req_abc123def456"

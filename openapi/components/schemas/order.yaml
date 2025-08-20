@@ -1,0 +1,288 @@
+# 訂單和結帳相關資料模型定義
+Order:
+  type: object
+  required:
+    - id
+    - user_id
+    - status
+    - items
+    - total_amount
+    - currency
+  properties:
+    id:
+      type: string
+      pattern: '^order_[a-zA-Z0-9]+$'
+      description: 訂單唯一識別碼
+      example: "order_abc123"
+      
+    user_id:
+      type: string
+      pattern: '^user_[a-zA-Z0-9]+$'
+      description: 使用者 ID
+      example: "user_123abc"
+      
+    status:
+      type: string
+      enum: ["pending", "processing", "paid", "shipped", "delivered", "cancelled", "refunded"]
+      description: 訂單狀態
+      example: "paid"
+      
+    items:
+      type: array
+      items:
+        $ref: '#/OrderItem'
+      description: 訂單項目列表
+      
+    subtotal:
+      type: number
+      format: decimal
+      minimum: 0
+      multipleOf: 0.01
+      description: 商品小計金額 (USD)
+      example: 299.97
+      
+    tax_amount:
+      type: number
+      format: decimal
+      minimum: 0
+      multipleOf: 0.01
+      description: 稅額 (USD)
+      example: 26.99
+      
+    shipping_amount:
+      type: number
+      format: decimal
+      minimum: 0
+      multipleOf: 0.01
+      description: 運費 (USD)
+      example: 9.99
+      
+    total_amount:
+      type: number
+      format: decimal
+      minimum: 0
+      multipleOf: 0.01
+      description: 訂單總金額 (USD)
+      example: 336.95
+      
+    currency:
+      type: string
+      enum: ["USD"]
+      description: 貨幣代碼
+      example: "USD"
+      
+    payment_method:
+      type: string
+      enum: ["stripe"]
+      description: 支付方式
+      example: "stripe"
+      
+    payment_intent_id:
+      type: string
+      nullable: true
+      description: Stripe 支付意圖 ID
+      example: "pi_1A2B3C4D5E"
+      
+    billing_address:
+      $ref: '#/BillingAddress'
+      description: 帳單地址
+      
+    shipping_address:
+      $ref: '#/BillingAddress'
+      nullable: true
+      description: 配送地址
+      
+    created_at:
+      type: string
+      format: date-time
+      description: 訂單建立時間
+      readOnly: true
+      example: "2025-08-19T15:00:00Z"
+      
+    updated_at:
+      type: string
+      format: date-time
+      description: 訂單更新時間
+      readOnly: true
+      example: "2025-08-19T15:30:00Z"
+
+OrderItem:
+  type: object
+  required:
+    - product_id
+    - product_name
+    - product_price
+    - quantity
+    - subtotal
+  properties:
+    product_id:
+      type: string
+      pattern: '^prod_[a-zA-Z0-9]+$'
+      description: 產品 ID
+      example: "prod_1a2b3c"
+      
+    product_name:
+      type: string
+      description: 產品名稱 (快照)
+      example: "高效能無線滑鼠"
+      
+    product_price:
+      type: number
+      format: decimal
+      minimum: 0
+      multipleOf: 0.01
+      description: 產品單價 (快照)
+      example: 79.99
+      
+    quantity:
+      type: integer
+      minimum: 1
+      description: 產品數量
+      example: 2
+      
+    subtotal:
+      type: number
+      format: decimal
+      minimum: 0
+      multipleOf: 0.01
+      description: 小計金額
+      example: 159.98
+
+BillingAddress:
+  type: object
+  required:
+    - line1
+    - city
+    - postal_code
+    - country
+  properties:
+    line1:
+      type: string
+      maxLength: 200
+      description: 地址第一行
+      example: "123 Main St"
+      
+    line2:
+      type: string
+      nullable: true
+      maxLength: 200
+      description: 地址第二行
+      example: "Apt 4B"
+      
+    city:
+      type: string
+      maxLength: 100
+      description: 城市
+      example: "San Francisco"
+      
+    state:
+      type: string
+      nullable: true
+      maxLength: 100
+      description: 州/省
+      example: "CA"
+      
+    postal_code:
+      type: string
+      maxLength: 20
+      description: 郵政編碼
+      example: "94105"
+      
+    country:
+      type: string
+      minLength: 2
+      maxLength: 2
+      pattern: '^[A-Z]{2}$'
+      description: 國家代碼 (ISO 3166-1 alpha-2)
+      example: "US"
+
+CheckoutRequest:
+  type: object
+  required:
+    - payment_method
+    - billing_address
+  properties:
+    payment_method:
+      type: string
+      enum: ["stripe"]
+      description: 支付方式
+      example: "stripe"
+      
+    billing_address:
+      $ref: '#/BillingAddress'
+      description: 帳單地址
+      
+    shipping_address:
+      $ref: '#/BillingAddress'
+      nullable: true
+      description: 配送地址 (可選，預設使用帳單地址)
+      
+    notes:
+      type: string
+      nullable: true
+      maxLength: 500
+      description: 訂單備註
+      example: "Please handle with care"
+      
+  example:
+    payment_method: "stripe"
+    billing_address:
+      line1: "123 Main St"
+      city: "San Francisco"
+      state: "CA"
+      postal_code: "94105"
+      country: "US"
+    notes: "Please handle with care"
+
+CheckoutResponse:
+  type: object
+  required:
+    - order_id
+    - payment_intent_id
+    - client_secret
+    - total_amount
+    - currency
+  properties:
+    order_id:
+      type: string
+      pattern: '^order_[a-zA-Z0-9]+$'
+      description: 建立的訂單 ID
+      example: "order_abc123"
+      
+    payment_intent_id:
+      type: string
+      description: Stripe 支付意圖 ID
+      example: "pi_1A2B3C4D5E"
+      
+    client_secret:
+      type: string
+      description: 客戶端支付確認用的秘密
+      example: "pi_1A2B3C4D5E_secret_xyz"
+      
+    total_amount:
+      type: number
+      format: decimal
+      minimum: 0
+      multipleOf: 0.01
+      description: 訂單總金額 (USD)
+      example: 336.95
+      
+    currency:
+      type: string
+      enum: ["USD"]
+      description: 貨幣代碼
+      example: "USD"
+      
+    status:
+      type: string
+      enum: ["requires_payment_method", "requires_confirmation", "requires_action"]
+      description: 支付狀態
+      example: "requires_confirmation"
+      
+  example:
+    order_id: "order_abc123"
+    payment_intent_id: "pi_1A2B3C4D5E"
+    client_secret: "pi_1A2B3C4D5E_secret_xyz"
+    total_amount: 336.95
+    currency: "USD"
+    status: "requires_confirmation"

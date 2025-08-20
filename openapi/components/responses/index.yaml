@@ -1,0 +1,19 @@
+# 回應模板索引文件
+BadRequest:
+  $ref: './errors.yaml#/BadRequest'
+ValidationError:
+  $ref: './errors.yaml#/ValidationError'
+Unauthorized:
+  $ref: './errors.yaml#/Unauthorized'
+Forbidden:
+  $ref: './errors.yaml#/Forbidden'
+NotFound:
+  $ref: './errors.yaml#/NotFound'
+PaymentRequired:
+  $ref: './errors.yaml#/PaymentRequired'
+RateLimitExceeded:
+  $ref: './errors.yaml#/RateLimitExceeded'
+InternalError:
+  $ref: './errors.yaml#/InternalError'
+ServiceUnavailable:
+  $ref: './errors.yaml#/ServiceUnavailable'

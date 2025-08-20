@@ -1,0 +1,327 @@
+# 錯誤回應模板定義 (符合 Google AIP-193 標準)
+BadRequest:
+  description: 請求參數無效
+  content:
+    application/json:
+      schema:
+        $ref: '../schemas/common.yaml#/Error'
+      examples:
+        validation_error:
+          summary: 資料驗證失敗
+          value:
+            error:
+              code: "INVALID_ARGUMENT"
+              message: "The request contains invalid parameters."
+              details:
+                - "@type": "type.googleapis.com/google.rpc.BadRequest"
+                  field_violations:
+                    - field: "product.price"
+                      description: "Price must be greater than 0"
+                    - field: "user.email"
+                      description: "Invalid email format"
+            request_id: "req_abc123def456"
+            timestamp: "2025-08-19T15:30:00Z"
+        invalid_filter:
+          summary: 無效的篩選語法
+          value:
+            error:
+              code: "INVALID_ARGUMENT"
+              message: "Invalid filter syntax."
+              details:
+                - "@type": "type.googleapis.com/google.rpc.BadRequest"
+                  field_violations:
+                    - field: "filter"
+                      description: "Expected format: field:value or field>value"
+            request_id: "req_def789ghi012"
+            timestamp: "2025-08-19T15:31:00Z"
+  headers:
+    X-Request-ID:
+      description: 請求追蹤 ID
+      schema:
+        type: string
+        example: "req_abc123def456"
+    X-Error-Code:
+      description: 錯誤代碼
+      schema:
+        type: string
+        example: "INVALID_ARGUMENT"
+    # 安全標頭
+    X-Content-Type-Options:
+      description: 防止 MIME 類型嗅探攻擊
+      schema:
+        type: string
+        example: "nosniff"
+    X-Frame-Options:
+      description: 防止點擊劫持攻擊
+      schema:
+        type: string
+        example: "DENY"
+    X-XSS-Protection:
+      description: 跨站腳本防護
+      schema:
+        type: string
+        example: "1; mode=block"
+    Strict-Transport-Security:
+      description: 強制使用 HTTPS
+      schema:
+        type: string
+        example: "max-age=31536000; includeSubDomains"
+    Referrer-Policy:
+      description: 推薦人政策
+      schema:
+        type: string
+        example: "strict-origin-when-cross-origin"
+
+ValidationError:
+  description: 資料驗證失敗
+  content:
+    application/json:
+      schema:
+        $ref: '../schemas/common.yaml#/Error'
+      examples:
+        field_validation:
+          summary: 欄位驗證錯誤
+          value:
+            error:
+              code: "INVALID_ARGUMENT"
+              message: "Request validation failed."
+              details:
+                - "@type": "type.googleapis.com/google.rpc.BadRequest"
+                  field_violations:
+                    - field: "email"
+                      description: "Must be a valid email address"
+                    - field: "price"
+                      description: "Must be greater than 0"
+            request_id: "req_validation_123"
+            timestamp: "2025-08-19T15:32:00Z"
+  headers:
+    X-Request-ID:
+      description: 請求追蹤 ID
+      schema:
+        type: string
+
+Unauthorized:
+  description: 身份驗證失敗
+  content:
+    application/json:
+      schema:
+        $ref: '../schemas/common.yaml#/Error'
+      examples:
+        missing_token:
+          summary: 缺少認證令牌
+          value:
+            error:
+              code: "UNAUTHENTICATED"
+              message: "Authentication required. Please provide a valid Bearer token."
+            request_id: "req_unauth_123"
+            timestamp: "2025-08-19T15:33:00Z"
+        invalid_token:
+          summary: 無效的令牌
+          value:
+            error:
+              code: "UNAUTHENTICATED"
+              message: "Invalid or expired token."
+            request_id: "req_invalid_456"
+            timestamp: "2025-08-19T15:34:00Z"
+  headers:
+    WWW-Authenticate:
+      description: 認證挑戰
+      schema:
+        type: string
+        example: 'Bearer realm="API", error="invalid_token", error_description="The access token expired"'
+    X-Request-ID:
+      description: 請求追蹤 ID
+      schema:
+        type: string
+
+Forbidden:
+  description: 存取權限不足
+  content:
+    application/json:
+      schema:
+        $ref: '../schemas/common.yaml#/Error'
+      examples:
+        insufficient_permissions:
+          summary: 權限不足
+          value:
+            error:
+              code: "PERMISSION_DENIED"
+              message: "Insufficient permissions to perform this action."
+            request_id: "req_forbidden_123"
+            timestamp: "2025-08-19T15:35:00Z"
+        admin_required:
+          summary: 需要管理員權限
+          value:
+            error:
+              code: "PERMISSION_DENIED"
+              message: "This operation requires administrator privileges."
+            request_id: "req_admin_456"
+            timestamp: "2025-08-19T15:36:00Z"
+  headers:
+    X-Request-ID:
+      description: 請求追蹤 ID
+      schema:
+        type: string
+
+NotFound:
+  description: 找不到請求的資源
+  content:
+    application/json:
+      schema:
+        $ref: '../schemas/common.yaml#/Error'
+      examples:
+        resource_not_found:
+          summary: 資源不存在
+          value:
+            error:
+              code: "NOT_FOUND"
+              message: "The requested resource was not found."
+            request_id: "req_notfound_123"
+            timestamp: "2025-08-19T15:37:00Z"
+        product_not_found:
+          summary: 產品不存在
+          value:
+            error:
+              code: "NOT_FOUND"
+              message: "Product with ID 'prod_xyz' was not found."
+            request_id: "req_product_456"
+            timestamp: "2025-08-19T15:38:00Z"
+  headers:
+    X-Request-ID:
+      description: 請求追蹤 ID
+      schema:
+        type: string
+
+PaymentRequired:
+  description: 支付處理失敗
+  content:
+    application/json:
+      schema:
+        $ref: '../schemas/common.yaml#/Error'
+      examples:
+        payment_failed:
+          summary: 支付失敗
+          value:
+            error:
+              code: "PAYMENT_REQUIRED"
+              message: "Payment processing failed. Please check your payment method."
+              details:
+                - "@type": "type.googleapis.com/google.rpc.ErrorInfo"
+                  reason: "CARD_DECLINED"
+                  domain: "stripe.com"
+            request_id: "req_payment_123"
+            timestamp: "2025-08-19T15:39:00Z"
+  headers:
+    X-Request-ID:
+      description: 請求追蹤 ID
+      schema:
+        type: string
+
+RateLimitExceeded:
+  description: 請求頻率超限
+  content:
+    application/json:
+      schema:
+        $ref: '../schemas/common.yaml#/Error'
+      examples:
+        rate_limit_exceeded:
+          summary: 請求頻率超限
+          value:
+            error:
+              code: "RESOURCE_EXHAUSTED"
+              message: "Too many requests. Please retry after the specified time."
+            request_id: "req_ratelimit_123"
+            timestamp: "2025-08-19T15:40:00Z"
+  headers:
+    Retry-After:
+      description: 重試等待時間 (秒)
+      schema:
+        type: integer
+        example: 60
+    X-RateLimit-Limit:
+      description: 速率限制上限
+      schema:
+        type: integer
+        example: 100
+    X-RateLimit-Remaining:
+      description: 剩餘請求數
+      schema:
+        type: integer
+        example: 0
+    X-RateLimit-Reset:
+      description: 重置時間 (Unix 時間戳)
+      schema:
+        type: integer
+        example: 1692454800
+    X-Request-ID:
+      description: 請求追蹤 ID
+      schema:
+        type: string
+
+InternalError:
+  description: 伺服器內部錯誤
+  content:
+    application/json:
+      schema:
+        $ref: '../schemas/common.yaml#/Error'
+      examples:
+        internal_error:
+          summary: 內部系統錯誤
+          value:
+            error:
+              code: "INTERNAL"
+              message: "An internal error occurred. Please try again later."
+            request_id: "req_internal_123"
+            timestamp: "2025-08-19T15:41:00Z"
+        database_error:
+          summary: 資料庫連接錯誤
+          value:
+            error:
+              code: "INTERNAL"
+              message: "Database connection failed. Please try again later."
+            request_id: "req_db_456"
+            timestamp: "2025-08-19T15:42:00Z"
+  headers:
+    X-Request-ID:
+      description: 請求追蹤 ID
+      schema:
+        type: string
+    Retry-After:
+      description: 建議重試等待時間 (秒)
+      schema:
+        type: integer
+        example: 30
+
+ServiceUnavailable:
+  description: 服務暫時無法使用
+  content:
+    application/json:
+      schema:
+        $ref: '../schemas/common.yaml#/Error'
+      examples:
+        maintenance_mode:
+          summary: 維護模式
+          value:
+            error:
+              code: "UNAVAILABLE"
+              message: "Service is temporarily unavailable for maintenance."
+            request_id: "req_maintenance_123"
+            timestamp: "2025-08-19T15:43:00Z"
+        overloaded:
+          summary: 系統過載
+          value:
+            error:
+              code: "UNAVAILABLE"
+              message: "Service is temporarily overloaded. Please try again later."
+            request_id: "req_overload_456"
+            timestamp: "2025-08-19T15:44:00Z"
+  headers:
+    Retry-After:
+      description: 重試等待時間 (秒)
+      schema:
+        type: integer
+        example: 300
+    X-Request-ID:
+      description: 請求追蹤 ID
+      schema:
+        type: string

@@ -1,0 +1,303 @@
+# 事件相關資料模型定義 (符合 Google AIP 標準)
+
+# 基礎系統事件模型
+SystemEvent:
+  type: object
+  required: [id, event_type, timestamp, resource_name]
+  properties:
+    id:
+      type: string
+      pattern: '^evt_[a-zA-Z0-9]+$'
+      description: 事件唯一識別碼
+      example: "evt_12345abc"
+      
+    event_type:
+      type: string
+      description: 事件類型，使用點號分隔的層級結構
+      enum:
+        # 產品事件
+        - "product.created"
+        - "product.updated"
+        - "product.deleted"
+        - "product.published"
+        - "product.unpublished"
+        # 訂單事件
+        - "order.created"
+        - "order.updated" 
+        - "order.status_changed"
+        - "order.completed"
+        - "order.cancelled"
+        # 使用者事件
+        - "user.registered"
+        - "user.updated"
+        - "user.deleted"
+        - "user.logged_in"
+        # 購物車事件
+        - "cart.updated"
+        - "cart.abandoned"
+        - "cart.checked_out"
+        # 系統事件
+        - "system.maintenance_started"
+        - "system.maintenance_completed"
+      example: "product.published"
+      
+    timestamp:
+      type: string
+      format: date-time
+      description: 事件發生時間 (ISO 8601 格式)
+      example: "2025-08-20T15:30:00Z"
+      
+    resource_name:
+      type: string
+      description: 受影響資源的完整名稱 (符合 AIP-122 資源命名規範)
+      pattern: '^[a-z]+/[a-zA-Z0-9_]+$'
+      example: "products/prod_1a2b3c"
+      
+    actor:
+      type: string
+      pattern: '^(user_[a-zA-Z0-9]+|system)$'
+      nullable: true
+      description: 觸發事件的主體 (使用者 ID 或 system)
+      example: "user_admin123"
+      
+    data:
+      type: object
+      description: 事件相關的數據載荷
+      additionalProperties: true
+      example:
+        product_id: "prod_1a2b3c"
+        category_id: "cat_electronics"
+        published_at: "2025-08-20T15:30:00Z"
+        
+    metadata:
+      type: object
+      nullable: true
+      description: 事件元資料
+      properties:
+        source:
+          type: string
+          description: 事件來源系統
+          example: "fake-store-api"
+        version:
+          type: string
+          description: 事件 schema 版本
+          example: "1.0"
+        correlation_id:
+          type: string
+          description: 關聯追蹤 ID
+          example: "corr_abc123"
+          
+  example:
+    id: "evt_12345abc"
+    event_type: "product.published"
+    timestamp: "2025-08-20T15:30:00Z"
+    resource_name: "products/prod_1a2b3c"
+    actor: "user_admin123"
+    data:
+      product_id: "prod_1a2b3c"
+      category_id: "cat_electronics"
+      published_at: "2025-08-20T15:30:00Z"
+      reason: "新品上架"
+    metadata:
+      source: "fake-store-api"
+      version: "1.0"
+      correlation_id: "corr_abc123"
+
+# 產品發布事件模型
+ProductPublishedEvent:
+  allOf:
+    - $ref: '#/SystemEvent'
+    - type: object
+      properties:
+        event_type:
+          type: string
+          enum: ["product.published"]
+        data:
+          type: object
+          required: [product_id, category_id]
+          properties:
+            product_id:
+              type: string
+              pattern: '^prod_[a-zA-Z0-9]+$'
+            category_id:
+              type: string
+              pattern: '^cat_[a-zA-Z0-9]+$'
+            published_at:
+              type: string
+              format: date-time
+            reason:
+              type: string
+              nullable: true
+
+# 訂單狀態變更事件
+OrderStatusChangedEvent:
+  allOf:
+    - $ref: '#/SystemEvent'
+    - type: object
+      properties:
+        event_type:
+          type: string
+          enum: ["order.status_changed"]
+        data:
+          type: object
+          required: [order_id, old_status, new_status]
+          properties:
+            order_id:
+              type: string
+              pattern: '^order_[a-zA-Z0-9]+$'
+            old_status:
+              type: string
+              enum: [pending, processing, shipped, delivered, cancelled]
+            new_status:
+              type: string
+              enum: [pending, processing, shipped, delivered, cancelled]
+            reason:
+              type: string
+              nullable: true
+            tracking_number:
+              type: string
+              nullable: true
+
+# Webhook 訂閱模型
+WebhookSubscription:
+  type: object
+  required: [id, endpoint_url, events, is_active]
+  properties:
+    id:
+      type: string
+      pattern: '^sub_[a-zA-Z0-9]+$'
+      description: 訂閱唯一識別碼
+      example: "sub_abc123"
+      
+    endpoint_url:
+      type: string
+      format: uri
+      description: Webhook 端點 URL (必須為 HTTPS)
+      example: "https://yourapp.com/webhooks/fake-store"
+      
+    events:
+      type: array
+      items:
+        type: string
+        enum:
+          - "product.created"
+          - "product.updated" 
+          - "product.deleted"
+          - "product.published"
+          - "order.created"
+          - "order.completed"
+          - "order.cancelled"
+          - "user.registered"
+          - "cart.abandoned"
+      description: 訂閱的事件類型列表
+      example: ["product.published", "order.completed"]
+      
+    is_active:
+      type: boolean
+      description: 訂閱是否啟用
+      example: true
+      
+    secret:
+      type: string
+      writeOnly: true
+      description: Webhook 簽名驗證密鑰 (僅寫入)
+      
+    failure_count:
+      type: integer
+      minimum: 0
+      description: 連續失敗次數
+      readOnly: true
+      example: 0
+      
+    last_success_at:
+      type: string
+      format: date-time
+      nullable: true
+      description: 最後成功發送時間
+      readOnly: true
+      example: "2025-08-20T14:30:00Z"
+      
+    last_failure_at:
+      type: string
+      format: date-time
+      nullable: true
+      description: 最後失敗時間
+      readOnly: true
+      example: null
+      
+    created_at:
+      type: string
+      format: date-time
+      description: 訂閱建立時間
+      readOnly: true
+      example: "2025-08-19T10:00:00Z"
+      
+    updated_at:
+      type: string
+      format: date-time
+      description: 訂閱更新時間
+      readOnly: true
+      example: "2025-08-20T15:30:00Z"
+
+# 創建訂閱請求
+CreateSubscriptionRequest:
+  type: object
+  required: [endpoint_url, events]
+  properties:
+    endpoint_url:
+      type: string
+      format: uri
+      description: Webhook 端點 URL (必須為 HTTPS)
+      pattern: '^https://.+'
+      example: "https://yourapp.com/webhooks/fake-store"
+      
+    events:
+      type: array
+      items:
+        type: string
+      minItems: 1
+      maxItems: 20
+      description: 要訂閱的事件類型
+      example: ["product.published", "order.completed"]
+      
+    secret:
+      type: string
+      minLength: 16
+      maxLength: 128
+      nullable: true
+      description: Webhook 簽名驗證密鑰 (可選，系統會自動生成)
+      
+    description:
+      type: string
+      maxLength: 500
+      nullable: true
+      description: 訂閱說明
+      example: "訂單完成通知我的 ERP 系統"
+
+# 更新訂閱請求
+UpdateSubscriptionRequest:
+  type: object
+  properties:
+    endpoint_url:
+      type: string
+      format: uri
+      pattern: '^https://.+'
+      description: Webhook 端點 URL
+      
+    events:
+      type: array
+      items:
+        type: string
+      minItems: 1
+      maxItems: 20
+      description: 要訂閱的事件類型
+      
+    is_active:
+      type: boolean
+      description: 是否啟用訂閱
+      
+    description:
+      type: string
+      maxLength: 500
+      nullable: true
+      description: 訂閱說明

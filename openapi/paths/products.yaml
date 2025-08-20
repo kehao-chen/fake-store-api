@@ -1,0 +1,401 @@
+# 產品相關 API 端點定義
+# 批量操作相關端點
+products_batch_get:
+  post:
+    tags:
+      - Products
+    summary: 批量獲取產品
+    description: |
+      批量獲取多個產品的詳細資訊。提升 API 效能 30-50%。
+      
+      ## 批量限制
+      - 最多可同時獲取 100 個產品
+      - 不存在的產品 ID 會在回應中標記
+      - 支援部分成功返回
+      
+    operationId: batchGetProducts
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [product_ids]
+            properties:
+              product_ids:
+                type: array
+                items:
+                  type: string
+                  pattern: '^prod_[a-zA-Z0-9]+$'
+                minItems: 1
+                maxItems: 100
+                description: 要獲取的產品 ID 列表
+                example: ["prod_1a2b3c", "prod_4d5e6f", "prod_7g8h9i"]
+              fields:
+                type: array
+                items:
+                  type: string
+                description: 指定返回的欄位 (可選，返回部分欄位提升效能)
+                example: ["id", "name", "price", "stock_quantity"]
+    responses:
+      '200':
+        description: 批量獲取成功
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [products, success_count, not_found_count]
+              properties:
+                products:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/product.yaml#/Product'
+                  description: 成功獲取的產品列表
+                success_count:
+                  type: integer
+                  minimum: 0
+                  description: 成功獲取的產品數量
+                  example: 2
+                not_found_count:
+                  type: integer
+                  minimum: 0
+                  description: 未找到的產品數量
+                  example: 1
+                not_found_ids:
+                  type: array
+                  items:
+                    type: string
+                  description: 未找到的產品 ID 列表
+                  example: ["prod_notexist"]
+        headers:
+          X-Batch-Size:
+            description: 批量處理的總數量
+            schema:
+              type: integer
+          Cache-Control:
+            description: 批量查詢快取控制
+            schema:
+              type: string
+              example: "public, max-age=300"
+      '400':
+        $ref: '../components/responses/errors.yaml#/ValidationError'
+      '413':
+        description: 批量請求過大
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/Error'
+            example:
+              error:
+                code: "INVALID_ARGUMENT"
+                message: "Batch size exceeds maximum limit of 100 products"
+
+products_batch_update:
+  patch:
+    tags:
+      - Products
+      - Admin
+    summary: 批量更新產品
+    description: |
+      批量更新多個產品的資訊，需要管理員權限。
+      
+      ## 批量更新特性
+      - 支援部分成功返回
+      - 原子性操作：全部成功或全部失敗 (可選)
+      - 樂觀鎖支援，避免併發衝突
+      
+    operationId: batchUpdateProducts
+    security:
+      - BearerAuth: ['write', 'admin']
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [updates]
+            properties:
+              updates:
+                type: array
+                items:
+                  type: object
+                  required: [id]
+                  properties:
+                    id:
+                      type: string
+                      pattern: '^prod_[a-zA-Z0-9]+$'
+                      description: 產品 ID
+                    version:
+                      type: integer
+                      description: 樂觀鎖版本號 (可選)
+                    data:
+                      $ref: '../components/schemas/product.yaml#/UpdateProductRequest'
+                minItems: 1
+                maxItems: 50
+                description: 批量更新列表
+              atomic:
+                type: boolean
+                default: false
+                description: 是否使用原子性操作 (全部成功或全部失敗)
+    responses:
+      '200':
+        description: 批量更新完成
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                results:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      success:
+                        type: boolean
+                      product:
+                        $ref: '../components/schemas/product.yaml#/Product'
+                      error:
+                        $ref: '../components/schemas/common.yaml#/Error'
+                success_count:
+                  type: integer
+                error_count:
+                  type: integer
+      '400':
+        $ref: '../components/responses/errors.yaml#/ValidationError'
+      '401':
+        $ref: '../components/responses/errors.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses/errors.yaml#/Forbidden'
+
+products_collection:
+  get:
+    tags:
+      - Products
+    summary: 列出產品
+    description: |
+      獲取產品列表，支援分頁、篩選和排序功能。
+      
+      ## 篩選語法
+      使用結構化查詢語法 (符合 AIP-160 標準)：
+      - 基本篩選：`category:"electronics"`
+      - 範圍查詢：`price>50 AND price<100`
+      - 組合條件：`category:"electronics" OR category:"clothing"`
+      - 文字搜尋：`name:"wireless mouse"`
+      
+      ## 排序選項
+      - `name asc` - 名稱升序
+      - `price desc` - 價格降序
+      - `created_at desc` - 建立時間降序 (預設)
+      
+    operationId: listProducts
+    parameters:
+      - name: page_size
+        in: query
+        description: 每頁結果數量
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+      - name: page_token
+        in: query  
+        description: 分頁令牌
+        schema:
+          type: string
+      - name: filter
+        in: query
+        description: 篩選條件 (AIP-160 語法)
+        schema:
+          type: string
+        examples:
+          category_filter:
+            summary: 按分類篩選
+            value: 'category:"electronics"'
+          price_range:
+            summary: 價格範圍篩選
+            value: 'price>50 AND price<200'
+          text_search:
+            summary: 文字搜尋
+            value: 'name:"mouse" OR description:"wireless"'
+      - name: order_by
+        in: query
+        description: 排序欄位和方向
+        schema:
+          type: string
+          default: "created_at desc"
+        examples:
+          price_desc:
+            summary: 價格降序
+            value: "price desc"
+          name_asc:
+            summary: 名稱升序
+            value: "name asc"
+    responses:
+      '200':
+        description: 成功返回產品列表
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/product.yaml#/ProductList'
+        headers:
+          X-Total-Count:
+            description: 符合條件的產品總數
+            schema:
+              type: integer
+          Cache-Control:
+            description: 快取控制
+            schema:
+              type: string
+              example: "public, max-age=300"
+      '400':
+        $ref: '../components/responses/errors.yaml#/BadRequest'
+      '429':
+        $ref: '../components/responses/errors.yaml#/RateLimitExceeded'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalError'
+  post:
+    tags:
+      - Products
+      - Admin
+    summary: 建立產品
+    description: |
+      建立新的產品。需要管理員權限。
+      
+      ## 權限要求
+      - 需要有效的 JWT Token
+      - 需要 `products.create` 權限範圍
+      - 需要管理員角色
+      
+    operationId: createProduct
+    security:
+      - BearerAuth: ['write', 'admin']
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/product.yaml#/CreateProductRequest'
+          examples:
+            basic_product:
+              summary: 基本產品建立
+              value:
+                name: "新產品名稱"
+                price: 99.99
+                category_id: "cat_electronics"
+                description: "產品描述"
+    responses:
+      '201':
+        description: 產品建立成功
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/product.yaml#/Product'
+        headers:
+          Location:
+            description: 新建立產品的 URL
+            schema:
+              type: string
+              format: uri
+              example: "/v1/products/prod_new123"
+      '400':
+        $ref: '../components/responses/errors.yaml#/ValidationError'
+      '401':
+        $ref: '../components/responses/errors.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses/errors.yaml#/Forbidden'
+
+products_item:
+  get:
+    tags:
+      - Products
+    summary: 取得產品詳情
+    description: 根據產品 ID 獲取詳細產品資訊
+    operationId: getProduct
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: 產品 ID
+        schema:
+          type: string
+          pattern: '^prod_[a-zA-Z0-9]+$'
+          example: "prod_1a2b3c"
+    responses:
+      '200':
+        description: 成功返回產品詳情
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/product.yaml#/Product'
+      '404':
+        $ref: '../components/responses/errors.yaml#/NotFound'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalError'
+  
+  patch:
+    tags:
+      - Products
+      - Admin
+    summary: 更新產品
+    description: 部分更新產品資訊，需要管理員權限
+    operationId: updateProduct
+    security:
+      - BearerAuth: ['write', 'admin']
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: 產品 ID
+        schema:
+          type: string
+          pattern: '^prod_[a-zA-Z0-9]+$'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/product.yaml#/UpdateProductRequest'
+    responses:
+      '200':
+        description: 產品更新成功
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/product.yaml#/Product'
+      '400':
+        $ref: '../components/responses/errors.yaml#/ValidationError'
+      '401':
+        $ref: '../components/responses/errors.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses/errors.yaml#/Forbidden'
+      '404':
+        $ref: '../components/responses/errors.yaml#/NotFound'
+  
+  delete:
+    tags:
+      - Products
+      - Admin
+    summary: 刪除產品
+    description: 刪除指定產品，需要管理員權限
+    operationId: deleteProduct
+    security:
+      - BearerAuth: ['write', 'admin']
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: 產品 ID
+        schema:
+          type: string
+          pattern: '^prod_[a-zA-Z0-9]+$'
+    responses:
+      '204':
+        description: 產品刪除成功
+      '401':
+        $ref: '../components/responses/errors.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses/errors.yaml#/Forbidden'
+      '404':
+        $ref: '../components/responses/errors.yaml#/NotFound'

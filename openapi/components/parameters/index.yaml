@@ -1,0 +1,15 @@
+# 參數模板索引文件
+PageSize:
+  $ref: './common.yaml#/PageSize'
+PageToken:
+  $ref: './common.yaml#/PageToken'
+Filter:
+  $ref: './common.yaml#/Filter'
+OrderBy:
+  $ref: './common.yaml#/OrderBy'
+ProductId:
+  $ref: './identifiers.yaml#/ProductId'
+CategoryId:
+  $ref: './identifiers.yaml#/CategoryId'
+UserId:
+  $ref: './identifiers.yaml#/UserId'

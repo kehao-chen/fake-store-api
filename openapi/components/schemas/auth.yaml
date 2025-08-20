@@ -1,0 +1,155 @@
+# 認證相關資料模型定義
+TokenResponse:
+  type: object
+  required:
+    - access_token
+    - token_type
+    - expires_in
+  properties:
+    access_token:
+      type: string
+      description: JWT 存取令牌
+      example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+      
+    refresh_token:
+      type: string
+      nullable: true
+      description: 刷新令牌
+      example: "refresh_token_abc123"
+      
+    token_type:
+      type: string
+      enum: ["Bearer"]
+      description: 令牌類型
+      example: "Bearer"
+      
+    expires_in:
+      type: integer
+      minimum: 1
+      description: 存取令牌過期時間 (秒)
+      example: 3600
+      
+    scope:
+      type: string
+      nullable: true
+      description: 授權範圍
+      example: "read write"
+      
+    user_id:
+      type: string
+      pattern: '^user_[a-zA-Z0-9]+$'
+      description: 使用者 ID
+      example: "user_123abc"
+      
+  example:
+    access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    refresh_token: "refresh_token_abc123"
+    token_type: "Bearer"
+    expires_in: 3600
+    scope: "read write"
+    user_id: "user_123abc"
+
+EmailLoginRequest:
+  type: object
+  required:
+    - grant_type
+    - email
+    - password
+  properties:
+    grant_type:
+      type: string
+      enum: ["password"]
+      description: 授權類型
+      example: "password"
+      
+    email:
+      type: string
+      format: email
+      description: 使用者電子信箱
+      example: "user@example.com"
+      
+    password:
+      type: string
+      minLength: 8
+      maxLength: 128
+      description: 使用者密碼
+      example: "securePassword123"
+      
+    scope:
+      type: string
+      nullable: true
+      description: 請求的權限範圍
+      example: "read write"
+      
+  example:
+    grant_type: "password"
+    email: "user@example.com"
+    password: "securePassword123"
+    scope: "read write"
+
+OAuthTokenRequest:
+  type: object
+  required:
+    - grant_type
+    - code
+    - code_verifier
+  properties:
+    grant_type:
+      type: string
+      enum: ["authorization_code"]
+      description: 授權類型
+      example: "authorization_code"
+      
+    code:
+      type: string
+      description: OAuth 授權碼
+      example: "oauth_authorization_code"
+      
+    code_verifier:
+      type: string
+      minLength: 43
+      maxLength: 128
+      pattern: '^[A-Za-z0-9\-._~]+$'
+      description: PKCE 代碼驗證器
+      example: "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"
+      
+    redirect_uri:
+      type: string
+      format: uri
+      nullable: true
+      description: 重定向 URI (必須與授權請求一致)
+      example: "https://yourapp.com/callback"
+      
+  example:
+    grant_type: "authorization_code"
+    code: "oauth_authorization_code"
+    code_verifier: "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"
+    redirect_uri: "https://yourapp.com/callback"
+
+RefreshTokenRequest:
+  type: object
+  required:
+    - grant_type
+    - refresh_token
+  properties:
+    grant_type:
+      type: string
+      enum: ["refresh_token"]
+      description: 授權類型
+      example: "refresh_token"
+      
+    refresh_token:
+      type: string
+      description: 刷新令牌
+      example: "refresh_token_abc123"
+      
+    scope:
+      type: string
+      nullable: true
+      description: 請求的權限範圍 (可選，不可超過原始範圍)
+      example: "read"
+      
+  example:
+    grant_type: "refresh_token"
+    refresh_token: "refresh_token_abc123"
+    scope: "read"

@@ -1,0 +1,222 @@
+openapi: 3.0.3
+info:
+  title: Fake Store API
+  description: |
+    一個功能完整、高效能且易於使用的模擬電子商務 API 服務。
+    
+    ## 核心特色
+    - 🚀 **高效能**: Spring Boot WebFlux 響應式架構
+    - 🔐 **多重認證**: 支援 OAuth 2.0、JWT Token
+    - 💳 **支付整合**: Stripe 沙盒環境完整支持
+    - 📊 **標準化**: 嚴格遵循 Google AIP 標準
+    - 🌍 **多語言**: 錯誤訊息支援中英文
+    
+    ## 快速開始
+    1. [註冊開發者帳號](#tag/Authentication)
+    2. [獲取 API Token](#operation/createToken)
+    3. [探索產品 API](#tag/Products)
+    4. [測試購物車功能](#tag/Cart)
+    
+    ## 支援資源
+    - [GitHub Repository](https://github.com/kehao-chen/fake-store-api)
+    - [開發者社群](https://discord.gg/fake-store-api)
+    - [問題回報](https://github.com/kehao-chen/fake-store-api/issues)
+    
+  version: "1.0.0"
+  contact:
+    name: Kehao Chen
+    email: kehao.chen@happyhacking.ninja
+    url: https://docs.fakestore.happyhacking.ninja
+  license:
+    name: Apache License 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0
+  termsOfService: https://fakestore.happyhacking.ninja/terms
+
+servers:
+  - url: https://fakestore.happyhacking.ninja/v1
+    description: 生產環境 API
+  - url: https://staging.fakestore.happyhacking.ninja/v1
+    description: 測試環境 API
+  - url: http://localhost:8080/v1
+    description: 本地開發環境
+
+# 標籤分組
+tags:
+  - name: Authentication
+    description: 身份驗證與授權管理
+    externalDocs:
+      description: 認證指南
+      url: https://docs.fakestore.happyhacking.ninja/auth
+      
+  - name: Products
+    description: 產品管理與查詢功能
+    externalDocs:
+      description: 產品 API 指南
+      url: https://docs.fakestore.happyhacking.ninja/products
+      
+  - name: Categories
+    description: 產品分類管理
+    
+  - name: Users
+    description: 使用者資料管理
+    
+  - name: Cart
+    description: 購物車操作功能
+    externalDocs:
+      description: 購物車使用指南
+      url: https://docs.fakestore.happyhacking.ninja/cart
+      
+  - name: Orders
+    description: 訂單與支付處理
+    externalDocs:
+      description: 支付整合指南
+      url: https://docs.fakestore.happyhacking.ninja/payments
+      
+  - name: Admin
+    description: 管理員專用功能
+    
+  - name: Events
+    description: 事件驅動架構和系統事件管理
+    externalDocs:
+      description: 事件驅動架構指南
+      url: https://docs.fakestore.happyhacking.ninja/events
+      
+  - name: Webhooks
+    description: Webhook 訂閱和事件通知管理
+    externalDocs:
+      description: Webhook 整合指南
+      url: https://docs.fakestore.happyhacking.ninja/webhooks
+
+# 路徑引用
+paths:
+  # 認證相關
+  /auth/token:
+    $ref: './paths/auth.yaml#/auth_token'
+  /auth/loginWithGoogle:
+    $ref: './paths/auth.yaml#/auth_google'
+  /auth/loginWithGithub:
+    $ref: './paths/auth.yaml#/auth_github'
+    
+  # 產品相關
+  /products:
+    $ref: './paths/products.yaml#/products_collection'
+  /products/{id}:
+    $ref: './paths/products.yaml#/products_item'
+  /products:batchGet:
+    $ref: './paths/products.yaml#/products_batch_get'
+  /products:batchUpdate:
+    $ref: './paths/products.yaml#/products_batch_update'
+  
+  # 產品事件操作 (符合 AIP-136 Custom Methods)
+  /products/{id}:publish:
+    $ref: './paths/events.yaml#/products_publish'
+  /products/{id}:unpublish:
+    $ref: './paths/events.yaml#/products_unpublish'
+    
+  # 分類相關
+  /categories:
+    $ref: './paths/categories.yaml#/categories_collection'
+  /categories/{id}:
+    $ref: './paths/categories.yaml#/categories_item'
+  /categories/{id}/listProducts:
+    $ref: './paths/categories.yaml#/categories_list_products'
+    
+  # 使用者相關
+  /users/me:
+    $ref: './paths/users.yaml#/users_me'
+  /users/{id}:
+    $ref: './paths/users.yaml#/users_item'
+    
+  # 購物車相關
+  /users/me/cart:
+    $ref: './paths/users.yaml#/users_me_cart'
+  /users/{id}/cart:
+    $ref: './paths/users.yaml#/users_cart'
+  /users/me/cart/addProduct:
+    $ref: './paths/users.yaml#/cart_add_product'
+  /users/me/cart/updateProduct:
+    $ref: './paths/users.yaml#/cart_update_product'
+  /users/me/cart/removeProduct:
+    $ref: './paths/users.yaml#/cart_remove_product'
+  /users/me/cart/clear:
+    $ref: './paths/users.yaml#/cart_clear'
+  /users/me/cart/checkout:
+    $ref: './paths/users.yaml#/cart_checkout'
+    
+  # Webhook
+  /webhooks/stripe:
+    $ref: './paths/webhooks.yaml#/stripe_webhook'
+    
+  # 事件系統 (Event-Driven Architecture)
+  /events:
+    $ref: './paths/event-queries.yaml#/events_collection'
+  /events/{id}:
+    $ref: './paths/event-queries.yaml#/events_item'
+  /webhooks/subscriptions:
+    $ref: './paths/event-queries.yaml#/webhook_subscriptions_collection'
+  /webhooks/subscriptions/{id}:
+    $ref: './paths/event-queries.yaml#/webhook_subscriptions_item'
+    
+  # 事件操作 (Custom Methods)
+  /orders/{id}:updateStatus:
+    $ref: './paths/events.yaml#/orders_update_status'
+  /users/{id}:sendNotification:
+    $ref: './paths/events.yaml#/users_send_notification'
+
+# 組件引用
+components:
+  # 安全方案
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT Bearer Token 認證。格式：`Bearer <token>`
+        
+        獲取方式：
+        1. 使用 `/auth/token` 端點取得 JWT
+        2. 或透過 OAuth 2.0 流程獲取
+        
+        範例：
+        ```
+        Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        ```
+        
+    BasicAuth:
+      type: http
+      scheme: basic
+      description: |
+        HTTP Basic 認證，僅用於特定管理端點
+        
+    OAuth2:
+      type: oauth2
+      description: OAuth 2.0 認證流程
+      flows:
+        authorizationCode:
+          authorizationUrl: /auth/loginWithGoogle
+          tokenUrl: /auth/token
+          scopes:
+            read: 讀取基本資料權限
+            write: 寫入資料權限
+            admin: 管理員權限
+            
+  # 資料模型引用
+  schemas:
+    $ref: './components/schemas/index.yaml'
+    
+  # 回應模板引用
+  responses:
+    $ref: './components/responses/index.yaml'
+    
+  # 參數模板引用
+  parameters:
+    $ref: './components/parameters/index.yaml'
+    
+  # 範例資料引用
+  examples:
+    $ref: './components/examples/index.yaml'
+
+# 全域安全要求
+security:
+  - BearerAuth: []

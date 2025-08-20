@@ -1,0 +1,15 @@
+# 範例資料索引文件
+ProductExamples:
+  $ref: './product-examples.yaml'
+CategoryExamples:
+  $ref: './category-examples.yaml'
+UserExamples:
+  $ref: './user-examples.yaml'
+AuthExamples:
+  $ref: './auth-examples.yaml'
+CartExamples:
+  $ref: './cart-examples.yaml'
+OrderExamples:
+  $ref: './order-examples.yaml'
+ErrorExamples:
+  $ref: './error-examples.yaml'

@@ -1,0 +1,254 @@
+# 分類相關資料模型定義
+Category:
+  type: object
+  required:
+    - id
+    - name
+  properties:
+    id:
+      type: string
+      pattern: '^cat_[a-zA-Z0-9]+$'
+      description: 分類唯一識別碼
+      example: "cat_electronics"
+      
+    name:
+      type: string
+      minLength: 1
+      maxLength: 100
+      description: 分類名稱
+      example: "Electronics"
+      
+    description:
+      type: string
+      nullable: true
+      maxLength: 500
+      description: 分類描述
+      example: "Electronic devices and accessories"
+      
+    parent_id:
+      type: string
+      pattern: '^cat_[a-zA-Z0-9]+$'
+      nullable: true
+      description: 父分類 ID (用於階層結構)
+      example: null
+      
+    image_url:
+      type: string
+      format: uri
+      nullable: true
+      description: 分類圖片 URL
+      example: "https://fakestore.happyhacking.ninja/images/categories/electronics.jpg"
+      
+    is_active:
+      type: boolean
+      description: 分類是否啟用
+      default: true
+      example: true
+      
+    sort_order:
+      type: integer
+      minimum: 0
+      description: 排序順序 (數字越小越前面)
+      default: 0
+      example: 10
+      
+    product_count:
+      type: integer
+      minimum: 0
+      description: 此分類下的產品數量 (唯讀)
+      readOnly: true
+      example: 25
+      
+    created_at:
+      type: string
+      format: date-time
+      description: 建立時間
+      readOnly: true
+      example: "2025-08-19T10:00:00Z"
+      
+    updated_at:
+      type: string
+      format: date-time
+      description: 更新時間
+      readOnly: true
+      example: "2025-08-19T14:00:00Z"
+      
+  example:
+    id: "cat_electronics"
+    name: "Electronics"
+    description: "Electronic devices and accessories"
+    parent_id: null
+    image_url: "https://fakestore.happyhacking.ninja/images/categories/electronics.jpg"
+    is_active: true
+    sort_order: 10
+    product_count: 25
+    created_at: "2025-08-19T10:00:00Z"
+    updated_at: "2025-08-19T14:00:00Z"
+
+CategoryList:
+  type: object
+  required:
+    - categories
+    - total_size
+  properties:
+    categories:
+      type: array
+      items:
+        $ref: '#/Category'
+      description: 分類列表
+      
+    total_size:
+      type: integer
+      minimum: 0
+      description: 分類總數
+      example: 8
+      
+  example:
+    categories:
+      - id: "cat_electronics"
+        name: "Electronics"
+        description: "Electronic devices and accessories"
+        parent_id: null
+        is_active: true
+        sort_order: 10
+        product_count: 25
+        created_at: "2025-08-19T10:00:00Z"
+        updated_at: "2025-08-19T14:00:00Z"
+      - id: "cat_clothing"
+        name: "Clothing"
+        description: "Fashion and apparel"
+        parent_id: null
+        is_active: true
+        sort_order: 20
+        product_count: 18
+        created_at: "2025-08-19T10:00:00Z"
+        updated_at: "2025-08-19T14:00:00Z"
+    total_size: 8
+
+CreateCategoryRequest:
+  type: object
+  required:
+    - name
+  properties:
+    name:
+      type: string
+      minLength: 1
+      maxLength: 100
+      description: 分類名稱
+      example: "Electronics"
+      
+    description:
+      type: string
+      nullable: true
+      maxLength: 500
+      description: 分類描述
+      example: "Electronic devices and accessories"
+      
+    parent_id:
+      type: string
+      pattern: '^cat_[a-zA-Z0-9]+$'
+      nullable: true
+      description: 父分類 ID
+      
+    image_url:
+      type: string
+      format: uri
+      nullable: true
+      description: 分類圖片 URL
+      
+    sort_order:
+      type: integer
+      minimum: 0
+      description: 排序順序
+      default: 0
+      
+    is_active:
+      type: boolean
+      description: 分類是否啟用
+      default: true
+
+UpdateCategoryRequest:
+  type: object
+  properties:
+    name:
+      type: string
+      minLength: 1
+      maxLength: 100
+      description: 分類名稱
+      
+    description:
+      type: string
+      nullable: true
+      maxLength: 500
+      description: 分類描述
+      
+    parent_id:
+      type: string
+      pattern: '^cat_[a-zA-Z0-9]+$'
+      nullable: true
+      description: 父分類 ID
+      
+    image_url:
+      type: string
+      format: uri
+      nullable: true
+      description: 分類圖片 URL
+      
+    sort_order:
+      type: integer
+      minimum: 0
+      description: 排序順序
+      
+    is_active:
+      type: boolean
+      description: 分類是否啟用
+      
+  example:
+    name: "Updated Electronics"
+    description: "Updated description for electronic devices"
+    sort_order: 5
+    is_active: true
+
+CategoryProductsRequest:
+  type: object
+  properties:
+    page_size:
+      type: integer
+      minimum: 1
+      maximum: 100
+      default: 20
+      description: 每頁結果數量
+      
+    page_token:
+      type: string
+      nullable: true
+      description: 分頁令牌
+      
+    include_subcategories:
+      type: boolean
+      default: false
+      description: 是否包含子分類的產品
+      
+    filter:
+      type: string
+      nullable: true
+      description: 產品篩選條件 (AIP-160 語法)
+      example: "price>50 AND price<200"
+      
+    order_by:
+      type: string
+      default: "created_at desc"
+      description: 排序欄位和方向
+      enum: 
+        - "name asc"
+        - "name desc"
+        - "price asc"
+        - "price desc"
+        - "created_at asc"
+        - "created_at desc"
+        
+  example:
+    page_size: 20
+    include_subcategories: true
+    filter: "price>50 AND price<200"
+    order_by: "price desc"

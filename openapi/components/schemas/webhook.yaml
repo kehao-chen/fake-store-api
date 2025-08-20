@@ -1,0 +1,208 @@
+# Webhook 相關資料模型定義
+StripeWebhookEvent:
+  type: object
+  required:
+    - id
+    - object
+    - type
+    - data
+  properties:
+    id:
+      type: string
+      pattern: '^evt_[a-zA-Z0-9]+$'
+      description: Stripe 事件唯一識別碼
+      example: "evt_1A2B3C4D5E"
+      
+    object:
+      type: string
+      enum: ["event"]
+      description: 物件類型
+      example: "event"
+      
+    type:
+      type: string
+      enum: 
+        - "payment_intent.succeeded"
+        - "payment_intent.payment_failed"
+        - "payment_intent.canceled"
+        - "charge.dispute.created"
+      description: 事件類型
+      example: "payment_intent.succeeded"
+      
+    data:
+      type: object
+      required:
+        - object
+      properties:
+        object:
+          oneOf:
+            - $ref: '#/StripePaymentIntent'
+            - $ref: '#/StripeDispute'
+          description: 事件相關的資料物件
+      
+    created:
+      type: integer
+      description: 事件建立時間 (Unix 時間戳)
+      example: 1692454800
+      
+    livemode:
+      type: boolean
+      description: 是否為生產模式
+      example: false
+
+StripePaymentIntent:
+  type: object
+  required:
+    - id
+    - object
+    - amount
+    - currency
+    - status
+  properties:
+    id:
+      type: string
+      pattern: '^pi_[a-zA-Z0-9]+$'
+      description: Stripe 支付意圖 ID
+      example: "pi_1A2B3C4D5E"
+      
+    object:
+      type: string
+      enum: ["payment_intent"]
+      description: 物件類型
+      example: "payment_intent"
+      
+    amount:
+      type: integer
+      minimum: 0
+      description: 金額 (最小貨幣單位，如美分)
+      example: 2999
+      
+    currency:
+      type: string
+      enum: ["usd"]
+      description: 貨幣代碼
+      example: "usd"
+      
+    status:
+      type: string
+      enum: 
+        - "requires_payment_method"
+        - "requires_confirmation"
+        - "requires_action"
+        - "processing"
+        - "succeeded"
+        - "canceled"
+      description: 支付意圖狀態
+      example: "succeeded"
+      
+    metadata:
+      type: object
+      additionalProperties:
+        type: string
+      description: 自定義元資料
+      example:
+        order_id: "order_abc123"
+        user_id: "user_123abc"
+      
+    last_payment_error:
+      $ref: '#/StripePaymentError'
+      nullable: true
+      description: 最後的支付錯誤
+
+StripePaymentError:
+  type: object
+  properties:
+    code:
+      type: string
+      description: 錯誤代碼
+      example: "card_declined"
+      
+    message:
+      type: string
+      description: 錯誤訊息
+      example: "Your card was declined."
+      
+    type:
+      type: string
+      enum: ["card_error", "validation_error", "idempotency_error", "rate_limit_error", "api_error"]
+      description: 錯誤類型
+      example: "card_error"
+
+StripeDispute:
+  type: object
+  required:
+    - id
+    - object
+    - amount
+    - currency
+    - reason
+  properties:
+    id:
+      type: string
+      pattern: '^dp_[a-zA-Z0-9]+$'
+      description: Stripe 爭議 ID
+      example: "dp_1A2B3C4D5E"
+      
+    object:
+      type: string
+      enum: ["dispute"]
+      description: 物件類型
+      example: "dispute"
+      
+    amount:
+      type: integer
+      minimum: 0
+      description: 爭議金額 (最小貨幣單位)
+      example: 2999
+      
+    currency:
+      type: string
+      enum: ["usd"]
+      description: 貨幣代碼
+      example: "usd"
+      
+    reason:
+      type: string
+      enum: ["duplicate", "fraudulent", "subscription_canceled", "product_unacceptable", "product_not_received", "unrecognized", "credit_not_processed", "general", "incorrect_account_details", "insufficient_funds", "bank_cannot_process", "debit_not_authorized", "customer_initiated"]
+      description: 爭議原因
+      example: "fraudulent"
+      
+    status:
+      type: string
+      enum: ["warning_needs_response", "warning_under_review", "warning_closed", "needs_response", "under_review", "charge_refunded", "won", "lost"]
+      description: 爭議狀態
+      example: "needs_response"
+
+WebhookResponse:
+  type: object
+  required:
+    - received
+  properties:
+    received:
+      type: boolean
+      description: 事件是否已接收
+      example: true
+      
+    processed:
+      type: boolean
+      description: 事件是否已處理
+      example: true
+      
+    message:
+      type: string
+      nullable: true
+      description: 處理訊息
+      example: "Payment processed successfully"
+      
+    order_id:
+      type: string
+      pattern: '^order_[a-zA-Z0-9]+$'
+      nullable: true
+      description: 相關的訂單 ID
+      example: "order_abc123"
+      
+  example:
+    received: true
+    processed: true
+    message: "Payment processed successfully"
+    order_id: "order_abc123"

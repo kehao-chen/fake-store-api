@@ -1,0 +1,105 @@
+# 產品範例資料
+electronics_mouse:
+  summary: 高效能無線滑鼠
+  value:
+    id: "prod_1a2b3c"
+    name: "高效能無線滑鼠"
+    description: "一款符合人體工學的高效能無線滑鼠，具有超長電池續航和精確追蹤。"
+    price: 79.99
+    category_id: "cat_electronics"
+    category_name: "Electronics"
+    image_url: "https://fakestore.happyhacking.ninja/images/products/wireless-mouse.jpg"
+    sku: "MOUSE-WIRELESS-001"
+    stock_quantity: 150
+    is_active: true
+    created_at: "2025-08-19T10:30:00Z"
+    updated_at: "2025-08-19T14:20:00Z"
+
+electronics_keyboard:
+  summary: 機械鍵盤
+  value:
+    id: "prod_4d5e6f"
+    name: "機械式背光鍵盤"
+    description: "Cherry MX 藍軸機械鍵盤，RGB 背光，適合遊戲和打字。"
+    price: 139.99
+    category_id: "cat_electronics"
+    category_name: "Electronics"
+    image_url: "https://fakestore.happyhacking.ninja/images/products/mechanical-keyboard.jpg"
+    sku: "KEYBOARD-MECH-001"
+    stock_quantity: 75
+    is_active: true
+    created_at: "2025-08-19T09:15:00Z"
+    updated_at: "2025-08-19T13:45:00Z"
+
+clothing_tshirt:
+  summary: 純棉 T 恤
+  value:
+    id: "prod_7g8h9i"
+    name: "純棉圓領 T 恤"
+    description: "100% 純棉材質，柔軟舒適，多種顏色選擇。"
+    price: 19.99
+    category_id: "cat_clothing"
+    category_name: "Clothing"
+    image_url: "https://fakestore.happyhacking.ninja/images/products/cotton-tshirt.jpg"
+    sku: "TSHIRT-COTTON-001"
+    stock_quantity: 200
+    is_active: true
+    created_at: "2025-08-19T08:00:00Z"
+    updated_at: "2025-08-19T12:30:00Z"
+
+product_list_example:
+  summary: 產品列表範例
+  value:
+    products:
+      - id: "prod_1a2b3c"
+        name: "高效能無線滑鼠"
+        price: 79.99
+        category_id: "cat_electronics"
+        category_name: "Electronics"
+        image_url: "https://fakestore.happyhacking.ninja/images/products/wireless-mouse.jpg"
+        stock_quantity: 150
+        is_active: true
+        created_at: "2025-08-19T10:30:00Z"
+        updated_at: "2025-08-19T14:20:00Z"
+      - id: "prod_4d5e6f"
+        name: "機械式背光鍵盤"
+        price: 139.99
+        category_id: "cat_electronics"
+        category_name: "Electronics"
+        image_url: "https://fakestore.happyhacking.ninja/images/products/mechanical-keyboard.jpg"
+        stock_quantity: 75
+        is_active: true
+        created_at: "2025-08-19T09:15:00Z"
+        updated_at: "2025-08-19T13:45:00Z"
+      - id: "prod_7g8h9i"
+        name: "純棉圓領 T 恤"
+        price: 19.99
+        category_id: "cat_clothing"
+        category_name: "Clothing"
+        image_url: "https://fakestore.happyhacking.ninja/images/products/cotton-tshirt.jpg"
+        stock_quantity: 200
+        is_active: true
+        created_at: "2025-08-19T08:00:00Z"
+        updated_at: "2025-08-19T12:30:00Z"
+    next_page_token: "eyJvZmZzZXQiOjIwfQ"
+    total_size: 85
+
+create_product_request:
+  summary: 建立產品請求
+  value:
+    name: "無線藍牙耳機"
+    description: "高音質無線藍牙耳機，支援降噪功能。"
+    price: 99.99
+    category_id: "cat_electronics"
+    image_url: "https://fakestore.happyhacking.ninja/images/products/bluetooth-headphones.jpg"
+    sku: "HEADPHONES-BT-001"
+    stock_quantity: 100
+    is_active: true
+
+update_product_request:
+  summary: 更新產品請求
+  value:
+    name: "高效能無線滑鼠 (更新版)"
+    price: 89.99
+    stock_quantity: 200
+    is_active: true
