@@ -1,0 +1,563 @@
+# 訂單管理 API 端點定義
+
+# 訂單列表查詢 - 支援分頁、篩選、排序
+orders_collection:
+  get:
+    tags:
+      - Orders
+    summary: 查詢使用者訂單列表
+    description: |
+      獲取當前使用者的訂單列表，支援篩選、排序和分頁功能。
+      
+      ## 功能特性
+      - 分頁支援：預設 20 筆/頁，最大 100 筆/頁
+      - 狀態篩選：pending, processing, paid, shipped, delivered, cancelled, refunded
+      - 排序選項：created_at, updated_at, total_amount
+      - 管理員可查看所有使用者訂單
+      
+      ## 權限控制
+      - 一般使用者：只能查看自己的訂單
+      - 管理員：可透過 user_id 參數查看指定使用者訂單
+      
+    operationId: listOrders
+    security:
+      - BearerAuth: ['read']
+    parameters:
+      - name: page_size
+        in: query
+        description: 每頁筆數
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+      - name: page_token
+        in: query
+        description: 分頁令牌
+        schema:
+          type: string
+      - name: status
+        in: query
+        description: 訂單狀態篩選
+        schema:
+          type: string
+          enum: ["pending", "processing", "paid", "shipped", "delivered", "cancelled", "refunded"]
+      - name: date_from
+        in: query
+        description: 起始日期（ISO 8601 格式）
+        schema:
+          type: string
+          format: date-time
+      - name: date_to
+        in: query
+        description: 結束日期（ISO 8601 格式）
+        schema:
+          type: string
+          format: date-time
+      - name: order_by
+        in: query
+        description: 排序欄位
+        schema:
+          type: string
+          enum: ["created_at", "updated_at", "total_amount"]
+          default: "created_at"
+      - name: sort_order
+        in: query
+        description: 排序方向
+        schema:
+          type: string
+          enum: ["asc", "desc"]
+          default: "desc"
+      - name: user_id
+        in: query
+        description: 查詢指定使用者的訂單（僅管理員）
+        schema:
+          type: string
+          pattern: '^user_[a-zA-Z0-9]+$'
+    responses:
+      '200':
+        description: 成功返回訂單列表
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - orders
+                - pagination
+              properties:
+                orders:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/order.yaml#/OrderSummary'
+                pagination:
+                  type: object
+                  properties:
+                    total_count:
+                      type: integer
+                      description: 總筆數
+                    page_size:
+                      type: integer
+                      description: 每頁筆數
+                    next_page_token:
+                      type: string
+                      nullable: true
+                      description: 下一頁令牌
+                    prev_page_token:
+                      type: string
+                      nullable: true
+                      description: 上一頁令牌
+            examples:
+              user_orders:
+                summary: 使用者訂單列表
+                value:
+                  orders:
+                    - id: "order_abc123"
+                      status: "processing"
+                      total_amount: 299.97
+                      currency: "USD"
+                      item_count: 3
+                      created_at: "2025-08-19T15:00:00Z"
+                    - id: "order_def456"
+                      status: "delivered"
+                      total_amount: 159.98
+                      currency: "USD"
+                      item_count: 2
+                      created_at: "2025-08-18T10:30:00Z"
+                  pagination:
+                    total_count: 25
+                    page_size: 20
+                    next_page_token: "token_abc123"
+                    prev_page_token: null
+      '400':
+        $ref: '../components/responses/errors.yaml#/ValidationError'
+      '401':
+        $ref: '../components/responses/errors.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses/errors.yaml#/Forbidden'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalError'
+
+  post:
+    tags:
+      - Orders
+    summary: 從購物車建立訂單
+    description: |
+      從當前使用者的購物車建立新訂單，包含完整的業務驗證流程。
+      
+      ## 處理流程
+      1. 驗證購物車不為空
+      2. 驗證所有商品庫存充足
+      3. 計算訂單總額（商品 + 稅金 + 運費）
+      4. 建立訂單記錄
+      5. 整合 Stripe 支付流程
+      6. 返回訂單資訊和支付確認
+      
+      ## 業務規則
+      - 必須有購物車內容
+      - 所有商品必須有足夠庫存
+      - 價格快照確保一致性
+      - 支付成功後自動清空購物車
+      
+    operationId: createOrderFromCart
+    security:
+      - BearerAuth: ['write']
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/order.yaml#/CheckoutRequest'
+          examples:
+            standard_checkout:
+              summary: 標準結帳流程
+              value:
+                payment_method: "stripe"
+                billing_address:
+                  line1: "123 Main St"
+                  city: "San Francisco"
+                  state: "CA"
+                  postal_code: "94105"
+                  country: "US"
+                shipping_address:
+                  line1: "456 Oak Ave"
+                  city: "San Francisco"
+                  state: "CA"
+                  postal_code: "94102"
+                  country: "US"
+                notes: "Please handle with care"
+    responses:
+      '201':
+        description: 訂單建立成功
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/order.yaml#/CheckoutResponse'
+            examples:
+              order_created:
+                summary: 訂單建立成功
+                value:
+                  order_id: "order_abc123"
+                  payment_intent_id: "pi_1A2B3C4D5E"
+                  client_secret: "pi_1A2B3C4D5E_secret_xyz"
+                  total_amount: 336.95
+                  currency: "USD"
+                  status: "requires_confirmation"
+      '400':
+        $ref: '../components/responses/errors.yaml#/ValidationError'
+      '401':
+        $ref: '../components/responses/errors.yaml#/Unauthorized'
+      '402':
+        $ref: '../components/responses/errors.yaml#/PaymentRequired'
+      '409':
+        description: 庫存不足或購物車為空
+        content:
+          application/json:
+            schema:
+              $ref: '../components/responses/errors.yaml#/ErrorResponse'
+            examples:
+              insufficient_stock:
+                summary: 庫存不足
+                value:
+                  error:
+                    code: "INSUFFICIENT_STOCK"
+                    message: "Product 'prod_123' has insufficient stock"
+                    details:
+                      product_id: "prod_123"
+                      requested_quantity: 5
+                      available_stock: 2
+              empty_cart:
+                summary: 購物車為空
+                value:
+                  error:
+                    code: "EMPTY_CART"
+                    message: "Cannot create order from empty cart"
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalError'
+
+# 訂單詳情操作 - GET, PATCH, DELETE
+orders_item:
+  get:
+    tags:
+      - Orders
+    summary: 查詢訂單詳情
+    description: |
+      獲取指定訂單的完整詳細資訊，包含所有商品明細和支付狀態。
+      
+      ## 權限控制
+      - 使用者只能查看自己的訂單
+      - 管理員可查看任何訂單
+      
+    operationId: getOrder
+    security:
+      - BearerAuth: ['read']
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: 訂單 ID
+        schema:
+          type: string
+          pattern: '^order_[a-zA-Z0-9]+$'
+          example: "order_abc123"
+    responses:
+      '200':
+        description: 成功返回訂單詳情
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/order.yaml#/Order'
+            examples:
+              order_detail:
+                $ref: '../components/examples/order-examples.yaml#/OrderExample'
+      '401':
+        $ref: '../components/responses/errors.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses/errors.yaml#/Forbidden'
+      '404':
+        $ref: '../components/responses/errors.yaml#/NotFound'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalError'
+
+  patch:
+    tags:
+      - Orders
+    summary: 更新訂單資訊
+    description: |
+      更新訂單的有限資訊，受到嚴格的業務規則限制。
+      
+      ## 可更新內容
+      - 配送地址（僅限未發貨訂單）
+      - 訂單備註
+      - 支付方式（僅限未支付訂單）
+      
+      ## 限制條件
+      - 已支付訂單：僅能更新配送地址和備註
+      - 已發貨訂單：僅能更新備註
+      - 已完成/已取消訂單：不可更新
+      
+    operationId: updateOrder
+    security:
+      - BearerAuth: ['write']
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: 訂單 ID
+        schema:
+          type: string
+          pattern: '^order_[a-zA-Z0-9]+$'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/order.yaml#/UpdateOrderRequest'
+          examples:
+            update_address:
+              summary: 更新配送地址
+              value:
+                shipping_address:
+                  line1: "789 New Street"
+                  city: "San Francisco"
+                  state: "CA"
+                  postal_code: "94103"
+                  country: "US"
+                notes: "Updated delivery instructions"
+    responses:
+      '200':
+        description: 訂單更新成功
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/order.yaml#/Order'
+      '400':
+        $ref: '../components/responses/errors.yaml#/ValidationError'
+      '401':
+        $ref: '../components/responses/errors.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses/errors.yaml#/Forbidden'
+      '404':
+        $ref: '../components/responses/errors.yaml#/NotFound'
+      '409':
+        description: 訂單狀態不允許更新
+        content:
+          application/json:
+            schema:
+              $ref: '../components/responses/errors.yaml#/ErrorResponse'
+            examples:
+              order_immutable:
+                summary: 訂單不可更新
+                value:
+                  error:
+                    code: "ORDER_IMMUTABLE"
+                    message: "Order cannot be modified in current status"
+                    details:
+                      order_id: "order_abc123"
+                      current_status: "delivered"
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalError'
+
+  delete:
+    tags:
+      - Orders
+    summary: 取消訂單
+    description: |
+      取消指定的訂單，並執行相關清理操作。
+      
+      ## 取消條件
+      - 訂單狀態必須為 pending 或 processing
+      - 未發貨的訂單才能取消
+      
+      ## 處理流程
+      1. 驗證訂單可取消
+      2. 釋放商品庫存
+      3. 處理退款（如已付款）
+      4. 更新訂單狀態為 cancelled
+      5. 記錄取消原因
+      
+    operationId: cancelOrder
+    security:
+      - BearerAuth: ['write']
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: 訂單 ID
+        schema:
+          type: string
+          pattern: '^order_[a-zA-Z0-9]+$'
+    requestBody:
+      required: false
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/order.yaml#/CancelOrderRequest'
+          examples:
+            cancel_with_reason:
+              summary: 取消訂單並說明原因
+              value:
+                reason: "customer_request"
+                notes: "Customer requested cancellation due to changed mind"
+    responses:
+      '200':
+        description: 訂單取消成功
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/order.yaml#/Order'
+      '400':
+        $ref: '../components/responses/errors.yaml#/ValidationError'
+      '401':
+        $ref: '../components/responses/errors.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses/errors.yaml#/Forbidden'
+      '404':
+        $ref: '../components/responses/errors.yaml#/NotFound'
+      '409':
+        description: 訂單狀態不允許取消
+        content:
+          application/json:
+            schema:
+              $ref: '../components/responses/errors.yaml#/ErrorResponse'
+            examples:
+              cannot_cancel:
+                summary: 無法取消訂單
+                value:
+                  error:
+                    code: "CANNOT_CANCEL_ORDER"
+                    message: "Order cannot be cancelled in current status"
+                    details:
+                      order_id: "order_abc123"
+                      current_status: "shipped"
+                      reason: "Order has already been shipped"
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalError'
+
+# 訂單狀態管理 - 專用取消端點
+orders_cancel:
+  post:
+    tags:
+      - Orders
+    summary: 取消訂單（專用端點）
+    description: |
+      專用的訂單取消端點，提供更詳細的取消選項和處理流程。
+      
+      ## 取消類型
+      - customer_request: 客戶主動取消
+      - payment_failed: 支付失敗
+      - stock_unavailable: 庫存不足
+      - system_error: 系統錯誤
+      
+      ## 退款處理
+      - 自動判斷是否需要退款
+      - 支援部分退款和全額退款
+      - 整合 Stripe 退款流程
+      
+    operationId: cancelOrderDetailed
+    security:
+      - BearerAuth: ['write']
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: 訂單 ID
+        schema:
+          type: string
+          pattern: '^order_[a-zA-Z0-9]+$'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - reason
+            properties:
+              reason:
+                type: string
+                enum: ["customer_request", "payment_failed", "stock_unavailable", "system_error"]
+                description: 取消原因
+              notes:
+                type: string
+                maxLength: 500
+                description: 取消說明
+                nullable: true
+              refund_amount:
+                type: number
+                format: decimal
+                minimum: 0
+                description: 退款金額（空值表示全額退款）
+                nullable: true
+              notify_customer:
+                type: boolean
+                default: true
+                description: 是否通知客戶
+          examples:
+            customer_cancel:
+              summary: 客戶主動取消
+              value:
+                reason: "customer_request"
+                notes: "Customer changed mind about the purchase"
+                notify_customer: true
+            stock_issue:
+              summary: 庫存問題取消
+              value:
+                reason: "stock_unavailable"
+                notes: "Product temporarily out of stock"
+                notify_customer: true
+    responses:
+      '200':
+        description: 訂單取消處理成功
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - order
+                - cancellation
+              properties:
+                order:
+                  $ref: '../components/schemas/order.yaml#/Order'
+                cancellation:
+                  type: object
+                  properties:
+                    cancelled_at:
+                      type: string
+                      format: date-time
+                    reason:
+                      type: string
+                    refund_id:
+                      type: string
+                      nullable: true
+                    refund_amount:
+                      type: number
+                      format: decimal
+                    stock_released:
+                      type: boolean
+            examples:
+              cancellation_success:
+                summary: 取消成功
+                value:
+                  order:
+                    id: "order_abc123"
+                    status: "cancelled"
+                    total_amount: 299.97
+                    currency: "USD"
+                  cancellation:
+                    cancelled_at: "2025-08-19T16:30:00Z"
+                    reason: "customer_request"
+                    refund_id: "re_1A2B3C4D5E"
+                    refund_amount: 299.97
+                    stock_released: true
+      '400':
+        $ref: '../components/responses/errors.yaml#/ValidationError'
+      '401':
+        $ref: '../components/responses/errors.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses/errors.yaml#/Forbidden'
+      '404':
+        $ref: '../components/responses/errors.yaml#/NotFound'
+      '409':
+        $ref: '../components/responses/errors.yaml#/Conflict'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalError'

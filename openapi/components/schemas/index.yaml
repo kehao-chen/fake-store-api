@@ -30,17 +30,27 @@ CartItem:
   $ref: './cart.yaml#/CartItem'
 AddProductRequest:
   $ref: './cart.yaml#/AddProductRequest'
-UpdateProductRequest:
+UpdateCartProductRequest:
   $ref: './cart.yaml#/UpdateProductRequest'
 RemoveProductRequest:
   $ref: './cart.yaml#/RemoveProductRequest'
 
 Order:
   $ref: './order.yaml#/Order'
+OrderItem:
+  $ref: './order.yaml#/OrderItem'
+OrderSummary:
+  $ref: './order.yaml#/OrderSummary'
+OrderStatusHistory:
+  $ref: './order.yaml#/OrderStatusHistory'
 CheckoutRequest:
   $ref: './order.yaml#/CheckoutRequest'
 CheckoutResponse:
   $ref: './order.yaml#/CheckoutResponse'
+UpdateOrderRequest:
+  $ref: './order.yaml#/UpdateOrderRequest'
+CancelOrderRequest:
+  $ref: './order.yaml#/CancelOrderRequest'
 BillingAddress:
   $ref: './order.yaml#/BillingAddress'
 

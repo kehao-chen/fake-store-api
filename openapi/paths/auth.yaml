@@ -183,3 +183,152 @@ auth_github:
               format: uri
       '400':
         $ref: '../components/responses/errors.yaml#/BadRequest'
+
+auth_refresh:
+  post:
+    tags:
+      - Authentication
+    summary: 刷新 JWT Token
+    description: |
+      使用有效的刷新令牌獲取新的存取令牌。
+      
+      ## 功能特性
+      - JWT Token 有效期 15 分鐘，需要定期刷新
+      - 刷新令牌有效期 7 天
+      - 支援 Token 撤銷機制
+      - 自動檢測令牌洩露風險
+      
+      ## 安全機制
+      - 刷新令牌一次性使用（舊令牌立即失效）
+      - 令牌輪換 (Token Rotation) 機制
+      - 檢測重複使用攻擊
+      
+    operationId: refreshToken
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - refresh_token
+            properties:
+              refresh_token:
+                type: string
+                description: 有效的刷新令牌
+                example: "rt_1A2B3C4D5E6F7G8H9I0J"
+              revoke_old_tokens:
+                type: boolean
+                default: false
+                description: 是否撤銷該使用者的所有舊令牌
+          examples:
+            standard_refresh:
+              summary: 標準令牌刷新
+              value:
+                refresh_token: "rt_1A2B3C4D5E6F7G8H9I0J"
+            security_refresh:
+              summary: 安全模式刷新（撤銷舊令牌）
+              value:
+                refresh_token: "rt_1A2B3C4D5E6F7G8H9I0J"
+                revoke_old_tokens: true
+    responses:
+      '200':
+        description: 令牌刷新成功
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - access_token
+                - refresh_token
+                - token_type
+                - expires_in
+              properties:
+                access_token:
+                  type: string
+                  description: 新的存取令牌
+                  example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                refresh_token:
+                  type: string
+                  description: 新的刷新令牌
+                  example: "rt_K1L2M3N4O5P6Q7R8S9T0"
+                token_type:
+                  type: string
+                  description: 令牌類型
+                  example: "Bearer"
+                expires_in:
+                  type: integer
+                  description: 存取令牌有效期（秒）
+                  example: 900
+                scope:
+                  type: string
+                  description: 令牌權限範圍
+                  example: "read write"
+                issued_at:
+                  type: string
+                  format: date-time
+                  description: 令牌發行時間
+                  example: "2025-08-19T15:00:00Z"
+            examples:
+              refresh_success:
+                summary: 刷新成功
+                value:
+                  access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  refresh_token: "rt_K1L2M3N4O5P6Q7R8S9T0"
+                  token_type: "Bearer"
+                  expires_in: 900
+                  scope: "read write"
+                  issued_at: "2025-08-19T15:00:00Z"
+        headers:
+          Cache-Control:
+            description: 快取控制
+            schema:
+              type: string
+              example: "no-store"
+          X-Token-Rotation:
+            description: 令牌輪換狀態
+            schema:
+              type: string
+              example: "completed"
+      '400':
+        description: 請求無效或令牌格式錯誤
+        content:
+          application/json:
+            schema:
+              $ref: '../components/responses/errors.yaml#/ErrorResponse'
+            examples:
+              invalid_token:
+                summary: 無效的刷新令牌
+                value:
+                  error:
+                    code: "INVALID_REFRESH_TOKEN"
+                    message: "Refresh token is invalid or malformed"
+      '401':
+        description: 刷新令牌已過期或已撤銷
+        content:
+          application/json:
+            schema:
+              $ref: '../components/responses/errors.yaml#/ErrorResponse'
+            examples:
+              expired_token:
+                summary: 令牌已過期
+                value:
+                  error:
+                    code: "REFRESH_TOKEN_EXPIRED"
+                    message: "Refresh token has expired"
+              revoked_token:
+                summary: 令牌已撤銷
+                value:
+                  error:
+                    code: "REFRESH_TOKEN_REVOKED"
+                    message: "Refresh token has been revoked"
+              replay_attack:
+                summary: 重複使用攻擊
+                value:
+                  error:
+                    code: "TOKEN_REPLAY_DETECTED"
+                    message: "Refresh token reuse detected, all tokens revoked"
+      '429':
+        $ref: '../components/responses/errors.yaml#/RateLimitExceeded'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalError'

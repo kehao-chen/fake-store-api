@@ -286,3 +286,162 @@ CheckoutResponse:
     total_amount: 336.95
     currency: "USD"
     status: "requires_confirmation"
+
+OrderSummary:
+  type: object
+  required:
+    - id
+    - status
+    - total_amount
+    - currency
+    - item_count
+    - created_at
+  properties:
+    id:
+      type: string
+      pattern: '^order_[a-zA-Z0-9]+$'
+      description: 訂單唯一識別碼
+      example: "order_abc123"
+      
+    status:
+      type: string
+      enum: ["pending", "processing", "paid", "shipped", "delivered", "cancelled", "refunded"]
+      description: 訂單狀態
+      example: "processing"
+      
+    total_amount:
+      type: number
+      format: decimal
+      minimum: 0
+      multipleOf: 0.01
+      description: 訂單總金額 (USD)
+      example: 299.97
+      
+    currency:
+      type: string
+      enum: ["USD"]
+      description: 貨幣代碼
+      example: "USD"
+      
+    item_count:
+      type: integer
+      minimum: 1
+      description: 訂單商品總數量
+      example: 3
+      
+    created_at:
+      type: string
+      format: date-time
+      description: 訂單建立時間
+      example: "2025-08-19T15:00:00Z"
+      
+    updated_at:
+      type: string
+      format: date-time
+      description: 訂單最後更新時間
+      example: "2025-08-19T15:30:00Z"
+      
+  example:
+    id: "order_abc123"
+    status: "processing"
+    total_amount: 299.97
+    currency: "USD"
+    item_count: 3
+    created_at: "2025-08-19T15:00:00Z"
+    updated_at: "2025-08-19T15:30:00Z"
+
+UpdateOrderRequest:
+  type: object
+  properties:
+    shipping_address:
+      $ref: '#/BillingAddress'
+      description: 更新配送地址
+      nullable: true
+      
+    notes:
+      type: string
+      maxLength: 500
+      description: 訂單備註
+      nullable: true
+      
+    payment_method:
+      type: string
+      enum: ["stripe"]
+      description: 支付方式（僅未支付訂單可更新）
+      nullable: true
+      
+  example:
+    shipping_address:
+      line1: "789 New Street"
+      city: "San Francisco"
+      state: "CA"
+      postal_code: "94103"
+      country: "US"
+    notes: "Updated delivery instructions - please call before delivery"
+
+# 訂單取消請求
+CancelOrderRequest:
+  type: object
+  properties:
+    reason:
+      type: string
+      enum: ["customer_request", "payment_failed", "stock_unavailable", "system_error"]
+      description: 取消原因
+      default: "customer_request"
+      
+    notes:
+      type: string
+      maxLength: 500
+      description: 取消說明
+      nullable: true
+      
+  example:
+    reason: "customer_request"
+    notes: "Customer requested cancellation due to changed mind"
+
+OrderStatusHistory:
+  type: object
+  required:
+    - status
+    - changed_at
+  properties:
+    status:
+      type: string
+      enum: ["pending", "processing", "paid", "shipped", "delivered", "cancelled", "refunded"]
+      description: 狀態值
+      
+    previous_status:
+      type: string
+      enum: ["pending", "processing", "paid", "shipped", "delivered", "cancelled", "refunded"]
+      description: 前一個狀態
+      nullable: true
+      
+    changed_at:
+      type: string
+      format: date-time
+      description: 狀態變更時間
+      
+    changed_by:
+      type: string
+      description: 變更執行者（使用者 ID 或 system）
+      example: "user_123abc"
+      
+    reason:
+      type: string
+      description: 變更原因
+      nullable: true
+      example: "Payment completed successfully"
+      
+    notes:
+      type: string
+      description: 變更備註
+      nullable: true
+      maxLength: 500
+      
+  example:
+    status: "paid"
+    previous_status: "pending"
+    changed_at: "2025-08-19T15:30:00Z"
+    changed_by: "system"
+    reason: "Payment completed successfully"
+    notes: "Stripe payment intent confirmed"

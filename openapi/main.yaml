@@ -92,6 +92,8 @@ paths:
   # 認證相關
   /auth/token:
     $ref: './paths/auth.yaml#/auth_token'
+  /auth/refresh:
+    $ref: './paths/auth.yaml#/auth_refresh'
   /auth/loginWithGoogle:
     $ref: './paths/auth.yaml#/auth_google'
   /auth/loginWithGithub:
@@ -142,6 +144,14 @@ paths:
     $ref: './paths/users.yaml#/cart_clear'
   /users/me/cart/checkout:
     $ref: './paths/users.yaml#/cart_checkout'
+    
+  # 訂單相關
+  /orders:
+    $ref: './paths/orders.yaml#/orders_collection'
+  /orders/{id}:
+    $ref: './paths/orders.yaml#/orders_item'
+  /orders/{id}/cancel:
+    $ref: './paths/orders.yaml#/orders_cancel'
     
   # Webhook
   /webhooks/stripe:
