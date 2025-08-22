@@ -54,6 +54,19 @@ CancelOrderRequest:
 BillingAddress:
   $ref: './order.yaml#/BillingAddress'
 
+Payment:
+  $ref: './payment.yaml#/Payment'
+PaymentStatus:
+  $ref: './payment.yaml#/PaymentStatus'
+PaymentMethod:
+  $ref: './payment.yaml#/PaymentMethod'
+PaymentIntent:
+  $ref: './payment.yaml#/PaymentIntent'
+CreatePaymentRequest:
+  $ref: './payment.yaml#/CreatePaymentRequest'
+PaymentResponse:
+  $ref: './payment.yaml#/PaymentResponse'
+
 Auth:
   $ref: './auth.yaml#/TokenResponse'
 EmailLoginRequest:

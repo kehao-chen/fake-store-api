@@ -1,0 +1,236 @@
+# Payment related data models
+Payment:
+  type: object
+  required:
+    - id
+    - user_id
+    - amount
+    - currency
+    - status
+    - payment_method
+    - created_at
+  properties:
+    id:
+      type: string
+      pattern: '^pay_[a-zA-Z0-9_]+$'
+      description: 支付記錄唯一識別碼
+      example: "pay_abc123"
+      
+    stripe_payment_intent_id:
+      type: string
+      nullable: true
+      description: Stripe PaymentIntent ID
+      example: "pi_3MqrF82eZvKYlo2C0KhoLsWy"
+      
+    user_id:
+      type: string
+      pattern: '^user_[a-zA-Z0-9]+$'
+      description: 使用者 ID
+      example: "user_123abc"
+      
+    order_id:
+      type: string
+      pattern: '^order_[a-zA-Z0-9]+$'
+      nullable: true
+      description: 關聯訂單 ID
+      example: "order_abc123"
+      
+    amount:
+      type: number
+      format: decimal
+      minimum: 0
+      multipleOf: 0.01
+      description: 支付金額 (USD)
+      example: 299.99
+      
+    currency:
+      type: string
+      enum: ["USD"]
+      description: 貨幣代碼
+      example: "USD"
+      
+    status:
+      $ref: '#/PaymentStatus'
+      
+    payment_method:
+      $ref: '#/PaymentMethod'
+      
+    failure_reason:
+      type: string
+      nullable: true
+      description: 支付失敗原因
+      example: "card_declined"
+      
+    metadata:
+      type: object
+      additionalProperties: true
+      description: 額外元數據
+      example:
+        source_type: "cart"
+        
+    created_at:
+      type: string
+      format: date-time
+      description: 支付建立時間
+      readOnly: true
+      example: "2025-08-22T10:30:00Z"
+      
+    updated_at:
+      type: string
+      format: date-time
+      description: 支付更新時間
+      readOnly: true
+      example: "2025-08-22T10:35:00Z"
+
+PaymentStatus:
+  type: string
+  enum: 
+    - "pending"
+    - "processing" 
+    - "succeeded"
+    - "failed"
+    - "canceled"
+  description: 支付狀態
+  example: "succeeded"
+
+PaymentMethod:
+  type: string
+  enum: ["stripe"]
+  description: 支付方式
+  example: "stripe"
+
+PaymentIntent:
+  type: object
+  required:
+    - id
+    - status
+    - amount
+    - currency
+  properties:
+    id:
+      type: string
+      description: Stripe PaymentIntent ID
+      example: "pi_3MqrF82eZvKYlo2C0KhoLsWy"
+      
+    status:
+      type: string
+      enum:
+        - "requires_payment_method"
+        - "requires_confirmation"
+        - "requires_action"
+        - "processing"
+        - "succeeded"
+        - "canceled"
+      description: Stripe PaymentIntent 狀態
+      example: "requires_confirmation"
+      
+    amount:
+      type: integer
+      minimum: 1
+      description: 支付金額 (以分為單位)
+      example: 29999
+      
+    currency:
+      type: string
+      enum: ["usd"]
+      description: 貨幣代碼 (小寫)
+      example: "usd"
+      
+    client_secret:
+      type: string
+      description: 客戶端確認支付用的秘密
+      example: "pi_3MqrF82eZvKYlo2C0KhoLsWy_secret_abc123"
+
+CreatePaymentRequest:
+  type: object
+  required:
+    - source_type
+    - payment_method
+    - return_url
+  properties:
+    source_type:
+      type: string
+      enum: ["cart", "order"]
+      description: 支付來源類型
+      example: "cart"
+      
+    source_id:
+      type: string
+      nullable: true
+      description: 來源 ID (order_id，cart 類型時不需要)
+      example: "order_abc123"
+      
+    payment_method:
+      $ref: '#/PaymentMethod'
+      
+    return_url:
+      type: string
+      format: uri
+      description: 支付完成後的返回 URL
+      example: "https://example.com/payment/return"
+      
+    metadata:
+      type: object
+      additionalProperties: true
+      description: 額外元數據
+      nullable: true
+      
+  example:
+    source_type: "cart"
+    payment_method: "stripe"
+    return_url: "https://example.com/payment/return"
+
+PaymentResponse:
+  type: object
+  required:
+    - payment_id
+    - payment_intent
+    - amount
+    - currency
+    - status
+  properties:
+    payment_id:
+      type: string
+      pattern: '^pay_[a-zA-Z0-9_]+$'
+      description: 支付記錄 ID
+      example: "pay_abc123"
+      
+    payment_intent:
+      $ref: '#/PaymentIntent'
+      
+    order_id:
+      type: string
+      pattern: '^order_[a-zA-Z0-9]+$'
+      nullable: true
+      description: 建立的訂單 ID
+      example: "order_abc123"
+      
+    amount:
+      type: number
+      format: decimal
+      minimum: 0
+      multipleOf: 0.01
+      description: 支付金額 (USD)
+      example: 299.99
+      
+    currency:
+      type: string
+      enum: ["USD"]
+      description: 貨幣代碼
+      example: "USD"
+      
+    status:
+      $ref: '#/PaymentStatus'
+      
+  example:
+    payment_id: "pay_abc123"
+    payment_intent:
+      id: "pi_3MqrF82eZvKYlo2C0KhoLsWy"
+      status: "requires_confirmation"
+      amount: 29999
+      currency: "usd"
+      client_secret: "pi_3MqrF82eZvKYlo2C0KhoLsWy_secret_abc123"
+    order_id: "order_abc123"
+    amount: 299.99
+    currency: "USD"
+    status: "pending"

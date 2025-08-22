@@ -72,6 +72,12 @@ tags:
       description: 支付整合指南
       url: https://docs.fakestore.happyhacking.ninja/payments
       
+  - name: Payments
+    description: 支付處理與查詢
+    externalDocs:
+      description: 支付 API 指南
+      url: https://docs.fakestore.happyhacking.ninja/payments/api
+      
   - name: Admin
     description: 管理員專用功能
     
@@ -152,6 +158,12 @@ paths:
     $ref: './paths/orders.yaml#/orders_item'
   /orders/{id}/cancel:
     $ref: './paths/orders.yaml#/orders_cancel'
+    
+  # 支付相關
+  /payments:
+    $ref: './paths/payments.yaml#/payments_collection'
+  /payments/{id}:
+    $ref: './paths/payments.yaml#/payments_item'
     
   # Webhook
   /webhooks/stripe:
