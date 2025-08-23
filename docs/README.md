@@ -8,7 +8,7 @@
 
 - **版本**: v1.0
 - **狀態**: 開發中
-- **技術棧**: Java 21, Spring Boot WebFlux, PostgreSQL, Valkey, Docker
+- **技術堆疊**: Java 21, Spring Boot WebFlux, PostgreSQL, Valkey, Docker
 - **設計標準**: Google AIP, RESTful, OpenAPI 3.0
 
 ## 🎯 快速導航
@@ -35,7 +35,7 @@
 - [📁 OpenAPI 完整定義](../openapi/) - 模組化 OpenAPI 3.0 規範檔案
 
 ### 💻 實作指南
-- [技術棧說明](./implementation/technology-stack.md) - 技術選型與理由
+- [技術堆疊說明](./implementation/technology-stack.md) - 技術選型與理由
 - [安全實作指南](./implementation/security.md) - 安全最佳實踐
 - [測試策略](./implementation/testing-strategy.md) - ArchUnit 架構測試導向的完整測試策略
 - [程式碼範例](./examples/) - 實作參考程式碼
@@ -43,7 +43,7 @@
 ### 🚀 運維部署
 - [部署架構](./operations/deployment.md) - 容器化與部署策略
 - [監控告警系統](./operations/monitoring.md) - 可觀測性設計
-- [備份與災難恢復](./operations/backup-recovery.md) - 資料保護策略
+- [備份與災難復原](./operations/backup-recovery.md) - 資料保護策略
 - [效能調校](./operations/performance-tuning.md) - 最佳化指南
 - [資料庫分區策略](../database/partitioning-strategy.md) - 大規模資料處理
 
@@ -62,7 +62,7 @@
 - 📈 [成功指標](./requirements/success-metrics.md)
 
 ### 後端開發者
-- 🛠️ [技術棧](./implementation/technology-stack.md)
+- 🛠️ [技術堆疊](./implementation/technology-stack.md)
 - 📡 [API 設計規格](./api/design-spec.md)
 - 💾 [資料庫設計](./architecture/database-schema.md)
 - 🔐 [認證實作](./api/authentication.md)
@@ -109,13 +109,13 @@ docs/
 │   ├── versioning.md          # 版本控制
 │   └── openapi-standard.md    # OpenAPI 規範
 ├── implementation/             # 實作相關文件
-│   ├── technology-stack.md    # 技術棧
+│   ├── technology-stack.md    # 技術堆疊
 │   ├── security.md            # 安全實作
 │   └── testing-strategy.md    # 測試策略
 ├── operations/                 # 運維相關文件
 │   ├── deployment.md          # 部署架構
 │   ├── monitoring.md          # 監控告警
-│   ├── backup-recovery.md     # 備份恢復
+│   ├── backup-recovery.md     # 備份復原
 │   ├── performance-tuning.md  # 效能調校
 │   └── cicd.md               # CI/CD 流程
 ├── examples/                   # 程式碼範例

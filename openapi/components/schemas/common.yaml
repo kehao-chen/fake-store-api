@@ -69,7 +69,7 @@ SoftDeleteResponse:
       example: "2025-08-20T15:30:00Z"
     can_restore:
       type: boolean
-      description: 是否可以恢復
+      description: 是否可以復原
       example: true
     permanent:
       type: boolean

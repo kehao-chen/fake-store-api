@@ -29,7 +29,7 @@
 - 在 UI/SDK 層合併並行請求，寧可數次 batch 而非大量單筆。
 
 ## WebFlux 與連線池
-- Reactor 線程模型：確保阻塞 I/O（外部 HTTP/DB driver 若有）包裹於專用 Scheduler，避免阻塞 event loop。
+- Reactor 執行緒模型：確保阻塞 I/O（外部 HTTP/DB driver 若有）包裹於專用 Scheduler，避免阻塞 event loop。
 - DB 連線池（R2DBC/HikariCP）：設定上限與等待時間，建議：
   - 4GB VM：max pool 15、idle 5、timeout 30s。
   - 8GB VM：max pool 30、idle 10、timeout 30s。

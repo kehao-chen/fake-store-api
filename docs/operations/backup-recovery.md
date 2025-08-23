@@ -1,4 +1,4 @@
-# 備份與災難恢復
+# 備份與災難復原
 
 ## 目標與指標
 - RPO：< 1 小時（見非功能需求）
@@ -29,7 +29,7 @@ pg_restore -l backups/fakestore_$(date +%F).dump > /dev/null
 ```bash
 createdb fakestore_restore
 pg_restore -d fakestore_restore backups/fakestore_YYYY-MM-DD.dump
-# 視需要 replay WAL 以恢復至目標時間點
+# 視需要重播 WAL 以復原至目標時間點
 ```
 
 ## 注意事項

@@ -1,7 +1,7 @@
 # CI/CD 流程
 
 ## 驗證階段
-- 構建與測試：`./gradlew build test`
+- 建構與測試：`./gradlew build test`
 - OpenAPI Lint：`make lint-openapi`（Spectral） + `make redocly-lint-openapi`
 - 產出 OpenAPI HTML：`make redoc-build-openapi`（可上傳 artifact）
 
@@ -9,7 +9,7 @@
 - 啟動 Prometheus/Grafana 容器（staging）：抓取 `/actuator/prometheus` 指標。
 - 導入監控儀表板（API/Webhook/對賬），配合告警策略。
 
-## 版本控制與發布
+## 版本控制與發佈
 - 遵循 `docs/api/versioning.md`：/v1 穩定；破壞性變更須升主版並公告。
 - 變更紀錄（Changelog）：每次 PR 合併產生摘要。
 

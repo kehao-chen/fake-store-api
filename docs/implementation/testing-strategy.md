@@ -48,7 +48,7 @@ ArchUnit 是本專案測試策略的核心特色，主要用途包括：
 
 - **強制模組邊界**: 防止領域間的不當依賴
 - **驗證架構原則**: 確保符合 DDD 和 Clean Architecture
-- **代碼品質控制**: 自動化檢查命名、註解、設計模式
+- **程式碼品質控制**: 自動化檢查命名、註解、設計模式
 - **文件化架構**: 測試即文件，可執行的架構規範
 
 ### 1.2 核心架構規則
@@ -106,7 +106,7 @@ static final ArchRule saga_orchestrators_should_be_suffixed =
         .should().haveSimpleNameEndingWith("Orchestrator");
 
 @Test
-@DisplayName("Controller 不得依賴 Repository；僅 Service 可發布事件")
+@DisplayName("Controller 不得依賴 Repository；僅 Service 可發佈事件")
 void safetyBoundaries() {
     noClasses().that().resideInAPackage("..controller..")
         .should().dependOnClassesThat().resideInAPackage("..repository..")
@@ -407,7 +407,7 @@ void completeSagaFlowE2E() {
     
     String orderId = orderResponse.getBody().getString("id");
     
-    // 3. 等待 Saga 完成（異步處理）
+    // 3. 等待 Saga 完成（非同步處理）
     await().atMost(Duration.ofSeconds(10))
            .pollInterval(Duration.ofMillis(500))
            .until(() -> getOrderStatus(orderId).equals("CONFIRMED"));
@@ -518,9 +518,9 @@ jacocoTestReport {
 }
 ```
 
-## 6. 測試數據管理
+## 6. 測試資料管理
 
-### 6.1 測試數據建構器
+### 6.1 測試資料建構器
 
 使用 Builder 模式建立測試資料：
 

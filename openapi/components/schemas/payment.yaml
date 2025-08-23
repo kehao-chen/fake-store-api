@@ -64,7 +64,7 @@ Payment:
     metadata:
       type: object
       additionalProperties: true
-      description: 額外元數據
+      description: 額外中繼資料
       example:
         source_type: "cart"
         
@@ -172,7 +172,7 @@ CreatePaymentRequest:
     metadata:
       type: object
       additionalProperties: true
-      description: 額外元數據
+      description: 額外中繼資料
       nullable: true
       
   example:

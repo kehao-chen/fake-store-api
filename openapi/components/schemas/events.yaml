@@ -62,7 +62,7 @@ SystemEvent:
       
     data:
       type: object
-      description: 事件相關的數據載荷
+      description: 事件相關的資料載荷
       additionalProperties: true
       example:
         product_id: "prod_1a2b3c"
@@ -103,7 +103,7 @@ SystemEvent:
       version: "1.0"
       correlation_id: "corr_abc123"
 
-# 產品發布事件模型
+# 產品發佈事件模型
 ProductPublishedEvent:
   allOf:
     - $ref: '#/SystemEvent'

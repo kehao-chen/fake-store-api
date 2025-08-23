@@ -422,7 +422,7 @@ public class ProductService {
                 return productRepository.save(product);
             })
             .doOnSuccess(product -> {
-                // 發布產品建立事件
+                // 發佈產品建立事件
                 eventPublisher.publishProductCreated(product);
             })
             .map(productMapper::toResponse);
@@ -451,7 +451,7 @@ public class ProductService {
                 return productRepository.save(product);
             })
             .doOnSuccess(product -> {
-                // 發布產品更新事件
+                // 發佈產品更新事件
                 eventPublisher.publishProductUpdated(product);
             })
             .map(productMapper::toResponse);
@@ -467,7 +467,7 @@ public class ProductService {
                 return productRepository.save(product);
             })
             .doOnSuccess(product -> {
-                // 發布產品刪除事件
+                // 發佈產品刪除事件
                 eventPublisher.publishProductDeleted(product);
             })
             .then();

@@ -62,7 +62,7 @@
 
 ### 資料庫 & 快取
 - **PostgreSQL** - 企業級關聯式資料庫
-- **Valkey (Redis-compatible)** - 高效能快取與 Session 存儲
+- **Valkey (Redis-compatible)** - 高效能快取與 Session 儲存
 - **HikariCP** - 高效能資料庫連線池
 
 ### 認證 & 支付
@@ -247,7 +247,7 @@ flowchart LR
   - Prometheus 指標收集
   - Grafana 視覺化儀表板
   - 分層告警機制
-  - 自動化故障恢復
+  - 自動化故障復原
   
 可觀測性:
   - OpenTelemetry 整合

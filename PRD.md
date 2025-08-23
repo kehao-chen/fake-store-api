@@ -94,7 +94,7 @@ graph LR
 
 ## 4. 系統架構
 
-### 4.1 技術棧
+### 4.1 技術堆疊
 - **後端框架**: Spring Boot 3.x with WebFlux
 - **程式語言**: Java 21
 - **資料庫**: PostgreSQL 15+

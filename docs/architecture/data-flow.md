@@ -21,7 +21,7 @@ graph TB
     
     subgraph "業務處理層"
         BusinessLogic[業務邏輯]
-        EventPublisher[事件發布]
+        EventPublisher[事件發佈]
         Workflow[工作流程]
     end
     
@@ -124,7 +124,7 @@ sequenceDiagram
         OrderService->>PaymentService: 發起支付
         PaymentService->>PaymentService: 建立支付會話
         
-        OrderService->>EventBus: 發布 OrderCreated 事件
+        OrderService->>EventBus: 發佈 OrderCreated 事件
         OrderService-->>API: 訂單建立成功
         API-->>User: 201 Created
     else 庫存不足
@@ -288,7 +288,7 @@ graph LR
 
 ## 事件驅動資料流
 
-### 事件發布訂閱模式
+### 事件發佈訂閱模式
 
 ```mermaid
 graph TB
@@ -333,7 +333,7 @@ sequenceDiagram
     participant Handler2
     participant DeadLetter
     
-    Service->>EventBus: 發布事件
+    Service->>EventBus: 發佈事件
     EventBus->>EventStore: 持久化事件
     
     par 並行處理

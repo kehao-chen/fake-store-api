@@ -293,7 +293,7 @@ boolean tryMarkStep(SagaState s, SagaStep step) {
 
 ## 重試與退避策略
 - 對暫時性錯誤（網路/Rate Limit）採固定或指數退避（Exponential Backoff + Jitter）。
-- 設定最大重試次數（例如 3~5 次）；超出則標記 `FAILED` 並通知人工或轉入死信隊列。
+- 設定最大重試次數（例如 3~5 次）；超出則標記 `FAILED` 並通知人工或轉入死信佇列。
 - 在 Spring 環境可搭配 Resilience4j/Retry 或自訂 Scheduler。
 
 ## 與 Webhook 對賬整合

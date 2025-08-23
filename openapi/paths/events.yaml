@@ -5,13 +5,13 @@ products_publish:
   post:
     tags:
       - Events
-    summary: 發布產品事件
+    summary: 發佈產品事件
     description: |
       將產品設為公開狀態並觸發 product.published 事件。
       符合 AIP-136 Custom Methods 設計規範。
       
       ## 觸發的事件
-      - `product.published`: 產品發布事件
+      - `product.published`: 產品發佈事件
       - `inventory.updated`: 庫存狀態更新
       - `catalog.refreshed`: 目錄刷新事件
       
@@ -39,7 +39,7 @@ products_publish:
                 type: string
                 format: date-time
                 nullable: true
-                description: 預定發布時間 (可選，null 表示立即發布)
+                description: 預定發佈時間 (可選，null 表示立即發佈)
               notify_subscribers:
                 type: boolean
                 default: true
@@ -48,10 +48,10 @@ products_publish:
                 type: string
                 maxLength: 500
                 nullable: true
-                description: 發布原因說明
+                description: 發佈原因說明
     responses:
       '200':
-        description: 產品發布成功
+        description: 產品發佈成功
         content:
           application/json:
             schema:
