@@ -1,15 +1,97 @@
-# 範例資料索引文件
-ProductExamples:
-  $ref: './product-examples.yaml'
-CategoryExamples:
-  $ref: './category-examples.yaml'
-UserExamples:
-  $ref: './user-examples.yaml'
-AuthExamples:
-  $ref: './auth-examples.yaml'
-CartExamples:
-  $ref: './cart-examples.yaml'
-OrderExamples:
-  $ref: './order-examples.yaml'
-ErrorExamples:
-  $ref: './error-examples.yaml'
+# 範例資料索引文件（展開為個別 Example 物件）
+
+# Auth
+AuthLoginRequest:
+  $ref: './auth-examples.yaml#/LoginRequestExample'
+AuthLoginResponse:
+  $ref: './auth-examples.yaml#/LoginResponseExample'
+AuthRefreshToken:
+  $ref: './auth-examples.yaml#/RefreshTokenExample'
+AuthOAuth2Authorize:
+  $ref: './auth-examples.yaml#/OAuth2AuthorizeExample'
+AuthOAuth2Token:
+  $ref: './auth-examples.yaml#/OAuth2TokenExample'
+AuthRegisterRequest:
+  $ref: './auth-examples.yaml#/RegisterRequestExample'
+AuthPasswordResetRequest:
+  $ref: './auth-examples.yaml#/PasswordResetRequestExample'
+AuthPasswordResetConfirm:
+  $ref: './auth-examples.yaml#/PasswordResetConfirmExample'
+AuthUnauthorized:
+  $ref: './auth-examples.yaml#/UnauthorizedExample'
+
+# Cart
+CartCart:
+  $ref: './cart-examples.yaml#/CartExample'
+CartEmpty:
+  $ref: './cart-examples.yaml#/EmptyCartExample'
+CartAddItemRequest:
+  $ref: './cart-examples.yaml#/AddToCartExample'
+CartUpdateItemRequest:
+  $ref: './cart-examples.yaml#/UpdateCartItemExample'
+CartCheckoutRequest:
+  $ref: './cart-examples.yaml#/CartCheckoutExample'
+
+# Category
+CategoryOne:
+  $ref: './category-examples.yaml#/CategoryExample'
+CategorySub:
+  $ref: './category-examples.yaml#/SubCategoryExample'
+CategoryList:
+  $ref: './category-examples.yaml#/CategoryListExample'
+CategoryCreateRequest:
+  $ref: './category-examples.yaml#/CategoryCreateExample'
+
+# Error
+ErrorBadRequest:
+  $ref: './error-examples.yaml#/BadRequestExample'
+ErrorUnauthorized:
+  $ref: './error-examples.yaml#/UnauthorizedExample'
+ErrorForbidden:
+  $ref: './error-examples.yaml#/ForbiddenExample'
+ErrorNotFound:
+  $ref: './error-examples.yaml#/NotFoundExample'
+ErrorConflict:
+  $ref: './error-examples.yaml#/ConflictExample'
+ErrorValidation:
+  $ref: './error-examples.yaml#/ValidationErrorExample'
+ErrorRateLimit:
+  $ref: './error-examples.yaml#/RateLimitExample'
+ErrorInternal:
+  $ref: './error-examples.yaml#/InternalServerErrorExample'
+ErrorServiceUnavailable:
+  $ref: './error-examples.yaml#/ServiceUnavailableExample'
+
+# Order
+OrderDetail:
+  $ref: './order-examples.yaml#/OrderExample'
+OrderList:
+  $ref: './order-examples.yaml#/OrderListExample'
+OrderStatusUpdateRequest:
+  $ref: './order-examples.yaml#/OrderStatusUpdateExample'
+OrderCancellationRequest:
+  $ref: './order-examples.yaml#/OrderCancellationExample'
+
+# Product
+ProductMouse:
+  $ref: './product-examples.yaml#/electronics_mouse'
+ProductKeyboard:
+  $ref: './product-examples.yaml#/electronics_keyboard'
+ProductTShirt:
+  $ref: './product-examples.yaml#/clothing_tshirt'
+ProductList:
+  $ref: './product-examples.yaml#/product_list_example'
+ProductCreateRequest:
+  $ref: './product-examples.yaml#/create_product_request'
+ProductUpdateRequest:
+  $ref: './product-examples.yaml#/update_product_request'
+
+# User
+UserNormal:
+  $ref: './user-examples.yaml#/UserExample'
+UserAdmin:
+  $ref: './user-examples.yaml#/AdminUserExample'
+UserRegistrationRequest:
+  $ref: './user-examples.yaml#/UserRegistrationExample'
+UserUpdateRequest:
+  $ref: './user-examples.yaml#/UserUpdateExample'

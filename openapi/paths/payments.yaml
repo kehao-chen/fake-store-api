@@ -19,7 +19,7 @@ payments_collection:
       
     operationId: createPayment
     security:
-      - BearerAuth: []
+      - OAuth2: ['write']
     requestBody:
       required: true
       content:
@@ -125,7 +125,7 @@ payments_item:
       
     operationId: getPayment
     security:
-      - BearerAuth: []
+      - OAuth2: ['read']
     parameters:
       - name: id
         in: path

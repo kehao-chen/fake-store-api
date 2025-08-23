@@ -105,7 +105,9 @@ StripePaymentIntent:
         user_id: "user_123abc"
       
     last_payment_error:
-      $ref: '#/StripePaymentError'
+      allOf:
+        - $ref: '#/StripePaymentError'
+      type: object
       nullable: true
       description: 最後的支付錯誤
 

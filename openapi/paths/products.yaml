@@ -14,6 +14,8 @@ products_batch_get:
       - 支援部分成功返回
       
     operationId: batchGetProducts
+    security:
+      - OAuth2: ['read']
     requestBody:
       required: true
       content:
@@ -94,7 +96,6 @@ products_batch_update:
   patch:
     tags:
       - Products
-      - Admin
     summary: 批量更新產品
     description: |
       批量更新多個產品的資訊，需要管理員權限。
@@ -106,7 +107,7 @@ products_batch_update:
       
     operationId: batchUpdateProducts
     security:
-      - BearerAuth: ['write', 'admin']
+      - OAuth2: ['write', 'admin']
     requestBody:
       required: true
       content:
@@ -230,10 +231,11 @@ products_collection:
         $ref: '../components/responses/errors.yaml#/RateLimitExceeded'
       '500':
         $ref: '../components/responses/errors.yaml#/InternalError'
+    security:
+      - OAuth2: ['read']
   post:
     tags:
       - Products
-      - Admin
     summary: 建立產品
     description: |
       建立新的產品。需要管理員權限。
@@ -245,7 +247,7 @@ products_collection:
       
     operationId: createProduct
     security:
-      - BearerAuth: ['write', 'admin']
+      - OAuth2: ['write', 'admin']
     requestBody:
       required: true
       content:
@@ -318,16 +320,17 @@ products_item:
         $ref: '../components/responses/errors.yaml#/NotFound'
       '500':
         $ref: '../components/responses/errors.yaml#/InternalError'
+    security:
+      - OAuth2: ['read']
   
   patch:
     tags:
       - Products
-      - Admin
     summary: 更新產品
     description: 部分更新產品資訊，需要管理員權限
     operationId: updateProduct
     security:
-      - BearerAuth: ['write', 'admin']
+      - OAuth2: ['write', 'admin']
     parameters:
       - name: id
         in: path
@@ -357,16 +360,15 @@ products_item:
         $ref: '../components/responses/errors.yaml#/Forbidden'
       '404':
         $ref: '../components/responses/errors.yaml#/NotFound'
-  
+
   delete:
     tags:
       - Products
-      - Admin
     summary: 刪除產品
     description: 刪除指定產品，需要管理員權限
     operationId: deleteProduct
     security:
-      - BearerAuth: ['write', 'admin']
+      - OAuth2: ['write', 'admin']
     parameters:
       - name: id
         in: path

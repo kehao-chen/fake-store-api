@@ -55,7 +55,9 @@ User:
       example: "+15550123"
       
     address:
-      $ref: '#/Address'
+      allOf:
+        - $ref: '#/Address'
+      type: object
       nullable: true
       description: 使用者地址
       
@@ -203,7 +205,9 @@ UpdateUserRequest:
       description: 電話號碼 (E.164 格式)
       
     address:
-      $ref: '#/Address'
+      allOf:
+        - $ref: '#/Address'
+      type: object
       nullable: true
       description: 使用者地址
       

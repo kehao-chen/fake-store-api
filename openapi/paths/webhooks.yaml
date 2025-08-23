@@ -2,8 +2,7 @@
 stripe_webhook:
   post:
     tags:
-      - Orders
-      - Admin
+      - Webhooks
     summary: Stripe Webhook 處理
     description: |
       處理來自 Stripe 的 Webhook 事件通知。

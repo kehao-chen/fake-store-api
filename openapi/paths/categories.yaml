@@ -56,16 +56,17 @@ categories_collection:
         $ref: '../components/responses/errors.yaml#/BadRequest'
       '500':
         $ref: '../components/responses/errors.yaml#/InternalError'
+    security:
+      - OAuth2: ['read']
   
   post:
     tags:
       - Categories
-      - Admin
     summary: 建立分類
     description: 建立新的產品分類，需要管理員權限
     operationId: createCategory
     security:
-      - BearerAuth: ['write', 'admin']
+      - OAuth2: ['write', 'admin']
     requestBody:
       required: true
       content:
@@ -126,16 +127,17 @@ categories_item:
         $ref: '../components/responses/errors.yaml#/NotFound'
       '500':
         $ref: '../components/responses/errors.yaml#/InternalError'
+    security:
+      - OAuth2: ['read']
   
   patch:
     tags:
       - Categories
-      - Admin
     summary: 更新分類
     description: 部分更新分類資訊，需要管理員權限
     operationId: updateCategory
     security:
-      - BearerAuth: ['write', 'admin']
+      - OAuth2: ['write', 'admin']
     parameters:
       - name: id
         in: path
@@ -169,12 +171,11 @@ categories_item:
   delete:
     tags:
       - Categories
-      - Admin
     summary: 刪除分類
     description: 刪除指定分類，需要管理員權限
     operationId: deleteCategory
     security:
-      - BearerAuth: ['write', 'admin']
+      - OAuth2: ['write', 'admin']
     parameters:
       - name: id
         in: path
@@ -250,3 +251,5 @@ categories_list_products:
         $ref: '../components/responses/errors.yaml#/NotFound'
       '500':
         $ref: '../components/responses/errors.yaml#/InternalError'
+    security:
+      - OAuth2: ['read']

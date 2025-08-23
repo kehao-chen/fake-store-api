@@ -23,7 +23,7 @@ orders_collection:
       
     operationId: listOrders
     security:
-      - BearerAuth: ['read']
+      - OAuth2: ['read']
     parameters:
       - name: page_size
         in: query
@@ -168,7 +168,7 @@ orders_collection:
       
     operationId: createOrderFromCart
     security:
-      - BearerAuth: ['write']
+      - OAuth2: ['write']
     requestBody:
       required: true
       content:
@@ -236,7 +236,7 @@ orders_item:
       
     operationId: getOrder
     security:
-      - BearerAuth: ['read']
+      - OAuth2: ['read']
     parameters:
       - name: id
         in: path
@@ -284,7 +284,7 @@ orders_item:
       
     operationId: updateOrder
     security:
-      - BearerAuth: ['write']
+      - OAuth2: ['write']
     parameters:
       - name: id
         in: path
@@ -350,7 +350,7 @@ orders_item:
       
     operationId: cancelOrder
     security:
-      - BearerAuth: ['write']
+      - OAuth2: ['write']
     parameters:
       - name: id
         in: path
@@ -413,7 +413,7 @@ orders_cancel:
       
     operationId: cancelOrderDetailed
     security:
-      - BearerAuth: ['write']
+      - OAuth2: ['write']
     parameters:
       - name: id
         in: path

@@ -86,11 +86,15 @@ Order:
           example: "pi_1A2B3C4D5E"
           
         billing_address:
-          $ref: '#/BillingAddress'
+          allOf:
+            - $ref: '#/BillingAddress'
+          type: object
           description: 帳單地址
           
         shipping_address:
-          $ref: '#/BillingAddress'
+          allOf:
+            - $ref: '#/BillingAddress'
+          type: object
           nullable: true
           description: 配送地址
           
@@ -149,6 +153,12 @@ OrderItem:
       multipleOf: 0.01
       description: 小計金額 (unit_price × quantity)
       example: 160.00
+    product_image_url:
+      type: string
+      format: uri
+      nullable: true
+      description: 產品圖片 URL (快照)
+      example: "https://api.fakestore.happyhacking.ninja/images/shoes-002.jpg"
 
 BillingAddress:
   type: object
@@ -211,11 +221,15 @@ CheckoutRequest:
       example: "stripe"
       
     billing_address:
-      $ref: '#/BillingAddress'
+      allOf:
+        - $ref: '#/BillingAddress'
+      type: object
       description: 帳單地址
       
     shipping_address:
-      $ref: '#/BillingAddress'
+      allOf:
+        - $ref: '#/BillingAddress'
+      type: object
       nullable: true
       description: 配送地址 (可選，預設使用帳單地址)
       
@@ -356,7 +370,9 @@ UpdateOrderRequest:
   type: object
   properties:
     shipping_address:
-      $ref: '#/BillingAddress'
+      allOf:
+        - $ref: '#/BillingAddress'
+      type: object
       description: 更新配送地址
       nullable: true
       

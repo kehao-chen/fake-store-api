@@ -48,16 +48,22 @@ openapi/
 
 ### 1. 驗證 OpenAPI 規範
 ```bash
-# 使用 Redocly CLI 驗證
-npm install -g @redocly/cli
-redocly lint openapi/main.yaml
+# 使用 Redocly CLI 驗證（推薦）
+# 需要 bun / pnpm / npm 任一
+make redocly-lint-openapi
+
+# 或手動執行
+npx @redocly/cli lint openapi/main.yaml
 ```
 
 ### 2. 生成 API 文件
 ```bash
 # 使用 Redoc 生成靜態文件
-npm install -g redoc-cli
-redoc-cli build openapi/main.yaml --output docs/api.html
+# 需要 bun / pnpm / npm 任一
+make redoc-build-openapi
+
+# 或手動執行
+npx redoc-cli build openapi/main.yaml --output docs/api.html
 ```
 
 ### 3. 生成客戶端 SDK
@@ -102,7 +108,9 @@ docker run -p 8080:8080 -e SWAGGER_JSON=/openapi/main.yaml -v $(pwd)/openapi:/op
 
 ### 更新規範
 1. 修改對應的 YAML 檔案
-2. 執行驗證: `redocly lint openapi/main.yaml`
+2. 執行驗證（Redocly 與 Spectral 皆可）：
+   - `make redocly-lint-openapi`
+   - `make lint-openapi`
 3. 更新版本號: 修改 `main.yaml` 中的 `info.version`
 4. 提交變更並建立 Git 標籤
 

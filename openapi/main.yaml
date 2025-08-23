@@ -43,53 +43,53 @@ servers:
           - staging.fakestore.happyhacking.ninja
           - localhost:8080
 
-# 標籤分組
+# 標籤分組（依字母排序）
 tags:
+  - name: Admin
+    description: 管理員專用功能
+
   - name: Authentication
     description: 身份驗證與授權管理
     externalDocs:
       description: 認證指南
       url: https://docs.fakestore.happyhacking.ninja/auth
-      
-  - name: Products
-    description: 產品管理與查詢功能
-    externalDocs:
-      description: 產品 API 指南
-      url: https://docs.fakestore.happyhacking.ninja/products
-      
-  - name: Categories
-    description: 產品分類管理
-    
-  - name: Users
-    description: 使用者資料管理
-    
+
   - name: Cart
     description: 購物車操作功能
     externalDocs:
       description: 購物車使用指南
       url: https://docs.fakestore.happyhacking.ninja/cart
-      
-  - name: Orders
-    description: 訂單與支付處理
-    externalDocs:
-      description: 支付整合指南
-      url: https://docs.fakestore.happyhacking.ninja/payments
-      
-  - name: Payments
-    description: 支付處理與查詢
-    externalDocs:
-      description: 支付 API 指南
-      url: https://docs.fakestore.happyhacking.ninja/payments/api
-      
-  - name: Admin
-    description: 管理員專用功能
-    
+
+  - name: Categories
+    description: 產品分類管理
+
   - name: Events
     description: 事件驅動架構和系統事件管理
     externalDocs:
       description: 事件驅動架構指南
       url: https://docs.fakestore.happyhacking.ninja/events
-      
+
+  - name: Orders
+    description: 訂單與支付處理
+    externalDocs:
+      description: 支付整合指南
+      url: https://docs.fakestore.happyhacking.ninja/payments
+
+  - name: Payments
+    description: 支付處理與查詢
+    externalDocs:
+      description: 支付 API 指南
+      url: https://docs.fakestore.happyhacking.ninja/payments/api
+
+  - name: Products
+    description: 產品管理與查詢功能
+    externalDocs:
+      description: 產品 API 指南
+      url: https://docs.fakestore.happyhacking.ninja/products
+
+  - name: Users
+    description: 使用者資料管理
+
   - name: Webhooks
     description: Webhook 訂閱和事件通知管理
     externalDocs:
@@ -192,22 +192,6 @@ paths:
 components:
   # 安全方案
   securitySchemes:
-    BearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: |
-        JWT Bearer Token 認證。格式：`Bearer <token>`
-        
-        獲取方式：
-        1. 使用 `/auth/token` 端點取得 JWT
-        2. 或透過 OAuth 2.0 流程獲取
-        
-        範例：
-        ```
-        Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-        ```
-        
     BasicAuth:
       type: http
       scheme: basic
@@ -242,6 +226,4 @@ components:
   examples:
     $ref: './components/examples/index.yaml'
 
-# 全域安全要求
-security:
-  - BearerAuth: []
+# 全域安全要求（移除全域 BearerAuth，於各 operation 指定 OAuth2 scopes）

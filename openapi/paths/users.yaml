@@ -7,7 +7,7 @@ users_me:
     description: 獲取當前認證使用者的詳細資訊
     operationId: getCurrentUser
     security:
-      - BearerAuth: ['read']
+      - OAuth2: ['read']
     responses:
       '200':
         description: 成功返回使用者資訊
@@ -29,7 +29,7 @@ users_me:
     description: 更新當前認證使用者的個人資料
     operationId: updateCurrentUser
     security:
-      - BearerAuth: ['write']
+      - OAuth2: ['write']
     requestBody:
       required: true
       content:
@@ -59,12 +59,11 @@ users_item:
   get:
     tags:
       - Users
-      - Admin
     summary: 取得指定使用者資訊
     description: 獲取指定使用者的資訊，需要管理員權限
     operationId: getUser
     security:
-      - BearerAuth: ['read', 'admin']
+      - OAuth2: ['read', 'admin']
     parameters:
       - name: id
         in: path
@@ -103,7 +102,7 @@ users_me_cart:
     description: 獲取當前使用者的購物車內容
     operationId: getCurrentUserCart
     security:
-      - BearerAuth: ['read']
+      - OAuth2: ['read']
     responses:
       '200':
         description: 成功返回購物車內容
@@ -120,12 +119,11 @@ users_cart:
   get:
     tags:
       - Cart
-      - Admin
     summary: 取得指定使用者購物車
     description: 獲取指定使用者的購物車內容，需要管理員權限
     operationId: getUserCart
     security:
-      - BearerAuth: ['read', 'admin']
+      - OAuth2: ['read', 'admin']
     parameters:
       - name: id
         in: path
@@ -168,7 +166,7 @@ cart_add_product:
     description: 將指定產品加入到目前使用者的購物車
     operationId: addProductToCart
     security:
-      - BearerAuth: ['write']
+      - OAuth2: ['write']
     requestBody:
       required: true
       content:
@@ -208,7 +206,7 @@ cart_update_product:
     description: 更新購物車中指定產品的數量
     operationId: updateCartProduct
     security:
-      - BearerAuth: ['write']
+      - OAuth2: ['write']
     requestBody:
       required: true
       content:
@@ -243,7 +241,7 @@ cart_remove_product:
     description: 從購物車中移除指定的產品
     operationId: removeCartProduct
     security:
-      - BearerAuth: ['write']
+      - OAuth2: ['write']
     requestBody:
       required: true
       content:
@@ -277,7 +275,7 @@ cart_clear:
     description: 清空目前使用者購物車中的所有產品
     operationId: clearCart
     security:
-      - BearerAuth: ['write']
+      - OAuth2: ['write']
     responses:
       '200':
         description: 購物車清空成功
@@ -294,7 +292,6 @@ cart_checkout:
   post:
     tags:
       - Cart
-      - Orders
     summary: 購物車結帳
     description: |
       處理購物車結帳，建立訂單並啟動支付流程。
@@ -307,7 +304,7 @@ cart_checkout:
       
     operationId: checkoutCart
     security:
-      - BearerAuth: ['write']
+      - OAuth2: ['write']
     requestBody:
       required: true
       content:

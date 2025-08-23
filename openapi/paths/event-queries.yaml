@@ -5,7 +5,6 @@ events_collection:
   get:
     tags:
       - Events
-      - Admin
     summary: 列出系統事件
     description: |
       查詢系統事件日誌，支援篩選和分頁。
@@ -19,7 +18,7 @@ events_collection:
       
     operationId: listEvents
     security:
-      - BearerAuth: ['read', 'admin']
+      - OAuth2: ['read', 'admin']
     parameters:
       - name: page_size
         in: query
@@ -101,12 +100,11 @@ events_item:
   get:
     tags:
       - Events
-      - Admin
     summary: 取得特定事件詳情
     description: 根據事件 ID 獲取詳細事件資訊
     operationId: getEvent
     security:
-      - BearerAuth: ['read', 'admin']
+      - OAuth2: ['read', 'admin']
     parameters:
       - name: id
         in: path
@@ -134,13 +132,12 @@ events_item:
 webhook_subscriptions_collection:
   get:
     tags:
-      - Events
       - Webhooks
     summary: 列出我的事件訂閱
     description: 獲取當前使用者的所有事件訂閱配置
     operationId: listWebhookSubscriptions
     security:
-      - BearerAuth: ['read']
+      - OAuth2: ['read']
     responses:
       '200':
         description: 成功返回訂閱列表
@@ -155,10 +152,15 @@ webhook_subscriptions_collection:
                     $ref: '../components/schemas/events.yaml#/WebhookSubscription'
                 total_size:
                   type: integer
+      '400':
+        $ref: '../components/responses/errors.yaml#/BadRequest'
+      '401':
+        $ref: '../components/responses/errors.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses/errors.yaml#/Forbidden'
   
   post:
     tags:
-      - Events
       - Webhooks
     summary: 創建事件訂閱
     description: |
@@ -171,7 +173,7 @@ webhook_subscriptions_collection:
       
     operationId: createWebhookSubscription
     security:
-      - BearerAuth: ['write']
+      - OAuth2: ['write']
     requestBody:
       required: true
       content:
@@ -193,21 +195,26 @@ webhook_subscriptions_collection:
               format: uri
       '400':
         $ref: '../components/responses/errors.yaml#/ValidationError'
+      '401':
+        $ref: '../components/responses/errors.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses/errors.yaml#/Forbidden'
 
 # 單一訂閱管理
 webhook_subscriptions_item:
   get:
     tags:
-      - Events
       - Webhooks
+    description: 查詢指定的 Webhook 訂閱詳情
     summary: 取得訂閱詳情
     operationId: getWebhookSubscription
     security:
-      - BearerAuth: ['read']
+      - OAuth2: ['read']
     parameters:
       - name: id
         in: path
         required: true
+        description: Webhook 訂閱 ID
         schema:
           type: string
           pattern: '^sub_[a-zA-Z0-9]+$'
@@ -218,19 +225,26 @@ webhook_subscriptions_item:
           application/json:
             schema:
               $ref: '../components/schemas/events.yaml#/WebhookSubscription'
+      '401':
+        $ref: '../components/responses/errors.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses/errors.yaml#/Forbidden'
+      '404':
+        $ref: '../components/responses/errors.yaml#/NotFound'
   
   patch:
     tags:
-      - Events
       - Webhooks
+    description: 更新指定的 Webhook 訂閱資訊
     summary: 更新事件訂閱
     operationId: updateWebhookSubscription
     security:
-      - BearerAuth: ['write']
+      - OAuth2: ['write']
     parameters:
       - name: id
         in: path
         required: true
+        description: Webhook 訂閱 ID
         schema:
           type: string
           pattern: '^sub_[a-zA-Z0-9]+$'
@@ -247,22 +261,37 @@ webhook_subscriptions_item:
           application/json:
             schema:
               $ref: '../components/schemas/events.yaml#/WebhookSubscription'
+      '400':
+        $ref: '../components/responses/errors.yaml#/ValidationError'
+      '401':
+        $ref: '../components/responses/errors.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses/errors.yaml#/Forbidden'
+      '404':
+        $ref: '../components/responses/errors.yaml#/NotFound'
   
   delete:
     tags:
-      - Events
       - Webhooks
+    description: 刪除指定的 Webhook 訂閱
     summary: 刪除事件訂閱
     operationId: deleteWebhookSubscription
     security:
-      - BearerAuth: ['write']
+      - OAuth2: ['write']
     parameters:
       - name: id
         in: path
         required: true
+        description: Webhook 訂閱 ID
         schema:
           type: string
           pattern: '^sub_[a-zA-Z0-9]+$'
     responses:
       '204':
         description: 訂閱刪除成功
+      '401':
+        $ref: '../components/responses/errors.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses/errors.yaml#/Forbidden'
+      '404':
+        $ref: '../components/responses/errors.yaml#/NotFound'

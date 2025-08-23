@@ -16,6 +16,8 @@ auth_token:
       - 刷新令牌：7 天
       
     operationId: createToken
+    security:
+      - OAuth2: []
     requestBody:
       required: true
       content:
@@ -81,6 +83,8 @@ auth_google:
       - 支援 `code_challenge` 和 `code_verifier`
       
     operationId: loginWithGoogle
+    security:
+      - OAuth2: []
     parameters:
       - name: redirect_uri
         in: query
@@ -113,6 +117,40 @@ auth_google:
           type: string
           enum: ["S256"]
     responses:
+      '200':
+        description: 引導登入資訊（必要時回傳說明）
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                provider:
+                  type: string
+                  enum: [google]
+                  description: OAuth 提供者
+                authorize_url:
+                  type: string
+                  format: uri
+                  description: 可選，直接提供授權 URL
+                state:
+                  type: string
+                  description: 建議前端保存以供回傳校驗
+                code_challenge_method:
+                  type: string
+                  enum: [S256]
+                  description: PKCE 代碼挑戰方法
+            examples:
+              redirect_mode:
+                summary: 直接 302 重定向
+                value:
+                  provider: google
+                  code_challenge_method: S256
+              manual_mode:
+                summary: 由前端手動導向
+                value:
+                  provider: google
+                  authorize_url: "https://accounts.google.com/o/oauth2/v2/auth?..."
+                  state: "random_state_string"
       '302':
         description: 重定向到 Google 授權頁面
         headers:
@@ -142,6 +180,8 @@ auth_github:
       - `user:email` - 讀取使用者 Email
       
     operationId: loginWithGitHub
+    security:
+      - OAuth2: []
     parameters:
       - name: redirect_uri
         in: query
@@ -173,6 +213,40 @@ auth_github:
           type: string
           enum: ["S256"]
     responses:
+      '200':
+        description: 引導登入資訊（必要時回傳說明）
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                provider:
+                  type: string
+                  enum: [github]
+                  description: OAuth 提供者
+                authorize_url:
+                  type: string
+                  format: uri
+                  description: 可選，直接提供授權 URL
+                state:
+                  type: string
+                  description: 建議前端保存以供回傳校驗
+                code_challenge_method:
+                  type: string
+                  enum: [S256]
+                  description: PKCE 代碼挑戰方法
+            examples:
+              redirect_mode:
+                summary: 直接 302 重定向
+                value:
+                  provider: github
+                  code_challenge_method: S256
+              manual_mode:
+                summary: 由前端手動導向
+                value:
+                  provider: github
+                  authorize_url: "https://github.com/login/oauth/authorize?..."
+                  state: "random_state_string"
       '302':
         description: 重定向到 GitHub 授權頁面
         headers:
@@ -204,6 +278,8 @@ auth_refresh:
       - 檢測重複使用攻擊
       
     operationId: refreshToken
+    security:
+      - OAuth2: []
     requestBody:
       required: true
       content:
