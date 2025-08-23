@@ -103,10 +103,16 @@ paths:
     $ref: './paths/auth.yaml#/auth_token'
   /auth/refresh:
     $ref: './paths/auth.yaml#/auth_refresh'
-  /auth/loginWithGoogle:
+  /auth/login:
+    $ref: './paths/auth.yaml#/auth_login'
+  /auth/google:
     $ref: './paths/auth.yaml#/auth_google'
-  /auth/loginWithGitHub:
+  /auth/github:
     $ref: './paths/auth.yaml#/auth_github'
+  /auth/google/callback:
+    $ref: './paths/auth.yaml#/auth_google_callback'
+  /auth/github/callback:
+    $ref: './paths/auth.yaml#/auth_github_callback'
     
   # 產品相關
   /products:
@@ -129,29 +135,31 @@ paths:
     $ref: './paths/categories.yaml#/categories_collection'
   /categories/{id}:
     $ref: './paths/categories.yaml#/categories_item'
-  /categories/{id}/listProducts:
-    $ref: './paths/categories.yaml#/categories_list_products'
+  /categories/{id}/products:
+    $ref: './paths/categories.yaml#/categories_products'
     
   # 使用者相關
   /users/me:
     $ref: './paths/users.yaml#/users_me'
   /users/{id}:
     $ref: './paths/users.yaml#/users_item'
+  /users/me/apiKeys:
+    $ref: './paths/users.yaml#/users_me_api_keys'
+  /users/me/apiKeys/{id}:
+    $ref: './paths/users.yaml#/users_me_api_keys_item'
     
   # 購物車相關
   /users/me/cart:
     $ref: './paths/users.yaml#/users_me_cart'
   /users/{id}/cart:
     $ref: './paths/users.yaml#/users_cart'
-  /users/me/cart/addProduct:
-    $ref: './paths/users.yaml#/cart_add_product'
-  /users/me/cart/updateProduct:
-    $ref: './paths/users.yaml#/cart_update_product'
-  /users/me/cart/removeProduct:
-    $ref: './paths/users.yaml#/cart_remove_product'
-  /users/me/cart/clear:
+  /users/me/cart/items:
+    $ref: './paths/users.yaml#/cart_items_collection'
+  /users/me/cart/items/{product_id}:
+    $ref: './paths/users.yaml#/cart_items_item'
+  /users/me/cart:clear:
     $ref: './paths/users.yaml#/cart_clear'
-  /users/me/cart/checkout:
+  /users/me/cart:checkout:
     $ref: './paths/users.yaml#/cart_checkout'
     
   # 訂單相關
@@ -167,6 +175,8 @@ paths:
     $ref: './paths/payments.yaml#/payments_collection'
   /payments/{id}:
     $ref: './paths/payments.yaml#/payments_item'
+  /payments:createCheckoutSession:
+    $ref: './paths/payments.yaml#/payments_create_checkout_session'
     
   # Webhook
   /webhooks/stripe:
@@ -192,6 +202,16 @@ paths:
 components:
   # 安全方案
   securitySchemes:
+    ApiKeyBearer:
+      type: http
+      scheme: bearer
+      description: |
+        使用 `Authorization: Bearer <token>` 傳遞憑證。
+        
+        - 若值以 `eyJ` 開頭，視為 JWT（OAuth2 兌換所得）。
+        - 若值以 `sk_` 等前綴開頭，視為 API Key。
+        
+        後端依前綴判別並走相應驗證流程。
     BasicAuth:
       type: http
       scheme: basic
@@ -203,7 +223,7 @@ components:
       description: OAuth 2.0 認證流程
       flows:
         authorizationCode:
-          authorizationUrl: /v1/auth/loginWithGoogle
+          authorizationUrl: /v1/auth/google
           tokenUrl: /v1/auth/token
           scopes:
             read: 讀取基本資料權限

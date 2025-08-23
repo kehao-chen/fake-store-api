@@ -16,6 +16,7 @@ products_batch_get:
     operationId: batchGetProducts
     security:
       - OAuth2: ['read']
+      - ApiKeyBearer: []
     requestBody:
       required: true
       content:
@@ -108,6 +109,7 @@ products_batch_update:
     operationId: batchUpdateProducts
     security:
       - OAuth2: ['write', 'admin']
+      - ApiKeyBearer: []
     requestBody:
       required: true
       content:
@@ -233,6 +235,7 @@ products_collection:
         $ref: '../components/responses/errors.yaml#/InternalError'
     security:
       - OAuth2: ['read']
+      - ApiKeyBearer: []
   post:
     tags:
       - Products
@@ -248,6 +251,7 @@ products_collection:
     operationId: createProduct
     security:
       - OAuth2: ['write', 'admin']
+      - ApiKeyBearer: []
     requestBody:
       required: true
       content:
@@ -322,6 +326,7 @@ products_item:
         $ref: '../components/responses/errors.yaml#/InternalError'
     security:
       - OAuth2: ['read']
+      - ApiKeyBearer: []
   
   patch:
     tags:
@@ -331,6 +336,7 @@ products_item:
     operationId: updateProduct
     security:
       - OAuth2: ['write', 'admin']
+      - ApiKeyBearer: []
     parameters:
       - name: id
         in: path
@@ -339,6 +345,13 @@ products_item:
         schema:
           type: string
           pattern: '^prod_[a-zA-Z0-9]+$'
+      - name: update_mask
+        in: query
+        required: false
+        description: 要更新的欄位清單（AIP-134 updateMask；以逗號分隔）
+        schema:
+          type: string
+          example: "name,price,stock_quantity"
     requestBody:
       required: true
       content:

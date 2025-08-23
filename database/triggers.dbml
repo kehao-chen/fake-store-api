@@ -133,6 +133,24 @@ Trigger update_oauth_clients_updated_at {
   function: update_updated_at_column
 }
 
+// API Keys 觸發器
+Trigger update_api_keys_updated_at {
+  table: api_keys
+  timing: 'BEFORE UPDATE'
+  scope: 'FOR EACH ROW'
+  function: update_updated_at_column
+}
+
+// Payments 觸發器（冪等輔助與時間戳）
+Trigger update_payments_updated_at {
+  table: payments
+  timing: 'BEFORE UPDATE'
+  scope: 'FOR EACH ROW'
+  function: update_updated_at_column
+}
+
+// （移除）Saga 狀態觸發器：僅保留在文檔作為學習概念
+
 // ==================================================
 // 業務邏輯驗證函數
 // ==================================================
@@ -224,6 +242,37 @@ Function cleanup_expired_carts {
   '''
   
   Note: '過期購物車清理 - 自動清理30天以上的訪客購物車'
+}
+
+// ==================================================
+// 支付事件冪等更新（建議函數）
+// ==================================================
+
+Function apply_payment_event {
+  language: 'plpgsql'
+  returns: 'void'
+  parameters: 'p_payment_id text, p_event_id text, p_new_status text, p_paid_at timestamptz'
+
+  body: '''
+    BEGIN
+      -- 若事件已處理則直接返回（依賴 payments.last_event_id UNIQUE 保證冪等）
+      IF EXISTS (SELECT 1 FROM payments WHERE id = p_payment_id AND last_event_id = p_event_id) THEN
+        RETURN; -- 已處理
+      END IF;
+
+      -- 嘗試更新狀態與事件 ID
+      UPDATE payments
+      SET status = p_new_status,
+          last_event_id = p_event_id,
+          paid_at = COALESCE(p_paid_at, paid_at),
+          updated_at = NOW()
+      WHERE id = p_payment_id;
+
+      -- TODO: 可選：同步更新 orders 狀態（若允許 DB 層耦合），否則由應用層處理
+    END;
+  '''
+
+  Note: '應用端可呼叫此函數以確保事件冪等更新（同名事件不會重複套用）'
 }
 
 /*

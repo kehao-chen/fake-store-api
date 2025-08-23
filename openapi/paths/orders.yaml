@@ -24,6 +24,7 @@ orders_collection:
     operationId: listOrders
     security:
       - OAuth2: ['read']
+      - ApiKeyBearer: []
     parameters:
       - name: page_size
         in: query
@@ -169,6 +170,7 @@ orders_collection:
     operationId: createOrderFromCart
     security:
       - OAuth2: ['write']
+      - ApiKeyBearer: []
     requestBody:
       required: true
       content:
@@ -237,6 +239,7 @@ orders_item:
     operationId: getOrder
     security:
       - OAuth2: ['read']
+      - ApiKeyBearer: []
     parameters:
       - name: id
         in: path
@@ -285,6 +288,7 @@ orders_item:
     operationId: updateOrder
     security:
       - OAuth2: ['write']
+      - ApiKeyBearer: []
     parameters:
       - name: id
         in: path
@@ -351,6 +355,7 @@ orders_item:
     operationId: cancelOrder
     security:
       - OAuth2: ['write']
+      - ApiKeyBearer: []
     parameters:
       - name: id
         in: path
@@ -414,6 +419,7 @@ orders_cancel:
     operationId: cancelOrderDetailed
     security:
       - OAuth2: ['write']
+      - ApiKeyBearer: []
     parameters:
       - name: id
         in: path

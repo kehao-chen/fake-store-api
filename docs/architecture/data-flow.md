@@ -166,6 +166,68 @@ flowchart LR
     Success --> End
 ```
 
+### 4. 支付流程（雙軌）
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant FE as Front-end
+    participant API as Fake Store API
+    participant STR as Stripe
+
+    rect rgb(233,244,255)
+    note right of FE: PaymentIntent 模式
+    FE->>API: POST /v1/payments
+    API-->>FE: 201 { payment_intent.client_secret }
+    FE->>STR: confirm with client_secret (3DS/SCA)
+    end
+
+    rect rgb(233,255,240)
+    note right of FE: Checkout 模式
+    FE->>API: POST /v1/payments:createCheckoutSession { success_url, cancel_url }
+    API-->>FE: 201 { checkout_url, session_id }
+    FE->>STR: Redirect to checkout_url
+    end
+
+    STR-->>API: Webhook (payment_intent.succeeded | checkout.session.completed)
+    API->>API: Idempotent handle (by event.id)
+    API->>API: Update order status (pending → paid)
+```
+
+### 5. Saga 編排（含補償）
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant SO as Saga Orchestrator
+  participant OS as 訂單服務
+  participant IS as 庫存服務
+  participant PS as 支付服務
+
+  SO->>OS: CreateOrder
+  OS-->>SO: OrderCreated
+  SO->>IS: ReserveInventory
+  alt 庫存不足
+    IS-->>SO: InventoryNotAvailable
+    SO->>OS: CancelOrder (補償)
+    SO-->>SO: Saga 結束（FAILED/COMPENSATED）
+  else 庫存充足
+    IS-->>SO: InventoryReserved
+    SO->>PS: ProcessPayment (發起)
+    alt 支付失敗
+      PS-->>SO: PaymentFailed
+      SO->>IS: ReleaseInventory (補償)
+      SO->>OS: CancelOrder (補償)
+      SO-->>SO: Saga 結束（FAILED/COMPENSATED）
+    else 支付成功
+      PS-->>SO: PaymentProcessed
+      SO->>OS: ConfirmOrder
+      OS-->>SO: OrderConfirmed
+      SO-->>SO: Saga 結束（COMPLETED）
+    end
+  end
+```
+
 ## 資料快取策略
 
 ### 快取層級架構

@@ -20,6 +20,7 @@ payments_collection:
     operationId: createPayment
     security:
       - OAuth2: ['write']
+      - ApiKeyBearer: []
     requestBody:
       required: true
       content:
@@ -68,6 +69,8 @@ payments_collection:
         $ref: '../components/responses/errors.yaml#/Unauthorized'
       '402':
         $ref: '../components/responses/errors.yaml#/PaymentRequired'
+      '403':
+        $ref: '../components/responses/errors.yaml#/Forbidden'
       '422':
         description: 支付處理失敗
         content:
@@ -105,6 +108,79 @@ payments_collection:
       '500':
         $ref: '../components/responses/errors.yaml#/InternalError'
 
+# 以 Stripe Checkout 建立託管結帳頁（回傳 checkout_url）
+payments_create_checkout_session:
+  post:
+    tags:
+      - Payments
+    summary: 建立 Stripe Checkout Session
+    description: |
+      以 Stripe Checkout 托管結帳頁面進行支付，回傳 `checkout_url` 供前端重導。
+      適合快速體驗與教學場景，由 Stripe 負責 SCA/Apple Pay/Google Pay 等合規與 UI。
+    operationId: createCheckoutSession
+    security:
+      - OAuth2: ['write']
+      - ApiKeyBearer: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [source_type, success_url, cancel_url]
+            properties:
+              source_type:
+                type: string
+                enum: ["cart", "order"]
+                description: 支付來源
+              source_id:
+                type: string
+                nullable: true
+                description: 當來源為 order 時的訂單 ID
+              success_url:
+                type: string
+                format: uri
+                description: 支付完成後返回頁面
+              cancel_url:
+                type: string
+                format: uri
+                description: 取消支付返回頁面
+    responses:
+      '201':
+        description: Checkout Session 已建立
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [checkout_url, session_id]
+              properties:
+                checkout_url:
+                  type: string
+                  format: uri
+                  description: Stripe Checkout 重導 URL
+                session_id:
+                  type: string
+                  description: Stripe Checkout Session ID
+                order_id:
+                  type: string
+                  nullable: true
+                  description: 若同時建立訂單，回傳訂單 ID
+            examples:
+              checkout_created:
+                summary: 建立成功
+                value:
+                  checkout_url: "https://checkout.stripe.com/c/pay/cs_test_123..."
+                  session_id: "cs_test_123"
+                  order_id: "order_abc123"
+      '400':
+        $ref: '../components/responses/errors.yaml#/BadRequest'
+      '401':
+        $ref: '../components/responses/errors.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses/errors.yaml#/Forbidden'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalError'
+
 payments_item:
   get:
     tags:
@@ -126,6 +202,7 @@ payments_item:
     operationId: getPayment
     security:
       - OAuth2: ['read']
+      - ApiKeyBearer: []
     parameters:
       - name: id
         in: path

@@ -25,6 +25,20 @@ indexes {
   products.(sku) [name: 'uq_products_sku_active', unique, where: 'deleted_at IS NULL AND sku IS NOT NULL']
 }
 
+// API Keys 查詢
+indexes {
+  api_keys.(user_id) [name: 'idx_api_keys_user']
+  api_keys.(prefix) [name: 'idx_api_keys_prefix']
+}
+
+// Payments 查詢與對賬
+indexes {
+  payments.(user_id) [name: 'idx_payments_user']
+  payments.(order_id) [name: 'idx_payments_order']
+  payments.(status) [name: 'idx_payments_status']
+  payments.(last_event_id) [name: 'uq_payments_last_event', unique]
+}
+
 // 產品探索的全文搜尋
 indexes {
   products [

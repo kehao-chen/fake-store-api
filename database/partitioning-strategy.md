@@ -84,6 +84,12 @@ CREATE TABLE products_p3 PARTITION OF products
     FOR VALUES WITH (modulus 4, remainder 3);
 ```
 
+### 4. 支付分區建議（新增）
+
+**payments（按時間）**
+- 依 `created_at` 每月分區；查詢狀態配合 `status` 索引。
+- 歷史分區可歸檔至 `archive` schema 降低主庫負擔。
+
 ## 分區維護策略
 
 ### 1. 自動分區建立

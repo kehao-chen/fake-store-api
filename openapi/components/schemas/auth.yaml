@@ -153,3 +153,53 @@ RefreshTokenRequest:
     grant_type: "refresh_token"
     refresh_token: "refresh_token_abc123"
     scope: "read"
+
+# API Key 模型
+ApiKey:
+  type: object
+  required: [id, name, prefix, created_at]
+  properties:
+    id:
+      type: string
+      pattern: '^key_[a-zA-Z0-9]+$'
+      description: API Key 識別碼
+      example: "key_abc123"
+    name:
+      type: string
+      maxLength: 100
+      description: 金鑰顯示名稱
+      example: "my-local-dev-key"
+    prefix:
+      type: string
+      description: 用於快速識別的金鑰前綴（完整 key 僅在建立時回傳）
+      example: "sk_live_"
+    last_used_at:
+      type: string
+      format: date-time
+      nullable: true
+      description: 最近使用時間
+    created_at:
+      type: string
+      format: date-time
+      description: 建立時間
+      example: "2025-08-22T10:30:00Z"
+
+CreateApiKeyRequest:
+  type: object
+  properties:
+    name:
+      type: string
+      maxLength: 100
+      description: 金鑰顯示名稱
+      example: "my-local-dev-key"
+
+CreateApiKeyResponse:
+  type: object
+  required: [api_key, key]
+  properties:
+    api_key:
+      $ref: '#/ApiKey'
+    key:
+      type: string
+      description: 完整 API Key 值（僅建立時回傳，請妥善保存）
+      example: "sk_test_1234567890abcdef"

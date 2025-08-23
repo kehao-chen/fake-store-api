@@ -75,6 +75,12 @@ OAuthTokenRequest:
   $ref: './auth.yaml#/OAuthTokenRequest'
 RefreshTokenRequest:
   $ref: './auth.yaml#/RefreshTokenRequest'
+ApiKey:
+  $ref: './auth.yaml#/ApiKey'
+CreateApiKeyRequest:
+  $ref: './auth.yaml#/CreateApiKeyRequest'
+CreateApiKeyResponse:
+  $ref: './auth.yaml#/CreateApiKeyResponse'
 
 StripeWebhookEvent:
   $ref: './webhook.yaml#/StripeWebhookEvent'

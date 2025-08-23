@@ -19,6 +19,7 @@ events_collection:
     operationId: listEvents
     security:
       - OAuth2: ['read', 'admin']
+      - ApiKeyBearer: []
     parameters:
       - name: page_size
         in: query
@@ -105,6 +106,7 @@ events_item:
     operationId: getEvent
     security:
       - OAuth2: ['read', 'admin']
+      - ApiKeyBearer: []
     parameters:
       - name: id
         in: path
@@ -138,6 +140,7 @@ webhook_subscriptions_collection:
     operationId: listWebhookSubscriptions
     security:
       - OAuth2: ['read']
+      - ApiKeyBearer: []
     responses:
       '200':
         description: 成功返回訂閱列表
@@ -174,6 +177,7 @@ webhook_subscriptions_collection:
     operationId: createWebhookSubscription
     security:
       - OAuth2: ['write']
+      - ApiKeyBearer: []
     requestBody:
       required: true
       content:
@@ -210,6 +214,7 @@ webhook_subscriptions_item:
     operationId: getWebhookSubscription
     security:
       - OAuth2: ['read']
+      - ApiKeyBearer: []
     parameters:
       - name: id
         in: path
@@ -240,6 +245,7 @@ webhook_subscriptions_item:
     operationId: updateWebhookSubscription
     security:
       - OAuth2: ['write']
+      - ApiKeyBearer: []
     parameters:
       - name: id
         in: path
@@ -278,6 +284,7 @@ webhook_subscriptions_item:
     operationId: deleteWebhookSubscription
     security:
       - OAuth2: ['write']
+      - ApiKeyBearer: []
     parameters:
       - name: id
         in: path

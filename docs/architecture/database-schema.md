@@ -29,6 +29,10 @@ Fake Store API 使用 PostgreSQL 作為主要資料庫，採用以下設計原�
 
 ### 4. 認證授權
 - `oauth_clients` - OAuth 2.0 客戶端
+- `api_keys` - 使用者 API Key（僅儲存雜湊與前綴）
+
+### 5. 支付與對賬
+- `payments` - 支付記錄（intent_id/session_id、狀態、amount、currency、order_id、last_event_id、paid_at）
 
 ## 資料庫設計文件
 
@@ -70,6 +74,10 @@ categories.is_active
 CHECK ((user_id IS NOT NULL AND session_id IS NULL) OR 
        (user_id IS NULL AND session_id IS NOT NULL))
 ```
+
+### 4. API Key 儲存模式
+- 只儲存 Key 雜湊與前綴；完整 Key 僅在建立時回傳。
+- 欄位建議：`id`、`user_id`、`name`、`prefix`、`key_hash`、`last_used_at`、`created_at`、`revoked_at`。
 
 ## 效能考量
 

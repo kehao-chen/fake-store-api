@@ -1,8 +1,6 @@
-# API 設計規格（骨架）
+# API 設計規格（AIP 落地）
 
-> TODO: 補充 AIP-160 篩選語法、排序、分頁 token 設計與錯誤對應。
-
-## AIP-160 查詢語法（草案）
+## AIP-160 查詢語法
 - 支援欄位：
   - products: `name`, `price`, `category_id`, `is_active`, `created_at`, `updated_at`
   - users: `email`, `username`, `is_active`, `created_at`, `updated_at`
@@ -22,7 +20,7 @@
   - `only_deleted=true` 僅返回已刪除資料（僅管理員）。
   - 二者互斥，若同時為 true → `INVALID_ARGUMENT`（field: include_deleted / only_deleted）。
 
-## 分頁 Token（草案）
+## 分頁 Token
 - 格式：Base64 編碼的 JSON，包括：
   - `offset` 或 `cursor_keys`（如 created_at, id）
   - `order_by` / `filter_hash`（避免參數變更導致游標失效）
@@ -47,4 +45,17 @@
   - 錯誤對應：`INVALID_ARGUMENT` + details.badRequest.field_violations
 - 排序 `order_by`：允許欄位清單與方向
 - 分頁 token：格式、有效期、排序/過濾耦合策略與不可變性
-- 安全與速率限制：全域與端點級策略
+- 安全與速率限制：全域與端點級策略（限流鍵優先使用 Authorization 金鑰，否則回退 IP）。
+
+## AIP-132/131 資源設計
+- 子資源列表：如 `GET /v1/categories/{id}/products`
+- 單筆查詢：如 `GET /v1/products/{id}`
+
+## AIP-134 更新
+- 使用 `PATCH` 為準；支援 `updateMask`（query: `update_mask`）進行部分欄位更新。
+- 典型 `update_mask`：`name,price,stock_quantity`
+  - 端點：`PATCH /v1/products/{id}?update_mask=name,price`、`PATCH /v1/categories/{id}?update_mask=name,description`、`PATCH /v1/users/me?update_mask=first_name,last_name`
+
+## AIP-136 自訂方法
+- 結構：`/resources:verb`
+- 例：`/v1/payments:createCheckoutSession`（回 `checkout_url`）、`/v1/users/me/cart:clear`、`/v1/users/me/cart:checkout`

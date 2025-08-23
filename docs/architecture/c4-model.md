@@ -31,7 +31,7 @@ graph TB
     
     FakeStoreAPI -->|OAuth 認證| GoogleOAuth
     FakeStoreAPI -->|OAuth 認證| GitHubOAuth
-    FakeStoreAPI -->|支付處理| Stripe
+    FakeStoreAPI -->|支付處理 (PaymentIntent/Checkout)| Stripe
     FakeStoreAPI -->|發送通知| EmailService
 ```
 

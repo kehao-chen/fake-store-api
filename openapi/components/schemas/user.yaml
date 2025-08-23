@@ -210,6 +210,12 @@ UpdateUserRequest:
       type: object
       nullable: true
       description: 使用者地址
+    
+    # 文件輔助欄位：提醒改用 query 參數
+    update_mask:
+      type: string
+      readOnly: true
+      description: 請改用 query `update_mask` 指定要更新的欄位（AIP-134）
       
   example:
     first_name: "John"

@@ -105,6 +105,29 @@ Table user_oauth_providers {
 }
 
 // ==================================================
+// API Key 管理
+// ==================================================
+
+Table api_keys {
+  id varchar(50) [pk, default: `'key_' || generate_random_uuid()::TEXT`]
+  user_id varchar(50) [not null, ref: > users.id]
+  name varchar(100)
+  prefix varchar(20) [not null, note: '金鑰前綴（例如 sk_test_）']
+  key_hash varchar(255) [not null, note: '只儲存雜湊，完整 key 僅建立時回傳']
+  last_used_at timestamptz
+  revoked_at timestamptz
+  created_at timestamptz [not null, default: `NOW()`]
+  updated_at timestamptz [not null, default: `NOW()`]
+
+  indexes {
+    (user_id)
+    (prefix)
+  }
+
+  Note: '使用者 API Key：Bearer 模式，與 JWT 共用 Authorization 標頭'
+}
+
+// ==================================================
 // 購物車系統
 // ==================================================
 
@@ -173,6 +196,35 @@ Table order_items {
   
   Note: '訂單項目 - 完整的產品與價格快照保證訂單一致性'
 }
+
+// ==================================================
+// 支付與對賬
+// ==================================================
+
+Table payments {
+  id varchar(50) [pk, default: `'pay_' || generate_random_uuid()::TEXT`]
+  user_id varchar(50) [not null, ref: > users.id]
+  order_id varchar(50) [ref: > orders.id]
+  amount decimal(10,2) [not null]
+  currency varchar(3) [not null, default: 'USD']
+  status varchar(50) [not null, note: 'pending, processing, succeeded, failed, canceled']
+  stripe_payment_intent_id varchar(255) [unique]
+  stripe_checkout_session_id varchar(255) [unique]
+  last_event_id varchar(255) [note: '最後處理的 Stripe 事件 ID (冪等)']
+  paid_at timestamptz
+  created_at timestamptz [not null, default: `NOW()`]
+  updated_at timestamptz [not null, default: `NOW()`]
+
+  indexes {
+    (user_id)
+    (order_id)
+    (status)
+    (last_event_id)
+  }
+
+  Note: '支付記錄：PaymentIntent / Checkout Session 與對賬欄位'
+}
+
 
 // ==================================================
 // OAuth 2.0 客戶端管理

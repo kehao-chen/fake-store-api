@@ -18,6 +18,7 @@ products_publish:
     operationId: publishProduct
     security:
       - OAuth2: ['write', 'admin']
+      - ApiKeyBearer: []
     parameters:
       - name: id
         in: path
@@ -90,6 +91,7 @@ products_unpublish:
     operationId: unpublishProduct
     security:
       - OAuth2: ['write', 'admin']
+      - ApiKeyBearer: []
     parameters:
       - name: id
         in: path
@@ -148,6 +150,7 @@ orders_update_status:
     operationId: updateOrderStatus
     security:
       - OAuth2: ['write', 'admin']
+      - ApiKeyBearer: []
     parameters:
       - name: id
         in: path
@@ -214,6 +217,7 @@ users_send_notification:
     operationId: sendUserNotification
     security:
       - OAuth2: ['write', 'admin']
+      - ApiKeyBearer: []
     parameters:
       - name: id
         in: path

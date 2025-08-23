@@ -66,7 +66,7 @@ public class SecurityConfig {
                 .pathMatchers("/v1/orders/**").authenticated()
                 // 管理員端點
                 .pathMatchers(HttpMethod.POST, "/v1/products/**").hasRole("ADMIN")
-                .pathMatchers(HttpMethod.PUT, "/v1/products/**").hasRole("ADMIN")
+                .pathMatchers(HttpMethod.PATCH, "/v1/products/**").hasRole("ADMIN")
                 .pathMatchers(HttpMethod.DELETE, "/v1/products/**").hasRole("ADMIN")
                 .pathMatchers("/v1/admin/**").hasRole("ADMIN")
                 // 其他都需要認證

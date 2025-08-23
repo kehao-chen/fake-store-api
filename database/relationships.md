@@ -104,6 +104,18 @@
 - 串聯規則: 刪除訂單時採用 CASCADE
 - 業務規則: 項目不可變更，total_price 為計算欄位
 
+### 4. API 金鑰與支付關聯
+
+**使用者 → API Key (1:N)**
+- 每位使用者可擁有多把 API Key；完整 key 僅建立時回傳，DB 只存 hash 與前綴。
+
+**使用者/訂單 → 支付 (1:N)**
+- 支付記錄掛載在使用者與訂單下；以 `last_event_id` 做對賬冪等鍵。
+- Stripe 欄位：`stripe_payment_intent_id`、`stripe_checkout_session_id`（唯一）。
+
+**訂單 → Saga 狀態 (1:N)（可選）**
+- 用於長交易編排，支援重試/補償/觀測。
+
 ## 資料完整性設計模式
 
 ### 1. 不可變稽核軌跡

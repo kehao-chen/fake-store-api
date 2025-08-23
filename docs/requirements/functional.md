@@ -30,9 +30,9 @@
 |                    | CART-03     | 系統應提供 API，讓已驗證的使用者能夠從自己購物車中移除產品。   | 高         |
 |                    | CART-04     | 系統應提供 API，讓已驗證的使用者能夠獲取自己購物車的內容。     | 高         |
 |                    | CART-05     | 系統應提供 API，允許管理者查看指定使用者的購物車內容。(練習用) | 低         |
-| **認證與授權**     | AUTH-01     | 系統應提供 API，讓使用者透過帳號密碼登入並獲取 JWT。         | 高         |
+| **認證與授權**     | AUTH-01     | 系統應提供 API，讓使用者透過帳號密碼登入並獲取 JWT（教學用）。 | 高         |
 |                    | AUTH-02     | 系統應支援 Google OAuth 2.0 使用者授權流程。(學習用)       | 低         |
-|                    | AUTH-03     | 系統應支援簡單的 API Key 認證機制。(學習用) | 低         |
+|                    | AUTH-03     | 系統應支援簡單的 API Key 認證機制（與 JWT 共用 Authorization: Bearer）。 | 低         |
 | **金流支付**       | PAY-01      | 系統應提供 API，為使用者的購物車發起一個基於 Stripe 的模擬支付流程。 | 高         |
 |                    | PAY-02      | 系統應提供 Webhook 端點，用於接收和處理來自 Stripe 的支付狀態更新。 | 高         |
 
@@ -212,7 +212,7 @@ POST /v1/users/me/cart/items
 
 **API 端點**
 ```
-PUT /v1/users/me/cart/items/{item_id}
+PUT /v1/users/me/cart/items/{product_id}
 ```
 
 #### CART-03: 移除購物車商品
@@ -228,7 +228,7 @@ PUT /v1/users/me/cart/items/{item_id}
 
 **API 端點**
 ```
-DELETE /v1/users/me/cart/items/{item_id}
+DELETE /v1/users/me/cart/items/{product_id}
 ```
 
 #### CART-04: 查看購物車
@@ -305,6 +305,11 @@ GET /v1/auth/google/callback
 - 為購物車內容建立 Stripe 支付會話
 - 重導向到 Stripe 支付頁面
 
+**補充說明**
+- 支援雙軌：
+  - PaymentIntent：回傳 `client_secret`，前端以 Stripe.js 確認。
+  - Checkout：回傳 `checkout_url`，前端重導到 Stripe 託管頁。
+
 **接受條件**
 - [ ] 需要有效的認證
 - [ ] 驗證購物車不為空
@@ -362,6 +367,21 @@ POST /v1/webhooks/stripe
 - [非功能需求](./non-functional.md) - 效能、安全、可用性要求
 - [API 設計規格](../api/design-spec.md) - 詳細 API 文件
 - [資料庫設計](../architecture/database-schema.md) - 資料模型設計
+#### PROD-04: 更新產品
+
+**補充說明**
+- 採用 `PATCH` + `updateMask`（AIP-134）進行部分欄位更新。
+
+**API 端點**
+```
+PATCH /v1/products/{id}
+```
+
+**補充說明**
+- 認證策略同時支援 JWT 與 API Key，皆透過 `Authorization: Bearer <token>` 傳遞。
+- 一般註冊以 Google/GitHub OAuth 為主；帳密登入僅供教學體驗。
+**補充說明**
+- 採用 OAuth2 + PKCE；授權入口 `/v1/auth/google`，回調 `/v1/auth/google/callback`，以 `/v1/auth/token` 兌換 JWT。
 - [測試策略](../implementation/testing-strategy.md) - 測試計畫
 
 ---

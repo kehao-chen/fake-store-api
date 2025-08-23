@@ -45,6 +45,7 @@ Fake Store API 是一個功能完整的模擬電子商務 API 服務，專為個
 - 實作快取機制 (Valkey/Redis)
 - 建立監控告警系統
 - 達成 80% 以上測試覆蓋率
+- **導入 ArchUnit 架構測試，確保模組邊界與設計原則**
 
 ### 2.3 成功指標
 | 指標 | 目標值 | 測量方法 |
@@ -85,6 +86,11 @@ graph LR
 | **支付整合** | Stripe 整合、Webhook | P2 | 🔴 未開始 |
 
 > 📋 詳細功能規格請參考 [功能需求文件](docs/requirements/functional.md)
+
+備註（使用者與認證策略）
+- 註冊策略：以 Google/GitHub OAuth 為優先；教學用途保留帳密登入；一般註冊視需求追加。
+- API Key：登入後可建立 API Key；API Key 與 JWT 皆透過 `Authorization: Bearer <token>` 傳遞（前綴判別）。
+- 對賬策略：支付前建立「待支付」訂單，將 `order_id` 放入 Stripe metadata；以 Webhook 事件更新訂單狀態（詳見[監控與對賬](docs/operations/monitoring.md)）。
 
 ## 4. 系統架構
 
@@ -160,17 +166,31 @@ erDiagram
 - ✅ 實作版本控制策略
 - ✅ 統一錯誤處理格式
 
+- 對應 AIP 條款（落地準則）
+  - AIP-132/131：資源列表/單筆（如 `GET /products`、`GET /categories/{id}/products`）。
+  - AIP-134：更新以 `PATCH` 為準，支援 `update_mask`（query）進行部分欄位更新。
+  - AIP-136：自訂方法以 `:verb` 命名（如 `/payments:createCheckoutSession`、`/users/me/cart:clear`、事件操作）。
+  - AIP-160：結構化篩選/排序/分頁；互斥參數（如 `include_deleted`/`only_deleted`）違規時回 `INVALID_ARGUMENT`。
+- AIP-193：統一錯誤格式（errors.details/badRequest.field_violations）。
+
 ### 6.2 API 端點範例
 ```
 GET    /v1/products          # 產品列表
 GET    /v1/products/{id}     # 產品詳情
 POST   /v1/products          # 新增產品 (需管理員權限)
-PUT    /v1/products/{id}     # 更新產品 (需管理員權限)
+PATCH  /v1/products/{id}     # 更新產品 (需管理員權限, 支援 updateMask)
 DELETE /v1/products/{id}     # 刪除產品 (需管理員權限)
 
-POST   /v1/auth/login        # 使用者登入
+GET    /v1/categories/{id}/products   # 分類子資源列表（AIP-132）
+
+POST   /v1/auth/login        # 使用者登入（帳密登入，教學用）
 POST   /v1/auth/refresh      # 更新 Token
-GET    /v1/auth/google       # Google OAuth 登入
+GET    /v1/auth/google       # Google OAuth 授權
+GET    /v1/auth/google/callback # Google OAuth 回調
+
+POST   /v1/payments:createCheckoutSession  # 建立 Stripe Checkout（回 checkout_url）
+POST   /v1/users/me/cart:clear   # 自訂方法清空購物車（AIP-136）
+POST   /v1/users/me/cart:checkout# 自訂方法購物車結帳（AIP-136）
 
 GET    /v1/users/me          # 當前使用者資訊
 GET    /v1/users/me/cart     # 購物車內容
@@ -189,6 +209,7 @@ POST   /v1/users/me/cart/items  # 加入購物車
 ### 7.2 安全需求
 - HTTPS 加密傳輸
 - JWT Token 認證
+- 認證策略包含 JWT 與 API Key（皆走 `Authorization: Bearer <token>`）
 - 密碼 BCrypt 加密
 - API 限流保護
 
@@ -197,6 +218,7 @@ POST   /v1/users/me/cart/items  # 加入購物車
 - 自動健康檢查
 - 容器自動重啟
 - 資料定期備份
+- 服務無狀態化 + 快取（Valkey）以支撐延展與效能
 
 > 📊 詳細非功能需求請參考 [非功能需求文件](docs/requirements/non-functional.md)
 

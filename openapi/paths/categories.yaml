@@ -58,6 +58,7 @@ categories_collection:
         $ref: '../components/responses/errors.yaml#/InternalError'
     security:
       - OAuth2: ['read']
+      - ApiKeyBearer: []
   
   post:
     tags:
@@ -67,6 +68,7 @@ categories_collection:
     operationId: createCategory
     security:
       - OAuth2: ['write', 'admin']
+      - ApiKeyBearer: []
     requestBody:
       required: true
       content:
@@ -129,6 +131,7 @@ categories_item:
         $ref: '../components/responses/errors.yaml#/InternalError'
     security:
       - OAuth2: ['read']
+      - ApiKeyBearer: []
   
   patch:
     tags:
@@ -138,6 +141,7 @@ categories_item:
     operationId: updateCategory
     security:
       - OAuth2: ['write', 'admin']
+      - ApiKeyBearer: []
     parameters:
       - name: id
         in: path
@@ -146,6 +150,13 @@ categories_item:
         schema:
           type: string
           pattern: '^cat_[a-zA-Z0-9]+$'
+      - name: update_mask
+        in: query
+        required: false
+        description: 要更新的欄位清單（AIP-134 updateMask；以逗號分隔）
+        schema:
+          type: string
+          example: "name,description,is_active"
     requestBody:
       required: true
       content:
@@ -176,6 +187,7 @@ categories_item:
     operationId: deleteCategory
     security:
       - OAuth2: ['write', 'admin']
+      - ApiKeyBearer: []
     parameters:
       - name: id
         in: path
@@ -196,19 +208,12 @@ categories_item:
       '404':
         $ref: '../components/responses/errors.yaml#/NotFound'
 
-categories_list_products:
-  post:
+categories_products:
+  get:
     tags:
       - Categories
     summary: 列出分類下的產品
-    description: |
-      獲取指定分類下的所有產品。使用 POST 方法支援複雜查詢。
-      
-      ## 查詢功能
-      - 支援子分類包含
-      - 支援產品篩選
-      - 支援排序與分頁
-      
+    description: 取得指定分類下的產品列表（支援 AIP-160 篩選與分頁）
     operationId: listCategoryProducts
     parameters:
       - name: id
@@ -219,25 +224,10 @@ categories_list_products:
           type: string
           pattern: '^cat_[a-zA-Z0-9]+$'
           example: "cat_electronics"
-    requestBody:
-      required: false
-      content:
-        application/json:
-          schema:
-            $ref: '../components/schemas/category.yaml#/CategoryProductsRequest'
-          examples:
-            basic_query:
-              summary: 基本查詢
-              value:
-                page_size: 20
-                include_subcategories: true
-            filtered_query:
-              summary: 篩選查詢
-              value:
-                page_size: 10
-                include_subcategories: false
-                filter: "price>50 AND price<200"
-                order_by: "price desc"
+      - $ref: '../components/parameters/common.yaml#/PageSize'
+      - $ref: '../components/parameters/common.yaml#/PageToken'
+      - $ref: '../components/parameters/common.yaml#/Filter'
+      - $ref: '../components/parameters/common.yaml#/OrderBy'
     responses:
       '200':
         description: 成功返回分類產品列表
@@ -253,3 +243,4 @@ categories_list_products:
         $ref: '../components/responses/errors.yaml#/InternalError'
     security:
       - OAuth2: ['read']
+      - ApiKeyBearer: []

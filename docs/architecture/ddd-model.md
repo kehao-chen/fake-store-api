@@ -28,6 +28,7 @@ graph TB
     Order --> Cart
     Order --> Payment
     Payment --> Notification
+    Payment -->|Webhook 對賬| Order
     User --> Auth
     Product --> Category
 ```
@@ -265,15 +266,32 @@ graph LR
         CartExpired[購物車過期]
     end
     
-    subgraph "訂單事件"
+    subgraph "訂單與支付事件"
         OrderCreated[訂單建立]
         OrderPaid[訂單支付]
         OrderShipped[訂單出貨]
         OrderDelivered[訂單送達]
         OrderCancelled[訂單取消]
         OrderRefunded[訂單退款]
+        PaymentSucceeded[支付成功]
+        PaymentFailed[支付失敗]
+        WebhookEventReceived[Webhook 事件收到]
     end
     
+    subgraph "Saga 協調事件"
+        SagaStarted[Saga 開始]
+        SagaStepCompleted[Saga 步驟完成]
+        SagaStepFailed[Saga 步驟失敗]
+        SagaCompleted[Saga 完成]
+        SagaCompensated[Saga 補償]
+    end
+    
+    WebhookEventReceived --> PaymentSucceeded
+    WebhookEventReceived --> PaymentFailed
+    PaymentSucceeded --> OrderPaid
+    SagaStarted --> OrderCreated
+    SagaStepCompleted --> OrderPaid
+    SagaStepFailed --> SagaCompensated
     subgraph "使用者事件"
         UserRegistered[使用者註冊]
         UserLoggedIn[使用者登入]
@@ -310,6 +328,15 @@ public interface PaymentService {
     PaymentResult processPayment(Order order, PaymentMethod method);
     RefundResult processRefund(Order order, BigDecimal amount);
     PaymentStatus checkPaymentStatus(String transactionId);
+}
+```
+
+### 4. Saga 編排服務
+```java
+public interface SagaOrchestrationService {
+    CompletableFuture<SagaResult> processOrderSaga(OrderCreationRequest request);
+    void compensateOrderSaga(String sagaId, SagaStep failedStep);
+    SagaState getSagaState(String sagaId);
 }
 ```
 
@@ -360,6 +387,7 @@ graph TB
         CART[購物車]
         ORDER[訂單]
         PROMO[促銷]
+        SAGA[Saga 編排器]
     end
     
     subgraph "支付上下文"
@@ -376,7 +404,9 @@ graph TB
     
     CART --> PM
     ORDER --> CART
-    ORDER --> PAY
+    SAGA --> ORDER
+    SAGA --> PAY
+    SAGA --> INV
     PAY --> TRANS
     USER --> AUTH
 ```

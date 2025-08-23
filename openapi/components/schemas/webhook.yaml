@@ -25,6 +25,7 @@ StripeWebhookEvent:
         - "payment_intent.succeeded"
         - "payment_intent.payment_failed"
         - "payment_intent.canceled"
+        - "checkout.session.completed"
         - "charge.dispute.created"
       description: 事件類型
       example: "payment_intent.succeeded"
@@ -38,6 +39,7 @@ StripeWebhookEvent:
           oneOf:
             - $ref: '#/StripePaymentIntent'
             - $ref: '#/StripeDispute'
+            - $ref: '#/StripeCheckoutSession'
           description: 事件相關的資料物件
       
     created:
@@ -208,3 +210,48 @@ WebhookResponse:
     processed: true
     message: "Payment processed successfully"
     order_id: "order_abc123"
+
+# Stripe Checkout Session（簡化版）
+StripeCheckoutSession:
+  type: object
+  required:
+    - id
+    - object
+    - url
+  properties:
+    id:
+      type: string
+      pattern: '^cs_[a-zA-Z0-9]+$'
+      description: Stripe Checkout Session ID
+      example: "cs_ABC123"
+    object:
+      type: string
+      enum: ["checkout.session"]
+      description: 物件類型
+      example: "checkout.session"
+    url:
+      type: string
+      format: uri
+      description: Checkout 頁面 URL
+      example: "https://checkout.stripe.com/c/pay/cs_test_123"
+    payment_intent:
+      type: string
+      pattern: '^pi_[a-zA-Z0-9]+$'
+      nullable: true
+      description: 綁定的 PaymentIntent ID（若有）
+      example: "pi_3MqrF82eZvKYlo2C0KhoLsWy"
+    amount_total:
+      type: integer
+      nullable: true
+      description: 總金額（最小貨幣單位）
+      example: 2999
+    currency:
+      type: string
+      nullable: true
+      example: "usd"
+    metadata:
+      type: object
+      additionalProperties: true
+      description: 自定義元資料（建議包含 order_id）
+      example:
+        order_id: "order_abc123"

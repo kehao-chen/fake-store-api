@@ -8,6 +8,7 @@ users_me:
     operationId: getCurrentUser
     security:
       - OAuth2: ['read']
+      - ApiKeyBearer: []
     responses:
       '200':
         description: 成功返回使用者資訊
@@ -30,6 +31,7 @@ users_me:
     operationId: updateCurrentUser
     security:
       - OAuth2: ['write']
+      - ApiKeyBearer: []
     requestBody:
       required: true
       content:
@@ -43,6 +45,14 @@ users_me:
                 first_name: "John"
                 last_name: "Doe"
                 phone: "+15550123"
+    parameters:
+      - name: update_mask
+        in: query
+        required: false
+        description: 要更新的欄位清單（AIP-134 updateMask；以逗號分隔）
+        schema:
+          type: string
+          example: "first_name,last_name,phone"
     responses:
       '200':
         description: 使用者資訊更新成功
@@ -64,6 +74,7 @@ users_item:
     operationId: getUser
     security:
       - OAuth2: ['read', 'admin']
+      - ApiKeyBearer: []
     parameters:
       - name: id
         in: path
@@ -103,6 +114,7 @@ users_me_cart:
     operationId: getCurrentUserCart
     security:
       - OAuth2: ['read']
+      - ApiKeyBearer: []
     responses:
       '200':
         description: 成功返回購物車內容
@@ -124,6 +136,7 @@ users_cart:
     operationId: getUserCart
     security:
       - OAuth2: ['read', 'admin']
+      - ApiKeyBearer: []
     parameters:
       - name: id
         in: path
@@ -158,32 +171,22 @@ users_cart:
       '404':
         $ref: '../components/responses/errors.yaml#/NotFound'
 
-cart_add_product:
+cart_items_collection:
   post:
     tags:
       - Cart
     summary: 新增產品到購物車
     description: 將指定產品加入到目前使用者的購物車
-    operationId: addProductToCart
+    operationId: addCartItem
     security:
       - OAuth2: ['write']
+      - ApiKeyBearer: []
     requestBody:
       required: true
       content:
         application/json:
           schema:
             $ref: '../components/schemas/cart.yaml#/AddProductRequest'
-          examples:
-            add_single_item:
-              summary: 新增單一產品
-              value:
-                product_id: "prod_1a2b3c"
-                quantity: 1
-            add_multiple_items:
-              summary: 新增多個產品
-              value:
-                product_id: "prod_1a2b3c"
-                quantity: 3
     responses:
       '200':
         description: 產品成功加入購物車
@@ -198,27 +201,30 @@ cart_add_product:
       '404':
         $ref: '../components/responses/errors.yaml#/NotFound'
 
-cart_update_product:
-  patch:
+cart_items_item:
+  put:
     tags:
       - Cart
-    summary: 更新購物車產品數量
+    summary: 更新購物車商品數量
     description: 更新購物車中指定產品的數量
-    operationId: updateCartProduct
+    operationId: updateCartItem
     security:
       - OAuth2: ['write']
+      - ApiKeyBearer: []
+    parameters:
+      - name: product_id
+        in: path
+        required: true
+        description: 產品 ID
+        schema:
+          type: string
+          pattern: '^prod_[a-zA-Z0-9]+$'
     requestBody:
       required: true
       content:
         application/json:
           schema:
             $ref: '../components/schemas/cart.yaml#/UpdateProductRequest'
-          examples:
-            update_quantity:
-              summary: 更新產品數量
-              value:
-                product_id: "prod_1a2b3c"
-                quantity: 5
     responses:
       '200':
         description: 購物車產品數量更新成功
@@ -233,26 +239,23 @@ cart_update_product:
       '404':
         $ref: '../components/responses/errors.yaml#/NotFound'
 
-cart_remove_product:
-  post:
+  delete:
     tags:
       - Cart
     summary: 移除購物車產品
     description: 從購物車中移除指定的產品
-    operationId: removeCartProduct
+    operationId: removeCartItem
     security:
       - OAuth2: ['write']
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '../components/schemas/cart.yaml#/RemoveProductRequest'
-          examples:
-            remove_item:
-              summary: 移除產品
-              value:
-                product_id: "prod_1a2b3c"
+      - ApiKeyBearer: []
+    parameters:
+      - name: product_id
+        in: path
+        required: true
+        description: 產品 ID
+        schema:
+          type: string
+          pattern: '^prod_[a-zA-Z0-9]+$'
     responses:
       '200':
         description: 產品成功從購物車移除
@@ -272,10 +275,11 @@ cart_clear:
     tags:
       - Cart
     summary: 清空購物車
-    description: 清空目前使用者購物車中的所有產品
+    description: 清空目前使用者購物車中的所有產品（AIP-136 自訂方法 on resource）
     operationId: clearCart
     security:
       - OAuth2: ['write']
+      - ApiKeyBearer: []
     responses:
       '200':
         description: 購物車清空成功
@@ -337,3 +341,74 @@ cart_checkout:
         $ref: '../components/responses/errors.yaml#/PaymentRequired'
       '500':
         $ref: '../components/responses/errors.yaml#/InternalError'
+users_me_api_keys:
+  get:
+    tags:
+      - Users
+    summary: 列出我的 API Keys
+    description: 取得當前使用者的 API Key 清單（僅回傳前綴與中繼資料）
+    operationId: listMyApiKeys
+    security:
+      - OAuth2: ['read']
+      - ApiKeyBearer: []
+    responses:
+      '200':
+        description: 成功返回 API Keys
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                api_keys:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/auth.yaml#/ApiKey'
+      '401':
+        $ref: '../components/responses/errors.yaml#/Unauthorized'
+
+  post:
+    tags:
+      - Users
+    summary: 建立新的 API Key
+    description: 建立並回傳完整 API Key（僅此時可見完整 key）
+    operationId: createMyApiKey
+    security:
+      - OAuth2: ['write']
+    requestBody:
+      required: false
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/auth.yaml#/CreateApiKeyRequest'
+    responses:
+      '201':
+        description: 建立成功
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/auth.yaml#/CreateApiKeyResponse'
+      '401':
+        $ref: '../components/responses/errors.yaml#/Unauthorized'
+
+users_me_api_keys_item:
+  delete:
+    tags:
+      - Users
+    summary: 刪除我的 API Key
+    description: 撤銷指定的 API Key
+    operationId: deleteMyApiKey
+    security:
+      - OAuth2: ['write']
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: API Key 識別碼
+        schema:
+          type: string
+          pattern: '^key_[a-zA-Z0-9]+$'
+    responses:
+      '204':
+        description: 刪除成功
+      '401':
+        $ref: '../components/responses/errors.yaml#/Unauthorized'

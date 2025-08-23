@@ -28,7 +28,7 @@
 
 ### 🔌 API 設計
 - [API 設計規格](./api/design-spec.md) - RESTful API 詳細規範
-- [認證與授權](./api/authentication.md) - JWT、OAuth 2.0 設計
+- [認證與授權](./api/authentication.md) - OAuth 2.0（PKCE）與教學用帳密登入
 - [錯誤處理規範](./api/error-handling.md) - 統一錯誤格式
 - [版本控制策略](./api/versioning.md) - API 版本管理
 - [OpenAPI 規範](./api/openapi-standard.md) - API 文件標準
@@ -37,7 +37,7 @@
 ### 💻 實作指南
 - [技術棧說明](./implementation/technology-stack.md) - 技術選型與理由
 - [安全實作指南](./implementation/security.md) - 安全最佳實踐
-- [測試策略](./implementation/testing-strategy.md) - 測試架構與覆蓋率
+- [測試策略](./implementation/testing-strategy.md) - ArchUnit 架構測試導向的完整測試策略
 - [程式碼範例](./examples/) - 實作參考程式碼
 
 ### 🚀 運維部署

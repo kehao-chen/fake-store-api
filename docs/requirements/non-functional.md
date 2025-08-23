@@ -164,7 +164,9 @@ scaling_thresholds:
 
 ### 5.1 限流配置
 
-使用 Spring Cloud Gateway + Redis Rate Limiter + Valkey
+使用 Spring Cloud Gateway + Redis Rate Limiter + Valkey；依「金鑰 或 來源 IP」實施基礎速率限制：
+- 具備 `Authorization: Bearer <token>` 者以「金鑰」為主（JWT 或 API Key 皆可作為限流鍵）。
+- 無金鑰時，退回以來源 IP 作為限流鍵。
 
 | 使用者類型 | API 分類 | 每秒限制 | 桶容量 | 實際效果 |
 |-----------|---------|----------|--------|----------|

@@ -65,6 +65,7 @@ auth_token:
       '429':
         $ref: '../components/responses/errors.yaml#/RateLimitExceeded'
 
+# OAuth2 授權入口（Google）
 auth_google:
   get:
     tags:
@@ -82,7 +83,7 @@ auth_google:
       - 必須使用 PKCE (RFC 7636) 增強安全性
       - 支援 `code_challenge` 和 `code_verifier`
       
-    operationId: loginWithGoogle
+    operationId: oauthAuthorizeGoogle
     security:
       - OAuth2: []
     parameters:
@@ -162,6 +163,7 @@ auth_google:
       '400':
         $ref: '../components/responses/errors.yaml#/BadRequest'
 
+# OAuth2 授權入口（GitHub）
 auth_github:
   get:
     tags:
@@ -179,7 +181,7 @@ auth_github:
       - `read:user` - 讀取基本使用者資訊
       - `user:email` - 讀取使用者 Email
       
-    operationId: loginWithGitHub
+    operationId: oauthAuthorizeGitHub
     security:
       - OAuth2: []
     parameters:
@@ -372,5 +374,108 @@ auth_refresh:
         $ref: '../components/responses/errors.yaml#/Unauthorized'
       '429':
         $ref: '../components/responses/errors.yaml#/RateLimitExceeded'
+# 帳密登入
+auth_login:
+  post:
+    tags:
+      - Authentication
+    summary: 使用帳號密碼登入
+    description: 使用 Email 與密碼交換 Token
+    operationId: loginWithPassword
+    security:
+      - OAuth2: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/auth.yaml#/EmailLoginRequest'
+    responses:
+      '200':
+        description: 登入成功
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/auth.yaml#/TokenResponse'
+      '400':
+        $ref: '../components/responses/errors.yaml#/BadRequest'
+      '401':
+        $ref: '../components/responses/errors.yaml#/Unauthorized'
+
       '500':
         $ref: '../components/responses/errors.yaml#/InternalError'
+# OAuth2 授權回調（Google）
+auth_google_callback:
+  get:
+    tags:
+      - Authentication
+    summary: Google OAuth 回調
+    description: 接收授權碼並返回授權資訊
+    operationId: oauthCallbackGoogle
+    security:
+      - OAuth2: []
+    parameters:
+      - name: code
+        in: query
+        required: true
+        description: OAuth 授權碼
+        schema:
+          type: string
+      - name: state
+        in: query
+        required: false
+        description: CSRF 防護狀態參數
+        schema:
+          type: string
+    responses:
+      '200':
+        description: 回調處理成功
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                state:
+                  type: string
+      '400':
+        $ref: '../components/responses/errors.yaml#/BadRequest'
+
+# OAuth2 授權回調（GitHub）
+auth_github_callback:
+  get:
+    tags:
+      - Authentication
+    summary: GitHub OAuth 回調
+    description: 接收授權碼並返回授權資訊
+    operationId: oauthCallbackGitHub
+    security:
+      - OAuth2: []
+    parameters:
+      - name: code
+        in: query
+        required: true
+        description: OAuth 授權碼
+        schema:
+          type: string
+      - name: state
+        in: query
+        required: false
+        description: CSRF 防護狀態參數
+        schema:
+          type: string
+    responses:
+      '200':
+        description: 回調處理成功
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                state:
+                  type: string
+      '400':
+        $ref: '../components/responses/errors.yaml#/BadRequest'
