@@ -45,6 +45,7 @@ stripe_webhook:
                 data:
                   object:
                     id: "pi_1A2B3C4D5E"
+                    object: "payment_intent"
                     amount: 2999
                     currency: "usd"
                     status: "succeeded"
@@ -57,6 +58,7 @@ stripe_webhook:
                 data:
                   object:
                     id: "pi_1F2G3H4I5J"
+                    object: "payment_intent"
                     amount: 2999
                     currency: "usd"
                     status: "requires_payment_method"

@@ -67,7 +67,7 @@ CreatePaymentRequest:
 PaymentResponse:
   $ref: './payment.yaml#/PaymentResponse'
 
-Auth:
+TokenResponse:
   $ref: './auth.yaml#/TokenResponse'
 EmailLoginRequest:
   $ref: './auth.yaml#/EmailLoginRequest'

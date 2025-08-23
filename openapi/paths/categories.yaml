@@ -7,13 +7,25 @@ categories_collection:
     description: |
       獲取所有產品分類列表。
       
-      ## 特色功能
+      ## 特色功能（admin 可見 include_deleted=true）
       - 支援階層分類結構
       - 包含產品計數資訊
       - 支援排序與篩選
       
     operationId: listCategories
     parameters:
+      - name: include_deleted
+        in: query
+        description: 是否包含已軟刪除的資源（僅管理員）
+        schema:
+          type: boolean
+          default: false
+      - name: only_deleted
+        in: query
+        description: 僅返回已軟刪除的資源（僅管理員，與 include_deleted 互斥）
+        schema:
+          type: boolean
+          default: false
       - name: include_inactive
         in: query
         description: 是否包含停用的分類
@@ -40,6 +52,8 @@ categories_collection:
             schema:
               type: string
               example: "public, max-age=600"
+      '400':
+        $ref: '../components/responses/errors.yaml#/BadRequest'
       '500':
         $ref: '../components/responses/errors.yaml#/InternalError'
   

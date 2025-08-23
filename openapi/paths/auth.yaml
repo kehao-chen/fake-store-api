@@ -37,7 +37,7 @@ auth_token:
               value:
                 grant_type: "authorization_code"
                 code: "oauth_authorization_code"
-                code_verifier: "pkce_code_verifier"
+                code_verifier: "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"
             refresh_token:
               summary: 刷新令牌
               value:
@@ -141,7 +141,7 @@ auth_github:
       - `read:user` - 讀取基本使用者資訊
       - `user:email` - 讀取使用者 Email
       
-    operationId: loginWithGithub
+    operationId: loginWithGitHub
     parameters:
       - name: redirect_uri
         in: query
@@ -291,43 +291,9 @@ auth_refresh:
               type: string
               example: "completed"
       '400':
-        description: 請求無效或令牌格式錯誤
-        content:
-          application/json:
-            schema:
-              $ref: '../components/responses/errors.yaml#/ErrorResponse'
-            examples:
-              invalid_token:
-                summary: 無效的刷新令牌
-                value:
-                  error:
-                    code: "INVALID_REFRESH_TOKEN"
-                    message: "Refresh token is invalid or malformed"
+        $ref: '../components/responses/errors.yaml#/BadRequest'
       '401':
-        description: 刷新令牌已過期或已撤銷
-        content:
-          application/json:
-            schema:
-              $ref: '../components/responses/errors.yaml#/ErrorResponse'
-            examples:
-              expired_token:
-                summary: 令牌已過期
-                value:
-                  error:
-                    code: "REFRESH_TOKEN_EXPIRED"
-                    message: "Refresh token has expired"
-              revoked_token:
-                summary: 令牌已撤銷
-                value:
-                  error:
-                    code: "REFRESH_TOKEN_REVOKED"
-                    message: "Refresh token has been revoked"
-              replay_attack:
-                summary: 重複使用攻擊
-                value:
-                  error:
-                    code: "TOKEN_REPLAY_DETECTED"
-                    message: "Refresh token reuse detected, all tokens revoked"
+        $ref: '../components/responses/errors.yaml#/Unauthorized'
       '429':
         $ref: '../components/responses/errors.yaml#/RateLimitExceeded'
       '500':

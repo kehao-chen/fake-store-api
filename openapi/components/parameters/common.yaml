@@ -14,11 +14,11 @@ PageSize:
 PageToken:
   name: page_token
   in: query
-  description: 分頁令牌
+  description: 分頁令牌（Base64 編碼之游標，耦合當前排序與篩選）
   required: false
   schema:
     type: string
-  example: "eyJvZmZzZXQiOjIwfQ"
+  example: "eyJvZmZzZXQiOjIwfS1zaGE6YTIzNCI="
 
 Filter:
   name: filter

@@ -9,34 +9,34 @@ AuditableEntity:
       minimum: 0
       description: 樂觀鎖版本控制，防止併發衝突
       example: 1
-      
     created_by:
       type: string
-      pattern: '^user_[a-zA-Z0-9]+$'
+      pattern: '^(user_[a-zA-Z0-9]+|system)$'
       nullable: true
-      description: 建立者 ID
+      description: 建立者 ID（user_* 或 system）
       example: "user_admin123"
-      
+      readOnly: true
     updated_by:
       type: string
-      pattern: '^user_[a-zA-Z0-9]+$'
+      pattern: '^(user_[a-zA-Z0-9]+|system)$'
       nullable: true
-      description: 最後更新者 ID
+      description: 最後更新者 ID（user_* 或 system）
       example: "user_admin456"
-      
+      readOnly: true
     deleted_at:
       type: string
       format: date-time
       nullable: true
       description: 軟刪除時間戳，null 表示未刪除
       example: null
-      
+      readOnly: true
     deleted_by:
       type: string
-      pattern: '^user_[a-zA-Z0-9]+$'
+      pattern: '^(user_[a-zA-Z0-9]+|system)$'
       nullable: true
-      description: 軟刪除操作者 ID
+      description: 軟刪除操作者 ID（user_* 或 system）
       example: null
+      readOnly: true
 
 # 軟刪除操作請求
 SoftDeleteRequest:
@@ -169,14 +169,14 @@ Pagination:
     page_token:
       type: string
       nullable: true
-      description: 分頁令牌
-      example: "eyJvZmZzZXQiOjIwfQ"
+      description: 分頁令牌（Base64 編碼之游標，耦合當前排序與篩選）
+      example: "eyJvZmZzZXQiOjIwfS1zaGE6YTIzNCI="
       
     next_page_token:
       type: string
       nullable: true
-      description: 下一頁分頁令牌
-      example: "eyJvZmZzZXQiOjQwfQ"
+      description: 下一頁分頁令牌（Base64 編碼之游標）
+      example: "eyJvZmZzZXQiOjQwfS1zaGE6YjU2Nw=="
       
     total_size:
       type: integer

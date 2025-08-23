@@ -18,10 +18,11 @@ Project fake_store_indexes {
 
 // 核心產品瀏覽 (分類篩選、有效產品)
 indexes {
-  products.(category_id) [name: 'idx_products_category', where: 'is_active = true']
-  products.(price) [name: 'idx_products_price', where: 'is_active = true'] 
-  products.(created_at desc) [name: 'idx_products_created_at', where: 'is_active = true']
-  products.(stock_quantity) [name: 'idx_products_stock', where: 'is_active = true']
+  products.(category_id) [name: 'idx_products_category', where: 'is_active = true AND deleted_at IS NULL']
+  products.(price) [name: 'idx_products_price', where: 'is_active = true AND deleted_at IS NULL'] 
+  products.(created_at desc) [name: 'idx_products_created_at', where: 'is_active = true AND deleted_at IS NULL']
+  products.(stock_quantity) [name: 'idx_products_stock', where: 'is_active = true AND deleted_at IS NULL']
+  products.(sku) [name: 'uq_products_sku_active', unique, where: 'deleted_at IS NULL AND sku IS NOT NULL']
 }
 
 // 產品探索的全文搜尋
@@ -39,9 +40,11 @@ indexes {
 
 // 身份驗證查詢 (登入、電子郵件驗證)
 indexes {
-  users.(email) [name: 'idx_users_email', where: 'is_active = true']
-  users.(username) [name: 'idx_users_username', where: 'is_active = true']
+  users.(email) [name: 'idx_users_email', where: 'is_active = true AND deleted_at IS NULL']
+  users.(username) [name: 'idx_users_username', where: 'is_active = true AND deleted_at IS NULL']
   users.(last_login_at desc) [name: 'idx_users_last_login']
+  users.(email) [name: 'uq_users_email_active', unique, where: 'deleted_at IS NULL']
+  users.(username) [name: 'uq_users_username_active', unique, where: 'deleted_at IS NULL']
 }
 
 // OAuth 提供者整合
@@ -93,8 +96,9 @@ indexes {
 
 // 分類瀏覽與管理
 indexes {
-  categories.(name) [name: 'idx_categories_name_active', where: 'is_active = true']
-  categories.(is_active, name) [name: 'idx_categories_active']
+  categories.(name) [name: 'idx_categories_name_active', where: 'is_active = true AND deleted_at IS NULL']
+  categories.(is_active, name) [name: 'idx_categories_active', where: 'deleted_at IS NULL']
+  categories.(name) [name: 'uq_categories_name_active', unique, where: 'deleted_at IS NULL']
 }
 
 // ==================================================

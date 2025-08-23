@@ -184,54 +184,29 @@ products_collection:
       - 組合條件：`category:"electronics" OR category:"clothing"`
       - 文字搜尋：`name:"wireless mouse"`
       
-      ## 排序選項
+      ## 排序選項（admin 可見 include_deleted=true）
       - `name asc` - 名稱升序
       - `price desc` - 價格降序
       - `created_at desc` - 建立時間降序 (預設)
       
     operationId: listProducts
     parameters:
-      - name: page_size
+      - $ref: '../components/parameters/common.yaml#/PageSize'
+      - name: include_deleted
         in: query
-        description: 每頁結果數量
+        description: 是否包含已軟刪除的資源（僅管理員）
         schema:
-          type: integer
-          minimum: 1
-          maximum: 100
-          default: 20
-      - name: page_token
-        in: query  
-        description: 分頁令牌
-        schema:
-          type: string
-      - name: filter
+          type: boolean
+          default: false
+      - name: only_deleted
         in: query
-        description: 篩選條件 (AIP-160 語法)
+        description: 僅返回已軟刪除的資源（僅管理員，與 include_deleted 互斥）
         schema:
-          type: string
-        examples:
-          category_filter:
-            summary: 按分類篩選
-            value: 'category:"electronics"'
-          price_range:
-            summary: 價格範圍篩選
-            value: 'price>50 AND price<200'
-          text_search:
-            summary: 文字搜尋
-            value: 'name:"mouse" OR description:"wireless"'
-      - name: order_by
-        in: query
-        description: 排序欄位和方向
-        schema:
-          type: string
-          default: "created_at desc"
-        examples:
-          price_desc:
-            summary: 價格降序
-            value: "price desc"
-          name_asc:
-            summary: 名稱升序
-            value: "name asc"
+          type: boolean
+          default: false
+      - $ref: '../components/parameters/common.yaml#/PageToken'
+      - $ref: '../components/parameters/common.yaml#/Filter'
+      - $ref: '../components/parameters/common.yaml#/OrderBy'
     responses:
       '200':
         description: 成功返回產品列表
@@ -298,7 +273,7 @@ products_collection:
             schema:
               type: string
               format: uri
-              example: "/v1/products/prod_new123"
+              example: "https://api.fakestore.com/v1/products/prod_new123"
       '400':
         $ref: '../components/responses/errors.yaml#/ValidationError'
       '401':
@@ -311,7 +286,10 @@ products_item:
     tags:
       - Products
     summary: 取得產品詳情
-    description: 根據產品 ID 獲取詳細產品資訊
+    description: |
+      根據產品 ID 獲取詳細產品資訊。
+      
+      - `include_deleted=true` 僅管理員可見，用於查詢已軟刪除資源。
     operationId: getProduct
     parameters:
       - name: id
@@ -322,6 +300,13 @@ products_item:
           type: string
           pattern: '^prod_[a-zA-Z0-9]+$'
           example: "prod_1a2b3c"
+      - name: include_deleted
+        in: query
+        required: false
+        description: 是否包含已軟刪除的資源（僅管理員）
+        schema:
+          type: boolean
+          default: false
     responses:
       '200':
         description: 成功返回產品詳情

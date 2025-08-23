@@ -6,14 +6,13 @@ CategoryExample:
     name: "服飾"
     slug: "clothing"
     description: "各式男女服飾，包含上衣、褲子、外套等"
-    image: "https://api.fakestore.happyhacking.ninja/images/category-clothing.jpg"
-    parentId: null
-    level: 1
-    productCount: 156
-    isActive: true
-    sortOrder: 1
-    createdAt: "2025-01-01T00:00:00Z"
-    updatedAt: "2025-01-20T08:00:00Z"
+    image_url: "https://api.fakestore.happyhacking.ninja/images/category-clothing.jpg"
+    parent_id: null
+    product_count: 156
+    is_active: true
+    sort_order: 1
+    created_at: "2025-01-01T00:00:00Z"
+    updated_at: "2025-01-20T08:00:00Z"
 
 SubCategoryExample:
   summary: 子分類範例
@@ -22,14 +21,13 @@ SubCategoryExample:
     name: "男裝"
     slug: "mens-clothing"
     description: "男性服飾專區"
-    image: "https://api.fakestore.happyhacking.ninja/images/category-mens.jpg"
-    parentId: "cat_001"
-    level: 2
-    productCount: 78
-    isActive: true
-    sortOrder: 1
-    createdAt: "2025-01-01T00:00:00Z"
-    updatedAt: "2025-01-15T10:30:00Z"
+    image_url: "https://api.fakestore.happyhacking.ninja/images/category-mens.jpg"
+    parent_id: "cat_001"
+    product_count: 78
+    is_active: true
+    sort_order: 1
+    created_at: "2025-01-01T00:00:00Z"
+    updated_at: "2025-01-15T10:30:00Z"
 
 CategoryListExample:
   summary: 分類列表範例
@@ -37,23 +35,19 @@ CategoryListExample:
     - id: "cat_001"
       name: "服飾"
       slug: "clothing"
-      productCount: 156
-      level: 1
+      product_count: 156
     - id: "cat_002"
       name: "電子產品"
       slug: "electronics"
-      productCount: 89
-      level: 1
+      product_count: 89
     - id: "cat_003"
       name: "家居用品"
       slug: "home-living"
-      productCount: 234
-      level: 1
+      product_count: 234
     - id: "cat_004"
       name: "運動休閒"
       slug: "sports-outdoor"
-      productCount: 167
-      level: 1
+      product_count: 167
 
 CategoryCreateExample:
   summary: 建立分類請求範例
@@ -61,5 +55,5 @@ CategoryCreateExample:
     name: "美妝保養"
     slug: "beauty-care"
     description: "美妝、保養、個人護理產品"
-    parentId: null
-    sortOrder: 5
+    parent_id: null
+    sort_order: 5

@@ -50,7 +50,7 @@ SystemEvent:
     resource_name:
       type: string
       description: 受影響資源的完整名稱 (符合 AIP-122 資源命名規範)
-      pattern: '^[a-z]+/[a-zA-Z0-9_]+$'
+      pattern: '^([a-z]+/[a-zA-Z0-9_]+)(/[a-z]+/[a-zA-Z0-9_]+)*$'
       example: "products/prod_1a2b3c"
       
     actor:
@@ -147,10 +147,10 @@ OrderStatusChangedEvent:
               pattern: '^order_[a-zA-Z0-9]+$'
             old_status:
               type: string
-              enum: [pending, processing, shipped, delivered, cancelled]
+              enum: [pending, processing, paid, cancelled, refunded]
             new_status:
               type: string
-              enum: [pending, processing, shipped, delivered, cancelled]
+              enum: [pending, processing, paid, cancelled, refunded]
             reason:
               type: string
               nullable: true

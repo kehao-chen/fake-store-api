@@ -33,12 +33,15 @@ info:
   termsOfService: https://fakestore.happyhacking.ninja/terms
 
 servers:
-  - url: https://fakestore.happyhacking.ninja/v1
-    description: 生產環境 API
-  - url: https://staging.fakestore.happyhacking.ninja/v1
-    description: 測試環境 API
-  - url: http://localhost:8080/v1
-    description: 本地開發環境
+  - url: https://{host}/v1
+    description: 參數化環境 API
+    variables:
+      host:
+        default: fakestore.happyhacking.ninja
+        enum:
+          - fakestore.happyhacking.ninja
+          - staging.fakestore.happyhacking.ninja
+          - localhost:8080
 
 # 標籤分組
 tags:
@@ -102,7 +105,7 @@ paths:
     $ref: './paths/auth.yaml#/auth_refresh'
   /auth/loginWithGoogle:
     $ref: './paths/auth.yaml#/auth_google'
-  /auth/loginWithGithub:
+  /auth/loginWithGitHub:
     $ref: './paths/auth.yaml#/auth_github'
     
   # 產品相關
@@ -216,8 +219,8 @@ components:
       description: OAuth 2.0 認證流程
       flows:
         authorizationCode:
-          authorizationUrl: /auth/loginWithGoogle
-          tokenUrl: /auth/token
+          authorizationUrl: /v1/auth/loginWithGoogle
+          tokenUrl: /v1/auth/token
           scopes:
             read: 讀取基本資料權限
             write: 寫入資料權限

@@ -29,6 +29,21 @@ Function update_updated_at_column {
   Note: '自動更新 updated_at 欄位 - 確保資料修改追蹤一致性'
 }
 
+// 樂觀鎖：版本號自動遞增
+Function increment_version_column {
+  language: 'plpgsql'
+  returns: 'TRIGGER'
+  
+  body: '''
+    BEGIN
+        NEW.version = COALESCE(OLD.version, 0) + 1;
+        RETURN NEW;
+    END;
+  '''
+  
+  Note: '在每次 UPDATE 時自動遞增 version 欄位，用於樂觀鎖'
+}
+
 // ==================================================
 // 自動時間戳觸發器
 // ==================================================
@@ -40,6 +55,12 @@ Trigger update_categories_updated_at {
   scope: 'FOR EACH ROW'
   function: update_updated_at_column
 }
+Trigger increment_categories_version {
+  table: categories
+  timing: 'BEFORE UPDATE'
+  scope: 'FOR EACH ROW'
+  function: increment_version_column
+}
 
 Trigger update_products_updated_at {
   table: products  
@@ -47,12 +68,24 @@ Trigger update_products_updated_at {
   scope: 'FOR EACH ROW'
   function: update_updated_at_column
 }
+Trigger increment_products_version {
+  table: products
+  timing: 'BEFORE UPDATE'
+  scope: 'FOR EACH ROW'
+  function: increment_version_column
+}
 
 Trigger update_users_updated_at {
   table: users
   timing: 'BEFORE UPDATE' 
   scope: 'FOR EACH ROW'
   function: update_updated_at_column
+}
+Trigger increment_users_version {
+  table: users
+  timing: 'BEFORE UPDATE'
+  scope: 'FOR EACH ROW'
+  function: increment_version_column
 }
 
 // 身份驗證與 OAuth 觸發器
@@ -84,6 +117,12 @@ Trigger update_orders_updated_at {
   timing: 'BEFORE UPDATE'
   scope: 'FOR EACH ROW'
   function: update_updated_at_column
+}
+Trigger increment_orders_version {
+  table: orders
+  timing: 'BEFORE UPDATE'
+  scope: 'FOR EACH ROW'
+  function: increment_version_column
 }
 
 // OAuth 客戶端管理觸發器

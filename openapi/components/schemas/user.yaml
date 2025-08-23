@@ -1,6 +1,8 @@
 # 使用者相關資料模型定義
 User:
-  type: object
+  allOf:
+    - $ref: './common.yaml#/AuditableEntity'
+    - type: object
   required:
     - id
     - email
@@ -50,7 +52,7 @@ User:
       nullable: true
       pattern: '^\+?[1-9]\d{1,14}$'
       description: 電話號碼 (E.164 格式)
-      example: "+1-555-0123"
+      example: "+15550123"
       
     address:
       $ref: '#/Address'
@@ -98,7 +100,7 @@ User:
     last_name: "Doe"
     display_name: "John D."
     avatar_url: "https://gravatar.com/avatar/abc123"
-    phone: "+1-555-0123"
+    phone: "+15550123"
     address:
       line1: "123 Main St"
       city: "San Francisco"
@@ -110,6 +112,11 @@ User:
     last_login_at: "2025-08-19T15:30:00Z"
     created_at: "2025-08-15T10:00:00Z"
     updated_at: "2025-08-19T14:20:00Z"
+    version: 5
+    created_by: "system"
+    updated_by: "user_admin456"
+    deleted_at: null
+    deleted_by: null
 
 Address:
   type: object
@@ -204,7 +211,7 @@ UpdateUserRequest:
     first_name: "John"
     last_name: "Doe"
     display_name: "John D."
-    phone: "+1-555-0123"
+    phone: "+15550123"
     address:
       line1: "456 New St"
       city: "Oakland"

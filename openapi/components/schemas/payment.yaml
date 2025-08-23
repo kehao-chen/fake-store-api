@@ -40,14 +40,14 @@ Payment:
       format: decimal
       minimum: 0
       multipleOf: 0.01
-      description: 支付金額 (USD)
+      description: 支付金額
       example: 299.99
       
     currency:
       type: string
-      enum: ["USD"]
+      enum: ["USD", "TWD"]
       description: 貨幣代碼
-      example: "USD"
+      example: "TWD"
       
     status:
       $ref: '#/PaymentStatus'
@@ -132,9 +132,9 @@ PaymentIntent:
       
     currency:
       type: string
-      enum: ["usd"]
+      enum: ["usd", "twd"]
       description: 貨幣代碼 (小寫)
-      example: "usd"
+      example: "twd"
       
     client_secret:
       type: string
@@ -210,14 +210,14 @@ PaymentResponse:
       format: decimal
       minimum: 0
       multipleOf: 0.01
-      description: 支付金額 (USD)
+      description: 支付金額
       example: 299.99
       
     currency:
       type: string
-      enum: ["USD"]
+      enum: ["USD", "TWD"]
       description: 貨幣代碼
-      example: "USD"
+      example: "TWD"
       
     status:
       $ref: '#/PaymentStatus'

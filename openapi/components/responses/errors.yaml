@@ -1,4 +1,4 @@
-# 錯誤回應模板定義 (符合 Google AIP-193 標準)
+# 錯誤回應範本定義 (符合 Google AIP-193 標準)
 BadRequest:
   description: 請求參數無效
   content:
@@ -108,7 +108,7 @@ Unauthorized:
         $ref: '../schemas/common.yaml#/Error'
       examples:
         missing_token:
-          summary: 缺少認證令牌
+          summary: 缺少身份驗證權杖
           value:
             error:
               code: "UNAUTHENTICATED"
@@ -116,7 +116,7 @@ Unauthorized:
             request_id: "req_unauth_123"
             timestamp: "2025-08-19T15:33:00Z"
         invalid_token:
-          summary: 無效的令牌
+          summary: 無效的權杖
           value:
             error:
               code: "UNAUTHENTICATED"
@@ -125,7 +125,7 @@ Unauthorized:
             timestamp: "2025-08-19T15:34:00Z"
   headers:
     WWW-Authenticate:
-      description: 認證挑戰
+      description: 身份驗證挑戰
       schema:
         type: string
         example: 'Bearer realm="API", error="invalid_token", error_description="The access token expired"'
@@ -157,6 +157,35 @@ Forbidden:
               message: "This operation requires administrator privileges."
             request_id: "req_admin_456"
             timestamp: "2025-08-19T15:36:00Z"
+  headers:
+    X-Request-ID:
+      description: 請求追蹤 ID
+      schema:
+        type: string
+
+Conflict:
+  description: 資源衝突或並行修改錯誤
+  content:
+    application/json:
+      schema:
+        $ref: '../schemas/common.yaml#/Error'
+      examples:
+        resource_conflict:
+          summary: 資源狀態衝突
+          value:
+            error:
+              code: "FAILED_PRECONDITION"
+              message: "Resource state conflict. The resource has been modified."
+            request_id: "req_conflict_123"
+            timestamp: "2025-08-19T15:45:00Z"
+        concurrent_modification:
+          summary: 並行修改衝突
+          value:
+            error:
+              code: "FAILED_PRECONDITION"
+              message: "Concurrent modification detected. Please retry with latest version."
+            request_id: "req_concurrent_456"
+            timestamp: "2025-08-19T15:46:00Z"
   headers:
     X-Request-ID:
       description: 請求追蹤 ID

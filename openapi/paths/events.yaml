@@ -64,7 +64,7 @@ products_publish:
                       type: string
                       pattern: '^evt_[a-zA-Z0-9]+$'
                       description: 觸發的事件 ID
-                      example: "evt_publish_123"
+                      example: "evt_publish123"
         headers:
           X-Event-ID:
             description: 觸發的事件 ID
@@ -140,8 +140,7 @@ orders_update_status:
       
       ## 支援的狀態轉換
       - `pending` → `processing`
-      - `processing` → `shipped`
-      - `shipped` → `delivered`
+      - `processing` → `paid`
       - `any` → `cancelled`
       
     operationId: updateOrderStatus
@@ -166,9 +165,9 @@ orders_update_status:
             properties:
               status:
                 type: string
-                enum: [processing, shipped, delivered, cancelled]
+                enum: [processing, paid, cancelled]
                 description: 新的訂單狀態
-                example: "shipped"
+                example: "paid"
               reason:
                 type: string
                 maxLength: 500
@@ -178,7 +177,7 @@ orders_update_status:
               tracking_number:
                 type: string
                 nullable: true
-                description: 物流追蹤號碼 (狀態為 shipped 時)
+                description: 物流追蹤號碼（若採用配送狀態，未來可擴增對應狀態）
                 example: "TW123456789"
               estimated_delivery:
                 type: string

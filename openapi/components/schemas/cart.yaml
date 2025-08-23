@@ -38,11 +38,11 @@ Cart:
       minimum: 0
       multipleOf: 0.01
       description: 購物車總金額 (USD)
-      example: 299.97
+      example: 300.00
       
     currency:
       type: string
-      enum: ["USD"]
+      enum: ["USD", "TWD"]
       description: 貨幣代碼
       default: "USD"
       example: "USD"
@@ -67,18 +67,18 @@ Cart:
     items:
       - product_id: "prod_1a2b3c"
         product_name: "高效能無線滑鼠"
-        product_price: 79.99
+        unit_price: 80.00
         product_image_url: "https://fakestore.happyhacking.ninja/images/mouse.jpg"
         quantity: 2
-        subtotal: 159.98
+        total_price: 160.00
       - product_id: "prod_4d5e6f"
         product_name: "機械鍵盤"
-        product_price: 139.99
+        unit_price: 140.00
         product_image_url: "https://fakestore.happyhacking.ninja/images/keyboard.jpg"
         quantity: 1
-        subtotal: 139.99
+        total_price: 140.00
     item_count: 3
-    total_amount: 299.97
+    total_amount: 300.00
     currency: "USD"
     created_at: "2025-08-19T10:00:00Z"
     updated_at: "2025-08-19T15:30:00Z"
@@ -88,9 +88,9 @@ CartItem:
   required:
     - product_id
     - product_name
-    - product_price
+    - unit_price
     - quantity
-    - subtotal
+    - total_price
   properties:
     product_id:
       type: string
@@ -103,13 +103,13 @@ CartItem:
       description: 產品名稱 (快照)
       example: "高效能無線滑鼠"
       
-    product_price:
+    unit_price:
       type: number
       format: decimal
       minimum: 0
       multipleOf: 0.01
-      description: 產品單價 (快照)
-      example: 79.99
+      description: 單價 (快照)
+      example: 80.00
       
     product_image_url:
       type: string
@@ -124,13 +124,13 @@ CartItem:
       description: 產品數量
       example: 2
       
-    subtotal:
+    total_price:
       type: number
       format: decimal
       minimum: 0
       multipleOf: 0.01
-      description: 小計金額 (price × quantity)
-      example: 159.98
+      description: 小計金額 (unit_price × quantity)
+      example: 160.00
       
     added_at:
       type: string
@@ -142,10 +142,10 @@ CartItem:
   example:
     product_id: "prod_1a2b3c"
     product_name: "高效能無線滑鼠"
-    product_price: 79.99
+    unit_price: 80.00
     product_image_url: "https://fakestore.happyhacking.ninja/images/mouse.jpg"
     quantity: 2
-    subtotal: 159.98
+    total_price: 160.00
     added_at: "2025-08-19T14:30:00Z"
 
 AddProductRequest:

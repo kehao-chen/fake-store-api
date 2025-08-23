@@ -18,10 +18,16 @@ Project fake_store_api {
 
 Table categories {
   id varchar(50) [pk, default: `'cat_' || generate_random_uuid()::TEXT`]
-  name varchar(100) [not null, unique]
+  name varchar(100) [not null]
   display_name varchar(100)
   description text
   is_active boolean [not null, default: true]
+  -- 審計與軟刪除
+  version integer [not null, default: 0]
+  created_by varchar(50) [note: '建立者 user_* 或 system']
+  updated_by varchar(50) [note: '最後更新者 user_* 或 system']
+  deleted_at timestamptz
+  deleted_by varchar(50)
   created_at timestamptz [not null, default: `NOW()`]
   updated_at timestamptz [not null, default: `NOW()`]
   
@@ -35,9 +41,15 @@ Table products {
   price decimal(10,2) [not null, note: '必須 >= 0']
   category_id varchar(50) [not null, ref: > categories.id]
   image_url varchar(500)
-  sku varchar(100) [unique]
+  sku varchar(100)
   stock_quantity integer [not null, default: 0, note: '必須 >= 0']
   is_active boolean [not null, default: true]
+  -- 審計與軟刪除
+  version integer [not null, default: 0]
+  created_by varchar(50) [note: '建立者 user_* 或 system']
+  updated_by varchar(50) [note: '最後更新者 user_* 或 system']
+  deleted_at timestamptz
+  deleted_by varchar(50)
   created_at timestamptz [not null, default: `NOW()`]
   updated_at timestamptz [not null, default: `NOW()`]
   
@@ -57,8 +69,15 @@ Table users {
   last_name varchar(100)
   phone varchar(50)
   is_active boolean [not null, default: true]
-  is_email_verified boolean [not null, default: false]
+  email_verified boolean [not null, default: false]
+  address jsonb [note: '使用者地址 JSON 結構，對應 API User.address']
   last_login_at timestamptz
+  -- 審計與軟刪除
+  version integer [not null, default: 0]
+  created_by varchar(50) [note: '建立者 user_* 或 system']
+  updated_by varchar(50) [note: '最後更新者 user_* 或 system']
+  deleted_at timestamptz
+  deleted_by varchar(50)
   created_at timestamptz [not null, default: `NOW()`]
   updated_at timestamptz [not null, default: `NOW()`]
   
@@ -104,7 +123,7 @@ Table cart_items {
   cart_id varchar(50) [not null, ref: > carts.id]
   product_id varchar(50) [not null, ref: > products.id]
   quantity integer [not null, note: '必須 > 0']
-  unit_price decimal(10,2) [not null, note: '價格快照磺保一致性']
+  unit_price decimal(10,2) [not null, note: '價格快照確保一致性']
   created_at timestamptz [not null, default: `NOW()`]
   updated_at timestamptz [not null, default: `NOW()`]
   
@@ -128,6 +147,14 @@ Table orders {
   stripe_session_id varchar(255) [unique]
   stripe_payment_intent_id varchar(255) [unique]
   billing_email varchar(255)
+  billing_address jsonb [note: '訂單帳單地址 JSON 結構']
+  shipping_address jsonb [note: '訂單配送地址 JSON 結構（可為空）']
+  -- 審計與軟刪除（實務上訂單通常不刪除，預留欄位以符合集成）
+  version integer [not null, default: 0]
+  created_by varchar(50) [note: '建立者 user_* 或 system']
+  updated_by varchar(50) [note: '最後更新者 user_* 或 system']
+  deleted_at timestamptz
+  deleted_by varchar(50)
   created_at timestamptz [not null, default: `NOW()`]
   updated_at timestamptz [not null, default: `NOW()`]
   

@@ -2,43 +2,39 @@
 OrderExample:
   summary: 完整訂單範例
   value:
-    id: "ord_20250120_001"
-    orderNumber: "FS-2025012000001"
-    userId: "usr_1234567890"
+    id: "order_20250120001"
+    order_number: "FS-2025012000001"
+    user_id: "user_123abc"
     status: "processing"
     items:
-      - productId: "prod_001"
-        productName: "經典 T-Shirt"
-        productImage: "https://api.fakestore.happyhacking.ninja/images/tshirt-001.jpg"
-        price: 599.00
+      - product_id: "prod_001"
+        product_name: "經典 T-Shirt"
+        product_image_url: "https://api.fakestore.happyhacking.ninja/images/tshirt-001.jpg"
+        unit_price: 599.00
         quantity: 2
-        subtotal: 1198.00
-      - productId: "prod_002"
-        productName: "運動鞋"
-        productImage: "https://api.fakestore.happyhacking.ninja/images/shoes-002.jpg"
-        price: 2499.00
+        total_price: 1198.00
+      - product_id: "prod_002"
+        product_name: "運動鞋"
+        product_image_url: "https://api.fakestore.happyhacking.ninja/images/shoes-002.jpg"
+        unit_price: 2499.00
         quantity: 1
-        subtotal: 2499.00
-    subtotal: 3697.00
-    shippingFee: 60.00
+        total_price: 2499.00
+    subtotal_amount: 3697.00
+    shipping_fee: 60.00
     discount: 369.70
-    totalAmount: 3387.30
-    currency: "TWD"
-    shippingAddress:
-      fullName: "王小明"
+    total_amount: 3387.30
+    currency: "USD"
+    shipping_address:
+      line1: "台北市信義區信義路五段7號"
       phone: "+886912345678"
-      address: "台北市信義區信義路五段7號"
       city: "台北市"
-      district: "信義區"
-      postalCode: "110"
+      postal_code: "110"
       country: "TW"
-    billingAddress:
-      fullName: "王小明"
+    billing_address:
+      line1: "台北市信義區信義路五段7號"
       phone: "+886912345678"
-      address: "台北市信義區信義路五段7號"
       city: "台北市"
-      district: "信義區"
-      postalCode: "110"
+      postal_code: "110"
       country: "TW"
     payment:
       method: "credit_card"
@@ -60,37 +56,33 @@ OrderExample:
 OrderListExample:
   summary: 訂單列表範例
   value:
-    - id: "ord_20250120_001"
-      orderNumber: "FS-2025012000001"
+    - id: "order_20250120001"
+      order_number: "FS-2025012000001"
       status: "processing"
-      totalAmount: 3387.30
-      currency: "TWD"
-      itemCount: 2
-      createdAt: "2025-01-20T10:00:00Z"
-    - id: "ord_20250119_005"
-      orderNumber: "FS-2025011900005"
-      status: "delivered"
-      totalAmount: 1299.00
-      currency: "TWD"
-      itemCount: 1
-      createdAt: "2025-01-19T15:30:00Z"
-    - id: "ord_20250118_012"
-      orderNumber: "FS-2025011800012"
+      total_amount: 3387.30
+      currency: "USD"
+      item_count: 2
+      created_at: "2025-01-20T10:00:00Z"
+    - id: "order_20250119005"
+      order_number: "FS-2025011900005"
+      status: "processing"
+      total_amount: 1299.00
+      currency: "USD"
+      item_count: 1
+      created_at: "2025-01-19T15:30:00Z"
+    - id: "order_20250118012"
+      order_number: "FS-2025011800012"
       status: "cancelled"
-      totalAmount: 5999.00
-      currency: "TWD"
-      itemCount: 3
-      createdAt: "2025-01-18T09:15:00Z"
+      total_amount: 5999.00
+      currency: "USD"
+      item_count: 3
+      created_at: "2025-01-18T09:15:00Z"
 
 OrderStatusUpdateExample:
   summary: 訂單狀態更新範例
   value:
-    status: "shipped"
-    tracking:
-      carrier: "黑貓宅急便"
-      trackingNumber: "12345678901234"
-      estimatedDelivery: "2025-01-22T18:00:00Z"
-    note: "商品已出貨，預計 1-2 個工作天送達"
+    status: "paid"
+    note: "訂單已完成支付，準備出庫"
 
 OrderCancellationExample:
   summary: 訂單取消範例

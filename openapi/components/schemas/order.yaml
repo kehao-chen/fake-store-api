@@ -1,119 +1,121 @@
 # 訂單和結帳相關資料模型定義
 Order:
-  type: object
-  required:
-    - id
-    - user_id
-    - status
-    - items
-    - total_amount
-    - currency
-  properties:
-    id:
-      type: string
-      pattern: '^order_[a-zA-Z0-9]+$'
-      description: 訂單唯一識別碼
-      example: "order_abc123"
-      
-    user_id:
-      type: string
-      pattern: '^user_[a-zA-Z0-9]+$'
-      description: 使用者 ID
-      example: "user_123abc"
-      
-    status:
-      type: string
-      enum: ["pending", "processing", "paid", "shipped", "delivered", "cancelled", "refunded"]
-      description: 訂單狀態
-      example: "paid"
-      
-    items:
-      type: array
-      items:
-        $ref: '#/OrderItem'
-      description: 訂單項目列表
-      
-    subtotal:
-      type: number
-      format: decimal
-      minimum: 0
-      multipleOf: 0.01
-      description: 商品小計金額 (USD)
-      example: 299.97
-      
-    tax_amount:
-      type: number
-      format: decimal
-      minimum: 0
-      multipleOf: 0.01
-      description: 稅額 (USD)
-      example: 26.99
-      
-    shipping_amount:
-      type: number
-      format: decimal
-      minimum: 0
-      multipleOf: 0.01
-      description: 運費 (USD)
-      example: 9.99
-      
-    total_amount:
-      type: number
-      format: decimal
-      minimum: 0
-      multipleOf: 0.01
-      description: 訂單總金額 (USD)
-      example: 336.95
-      
-    currency:
-      type: string
-      enum: ["USD"]
-      description: 貨幣代碼
-      example: "USD"
-      
-    payment_method:
-      type: string
-      enum: ["stripe"]
-      description: 支付方式
-      example: "stripe"
-      
-    payment_intent_id:
-      type: string
-      nullable: true
-      description: Stripe 支付意圖 ID
-      example: "pi_1A2B3C4D5E"
-      
-    billing_address:
-      $ref: '#/BillingAddress'
-      description: 帳單地址
-      
-    shipping_address:
-      $ref: '#/BillingAddress'
-      nullable: true
-      description: 配送地址
-      
-    created_at:
-      type: string
-      format: date-time
-      description: 訂單建立時間
-      readOnly: true
-      example: "2025-08-19T15:00:00Z"
-      
-    updated_at:
-      type: string
-      format: date-time
-      description: 訂單更新時間
-      readOnly: true
-      example: "2025-08-19T15:30:00Z"
+  allOf:
+    - $ref: './common.yaml#/AuditableEntity'
+    - type: object
+      required:
+        - id
+        - user_id
+        - status
+        - items
+        - total_amount
+        - currency
+      properties:
+        id:
+          type: string
+          pattern: '^order_[a-zA-Z0-9]+$'
+          description: 訂單唯一識別碼
+          example: "order_abc123"
+          
+        user_id:
+          type: string
+          pattern: '^user_[a-zA-Z0-9]+$'
+          description: 使用者 ID
+          example: "user_123abc"
+          
+        status:
+          type: string
+          enum: ["pending", "processing", "paid", "cancelled", "refunded"]
+          description: 訂單狀態
+          example: "paid"
+          
+        items:
+          type: array
+          items:
+            $ref: '#/OrderItem'
+          description: 訂單項目列表
+          
+        subtotal:
+          type: number
+          format: decimal
+          minimum: 0
+          multipleOf: 0.01
+          description: 商品小計金額 (USD)
+          example: 300.00
+          
+        tax_amount:
+          type: number
+          format: decimal
+          minimum: 0
+          multipleOf: 0.01
+          description: 稅額 (USD)
+          example: 27.00
+          
+        shipping_amount:
+          type: number
+          format: decimal
+          minimum: 0
+          multipleOf: 0.01
+          description: 運費 (USD)
+          example: 10.00
+          
+        total_amount:
+          type: number
+          format: decimal
+          minimum: 0
+          multipleOf: 0.01
+          description: 訂單總金額 (USD)
+          example: 337.00
+          
+        currency:
+          type: string
+          enum: ["USD", "TWD"]
+          description: 貨幣代碼
+          example: "USD"
+          
+        payment_method:
+          type: string
+          enum: ["stripe"]
+          description: 支付方式
+          example: "stripe"
+          
+        payment_intent_id:
+          type: string
+          nullable: true
+          description: Stripe 支付意圖 ID
+          example: "pi_1A2B3C4D5E"
+          
+        billing_address:
+          $ref: '#/BillingAddress'
+          description: 帳單地址
+          
+        shipping_address:
+          $ref: '#/BillingAddress'
+          nullable: true
+          description: 配送地址
+          
+        created_at:
+          type: string
+          format: date-time
+          description: 訂單建立時間
+          readOnly: true
+          example: "2025-08-19T15:00:00Z"
+          
+        updated_at:
+          type: string
+          format: date-time
+          description: 訂單更新時間
+          readOnly: true
+          example: "2025-08-19T15:30:00Z"
 
 OrderItem:
   type: object
   required:
     - product_id
     - product_name
-    - product_price
+    - unit_price
     - quantity
-    - subtotal
+    - total_price
   properties:
     product_id:
       type: string
@@ -126,13 +128,13 @@ OrderItem:
       description: 產品名稱 (快照)
       example: "高效能無線滑鼠"
       
-    product_price:
+    unit_price:
       type: number
       format: decimal
       minimum: 0
       multipleOf: 0.01
-      description: 產品單價 (快照)
-      example: 79.99
+      description: 單價 (快照)
+      example: 80.00
       
     quantity:
       type: integer
@@ -140,13 +142,13 @@ OrderItem:
       description: 產品數量
       example: 2
       
-    subtotal:
+    total_price:
       type: number
       format: decimal
       minimum: 0
       multipleOf: 0.01
-      description: 小計金額
-      example: 159.98
+      description: 小計金額 (unit_price × quantity)
+      example: 160.00
 
 BillingAddress:
   type: object
@@ -305,7 +307,7 @@ OrderSummary:
       
     status:
       type: string
-      enum: ["pending", "processing", "paid", "shipped", "delivered", "cancelled", "refunded"]
+      enum: ["pending", "processing", "paid", "cancelled", "refunded"]
       description: 訂單狀態
       example: "processing"
       
@@ -315,7 +317,7 @@ OrderSummary:
       minimum: 0
       multipleOf: 0.01
       description: 訂單總金額 (USD)
-      example: 299.97
+      example: 300.00
       
     currency:
       type: string
@@ -344,7 +346,7 @@ OrderSummary:
   example:
     id: "order_abc123"
     status: "processing"
-    total_amount: 299.97
+    total_amount: 299.99
     currency: "USD"
     item_count: 3
     created_at: "2025-08-19T15:00:00Z"
@@ -407,12 +409,12 @@ OrderStatusHistory:
   properties:
     status:
       type: string
-      enum: ["pending", "processing", "paid", "shipped", "delivered", "cancelled", "refunded"]
+      enum: ["pending", "processing", "paid", "cancelled", "refunded"]
       description: 狀態值
       
     previous_status:
       type: string
-      enum: ["pending", "processing", "paid", "shipped", "delivered", "cancelled", "refunded"]
+      enum: ["pending", "processing", "paid", "cancelled", "refunded"]
       description: 前一個狀態
       nullable: true
       

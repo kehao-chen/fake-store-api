@@ -79,28 +79,28 @@ payments_collection:
                 summary: 購物車為空
                 value:
                   error:
-                    code: "CART_EMPTY"
+                    code: "FAILED_PRECONDITION"
                     message: "Cannot process payment for empty cart"
                     details:
-                      reason: "Cart contains no items"
+                      - reason: "Cart contains no items"
                   request_id: "req_pay_123"
               insufficient_stock:
                 summary: 庫存不足
                 value:
                   error:
-                    code: "INSUFFICIENT_STOCK"
+                    code: "RESOURCE_EXHAUSTED"
                     message: "Some items in cart are out of stock"
                     details:
-                      unavailable_items: ["prod_1a2b3c"]
+                      - unavailable_items: ["prod_1a2b3c"]
                   request_id: "req_pay_124"
               invalid_amount:
                 summary: 金額無效
                 value:
                   error:
-                    code: "INVALID_AMOUNT"
+                    code: "INVALID_ARGUMENT"
                     message: "Payment amount must be greater than 0"
                     details:
-                      calculated_amount: 0
+                      - calculated_amount: 0
                   request_id: "req_pay_125"
       '500':
         $ref: '../components/responses/errors.yaml#/InternalError'
@@ -209,11 +209,11 @@ payments_item:
                 summary: 無權限訪問
                 value:
                   error:
-                    code: "FORBIDDEN"
+                    code: "PERMISSION_DENIED"
                     message: "You don't have permission to access this payment record"
                     details:
-                      payment_id: "pay_abc123"
-                      user_id: "user_different"
+                      - payment_id: "pay_abc123"
+                      - user_id: "user_different"
                   request_id: "req_pay_403"
       '404':
         $ref: '../components/responses/errors.yaml#/NotFound'

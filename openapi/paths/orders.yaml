@@ -9,9 +9,11 @@ orders_collection:
     description: |
       獲取當前使用者的訂單列表，支援篩選、排序和分頁功能。
       
+      - `include_deleted=true` 僅管理員可見，用於查詢已軟刪除資源。
+      
       ## 功能特性
       - 分頁支援：預設 20 筆/頁，最大 100 筆/頁
-      - 狀態篩選：pending, processing, paid, shipped, delivered, cancelled, refunded
+      - 狀態篩選：pending, processing, paid, cancelled, refunded
       - 排序選項：created_at, updated_at, total_amount
       - 管理員可查看所有使用者訂單
       
@@ -36,12 +38,18 @@ orders_collection:
         description: 分頁令牌
         schema:
           type: string
+      - name: only_deleted
+        in: query
+        description: 僅返回已軟刪除的資源（僅管理員，與 include_deleted 互斥）
+        schema:
+          type: boolean
+          default: false
       - name: status
         in: query
         description: 訂單狀態篩選
         schema:
           type: string
-          enum: ["pending", "processing", "paid", "shipped", "delivered", "cancelled", "refunded"]
+          enum: ["pending", "processing", "paid", "cancelled", "refunded"]
       - name: date_from
         in: query
         description: 起始日期（ISO 8601 格式）
@@ -113,13 +121,13 @@ orders_collection:
                   orders:
                     - id: "order_abc123"
                       status: "processing"
-                      total_amount: 299.97
+                      total_amount: 299.99
                       currency: "USD"
                       item_count: 3
                       created_at: "2025-08-19T15:00:00Z"
                     - id: "order_def456"
-                      status: "delivered"
-                      total_amount: 159.98
+                      status: "processing"
+                      total_amount: 159.99
                       currency: "USD"
                       item_count: 2
                       created_at: "2025-08-18T10:30:00Z"
@@ -209,28 +217,7 @@ orders_collection:
       '402':
         $ref: '../components/responses/errors.yaml#/PaymentRequired'
       '409':
-        description: 庫存不足或購物車為空
-        content:
-          application/json:
-            schema:
-              $ref: '../components/responses/errors.yaml#/ErrorResponse'
-            examples:
-              insufficient_stock:
-                summary: 庫存不足
-                value:
-                  error:
-                    code: "INSUFFICIENT_STOCK"
-                    message: "Product 'prod_123' has insufficient stock"
-                    details:
-                      product_id: "prod_123"
-                      requested_quantity: 5
-                      available_stock: 2
-              empty_cart:
-                summary: 購物車為空
-                value:
-                  error:
-                    code: "EMPTY_CART"
-                    message: "Cannot create order from empty cart"
+        $ref: '../components/responses/errors.yaml#/Conflict'
       '500':
         $ref: '../components/responses/errors.yaml#/InternalError'
 
@@ -339,21 +326,7 @@ orders_item:
       '404':
         $ref: '../components/responses/errors.yaml#/NotFound'
       '409':
-        description: 訂單狀態不允許更新
-        content:
-          application/json:
-            schema:
-              $ref: '../components/responses/errors.yaml#/ErrorResponse'
-            examples:
-              order_immutable:
-                summary: 訂單不可更新
-                value:
-                  error:
-                    code: "ORDER_IMMUTABLE"
-                    message: "Order cannot be modified in current status"
-                    details:
-                      order_id: "order_abc123"
-                      current_status: "delivered"
+        $ref: '../components/responses/errors.yaml#/BadRequest'
       '500':
         $ref: '../components/responses/errors.yaml#/InternalError'
 
@@ -414,22 +387,7 @@ orders_item:
       '404':
         $ref: '../components/responses/errors.yaml#/NotFound'
       '409':
-        description: 訂單狀態不允許取消
-        content:
-          application/json:
-            schema:
-              $ref: '../components/responses/errors.yaml#/ErrorResponse'
-            examples:
-              cannot_cancel:
-                summary: 無法取消訂單
-                value:
-                  error:
-                    code: "CANNOT_CANCEL_ORDER"
-                    message: "Order cannot be cancelled in current status"
-                    details:
-                      order_id: "order_abc123"
-                      current_status: "shipped"
-                      reason: "Order has already been shipped"
+        $ref: '../components/responses/errors.yaml#/BadRequest'
       '500':
         $ref: '../components/responses/errors.yaml#/InternalError'
 
@@ -540,14 +498,16 @@ orders_cancel:
                 value:
                   order:
                     id: "order_abc123"
+                    user_id: "user_123abc"
                     status: "cancelled"
-                    total_amount: 299.97
+                    total_amount: 299.99
                     currency: "USD"
+                    items: []
                   cancellation:
                     cancelled_at: "2025-08-19T16:30:00Z"
                     reason: "customer_request"
                     refund_id: "re_1A2B3C4D5E"
-                    refund_amount: 299.97
+                    refund_amount: 299.99
                     stock_released: true
       '400':
         $ref: '../components/responses/errors.yaml#/ValidationError'

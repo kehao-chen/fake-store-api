@@ -3,119 +3,93 @@ BadRequestExample:
   summary: 400 錯誤請求範例
   value:
     error:
-      code: "INVALID_REQUEST"
-      message: "請求參數無效"
+      code: "INVALID_ARGUMENT"
+      message: "The request contains invalid parameters."
       details:
-        - field: "email"
-          message: "電子郵件格式不正確"
-        - field: "password"
-          message: "密碼長度必須至少 8 個字元"
-      timestamp: "2025-01-20T10:30:00Z"
-      path: "/v1/users/register"
-      requestId: "req_1234567890"
+        - "@type": "type.googleapis.com/google.rpc.BadRequest"
+          field_violations:
+            - field: "email"
+              description: "Must be a valid email address"
+            - field: "password"
+              description: "Password must be at least 8 characters"
+    request_id: "req_1234567890"
+    timestamp: "2025-01-20T10:30:00Z"
 
 UnauthorizedExample:
   summary: 401 未授權範例
   value:
     error:
-      code: "UNAUTHORIZED"
-      message: "需要身份驗證"
-      details:
-        - message: "缺少或無效的認證令牌"
-      timestamp: "2025-01-20T10:30:00Z"
-      path: "/v1/users/me"
-      requestId: "req_1234567891"
+      code: "UNAUTHENTICATED"
+      message: "Authentication required. Please provide a valid Bearer token."
+    request_id: "req_1234567891"
+    timestamp: "2025-01-20T10:30:00Z"
 
 ForbiddenExample:
   summary: 403 禁止訪問範例
   value:
     error:
-      code: "FORBIDDEN"
-      message: "沒有權限執行此操作"
-      details:
-        - message: "需要管理員權限"
-      timestamp: "2025-01-20T10:30:00Z"
-      path: "/v1/products"
-      requestId: "req_1234567892"
+      code: "PERMISSION_DENIED"
+      message: "Insufficient permissions to perform this action."
+    request_id: "req_1234567892"
+    timestamp: "2025-01-20T10:30:00Z"
 
 NotFoundExample:
   summary: 404 找不到資源範例
   value:
     error:
       code: "NOT_FOUND"
-      message: "找不到請求的資源"
-      details:
-        - resource: "Product"
-          id: "prod_999999"
-          message: "產品不存在"
-      timestamp: "2025-01-20T10:30:00Z"
-      path: "/v1/products/prod_999999"
-      requestId: "req_1234567893"
+      message: "The requested resource was not found."
+    request_id: "req_1234567893"
+    timestamp: "2025-01-20T10:30:00Z"
 
 ConflictExample:
   summary: 409 衝突範例
   value:
     error:
-      code: "CONFLICT"
-      message: "資源衝突"
-      details:
-        - field: "email"
-          message: "此電子郵件已被註冊"
-      timestamp: "2025-01-20T10:30:00Z"
-      path: "/v1/users/register"
-      requestId: "req_1234567894"
+      code: "FAILED_PRECONDITION"
+      message: "Version conflict or invalid resource state."
+    request_id: "req_1234567894"
+    timestamp: "2025-01-20T10:30:00Z"
 
 ValidationErrorExample:
   summary: 422 驗證錯誤範例
   value:
     error:
-      code: "VALIDATION_ERROR"
-      message: "輸入資料驗證失敗"
+      code: "INVALID_ARGUMENT"
+      message: "Request validation failed."
       details:
-        - field: "quantity"
-          message: "數量必須大於 0"
-        - field: "productId"
-          message: "產品 ID 格式不正確"
-      timestamp: "2025-01-20T10:30:00Z"
-      path: "/v1/carts/me/items"
-      requestId: "req_1234567895"
+        - "@type": "type.googleapis.com/google.rpc.BadRequest"
+          field_violations:
+            - field: "quantity"
+              description: "Must be greater than 0"
+            - field: "product_id"
+              description: "Invalid format"
+    request_id: "req_1234567895"
+    timestamp: "2025-01-20T10:30:00Z"
 
 RateLimitExample:
   summary: 429 請求過多範例
   value:
     error:
-      code: "RATE_LIMIT_EXCEEDED"
-      message: "請求次數超過限制"
-      details:
-        - limit: 100
-          window: "1h"
-          remaining: 0
-          resetAt: "2025-01-20T11:30:00Z"
-      timestamp: "2025-01-20T10:30:00Z"
-      path: "/v1/products"
-      requestId: "req_1234567896"
+      code: "RESOURCE_EXHAUSTED"
+      message: "Too many requests. Please retry after the specified time."
+    request_id: "req_1234567896"
+    timestamp: "2025-01-20T10:30:00Z"
 
 InternalServerErrorExample:
   summary: 500 內部伺服器錯誤範例
   value:
     error:
-      code: "INTERNAL_ERROR"
-      message: "內部伺服器錯誤"
-      details:
-        - message: "處理請求時發生錯誤，請稍後再試"
-      timestamp: "2025-01-20T10:30:00Z"
-      path: "/v1/orders"
-      requestId: "req_1234567897"
+      code: "INTERNAL"
+      message: "An internal error occurred. Please try again later."
+    request_id: "req_1234567897"
+    timestamp: "2025-01-20T10:30:00Z"
 
 ServiceUnavailableExample:
   summary: 503 服務不可用範例
   value:
     error:
-      code: "SERVICE_UNAVAILABLE"
-      message: "服務暫時不可用"
-      details:
-        - message: "系統維護中，預計 30 分鐘後恢復"
-        - retryAfter: 1800
-      timestamp: "2025-01-20T10:30:00Z"
-      path: "/v1/payments/checkout"
-      requestId: "req_1234567898"
+      code: "UNAVAILABLE"
+      message: "Service is temporarily unavailable."
+    request_id: "req_1234567898"
+    timestamp: "2025-01-20T10:30:00Z"

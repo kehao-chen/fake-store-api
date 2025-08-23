@@ -8,55 +8,55 @@ LoginRequestExample:
 LoginResponseExample:
   summary: 登入成功回應範例
   value:
-    accessToken: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c3JfMTIzNDU2Nzg5MCIsImVtYWlsIjoiam9obi5kb2VAZXhhbXBsZS5jb20iLCJyb2xlIjoiY3VzdG9tZXIiLCJpYXQiOjE3MDU3MzQwMDAsImV4cCI6MTcwNTczNzYwMH0.signature"
-    refreshToken: "refresh_token_1234567890abcdef"
-    tokenType: "Bearer"
-    expiresIn: 3600
+    access_token: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...signature"
+    refresh_token: "refresh_token_1234567890abcdef"
+    token_type: "Bearer"
+    expires_in: 3600
     user:
-      id: "usr_1234567890"
+      id: "user_123abc"
       email: "john.doe@example.com"
       username: "johndoe"
-      firstName: "John"
-      lastName: "Doe"
+      first_name: "John"
+      last_name: "Doe"
       role: "customer"
 
 RefreshTokenExample:
   summary: Token 更新請求範例
   value:
-    refreshToken: "refresh_token_1234567890abcdef"
+    refresh_token: "refresh_token_1234567890abcdef"
 
 OAuth2AuthorizeExample:
   summary: OAuth2 授權請求範例
   value:
-    clientId: "fake-store-web-app"
-    redirectUri: "https://app.fakestore.happyhacking.ninja/auth/callback"
-    responseType: "code"
+    client_id: "fake-store-web-app"
+    redirect_uri: "https://app.fakestore.happyhacking.ninja/auth/callback"
+    response_type: "code"
     scope: "read write"
     state: "random_state_string_12345"
-    codeChallenge: "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM"
-    codeChallengeMethod: "S256"
+    code_challenge: "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM"
+    code_challenge_method: "S256"
 
 OAuth2TokenExample:
   summary: OAuth2 Token 交換請求範例
   value:
-    grantType: "authorization_code"
+    grant_type: "authorization_code"
     code: "auth_code_1234567890"
-    redirectUri: "https://app.fakestore.happyhacking.ninja/auth/callback"
-    clientId: "fake-store-web-app"
-    clientSecret: "client_secret_abcdef123456"
-    codeVerifier: "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"
+    redirect_uri: "https://app.fakestore.happyhacking.ninja/auth/callback"
+    client_id: "fake-store-web-app"
+    client_secret: "client_secret_abcdef123456"
+    code_verifier: "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"
 
 RegisterRequestExample:
   summary: 註冊請求範例
   value:
     email: "newuser@example.com"
     password: "SecureP@ssw0rd123"
-    confirmPassword: "SecureP@ssw0rd123"
+    confirm_password: "SecureP@ssw0rd123"
     username: "newuser"
-    firstName: "New"
-    lastName: "User"
+    first_name: "New"
+    last_name: "User"
     phone: "+886987654321"
-    acceptTerms: true
+    accept_terms: true
 
 PasswordResetRequestExample:
   summary: 密碼重設請求範例
@@ -67,8 +67,8 @@ PasswordResetConfirmExample:
   summary: 密碼重設確認範例
   value:
     token: "reset_token_1234567890"
-    newPassword: "NewSecureP@ssw0rd456"
-    confirmPassword: "NewSecureP@ssw0rd456"
+    new_password: "NewSecureP@ssw0rd456"
+    confirm_password: "NewSecureP@ssw0rd456"
 
 UnauthorizedExample:
   summary: 未授權錯誤範例
