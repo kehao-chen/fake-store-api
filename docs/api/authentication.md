@@ -1,6 +1,22 @@
 # 認證與授權（原則與流程）
 
-本專案採用 OAuth2（授權碼 + PKCE）為主要註冊/登入方式；另提供教學用帳密登入與 API Key 構想，方便快速體驗。
+本專案採用 **RS256 JWT** 與 **JWK** 標準，配合 OAuth2（授權碼 + PKCE）為主要註冊/登入方式；另提供教學用帳密登入與 API Key 構想，方便快速體驗。
+
+## JWT 規格標準
+
+### 令牌存活時間
+- **Access Token**: 15 分鐘
+- **Refresh Token**: 7 天
+
+### 加密算法
+- **演算法**: RS256 (RSA Signature with SHA-256)
+- **金鑰管理**: 非對稱金鑰對 + JWK 端點
+- **金鑰 ID**: 支援 `kid` 參數以便金鑰輪換
+
+### JWK 端點
+- **端點**: `GET /.well-known/jwks.json`
+- **用途**: 提供公鑰資訊供 JWT 驗證
+- **快取**: 公開可快取 1 小時
 
 核心端點
 - POST `/v1/auth/login`（教學用帳密登入，回傳 JWT）
@@ -8,6 +24,30 @@
 - POST `/v1/auth/refresh`（刷新 token）
 - GET  `/v1/auth/{provider}`（`google|github` 授權入口）
 - GET  `/v1/auth/{provider}/callback`（回調，回傳 `code/state`）
+- **GET  `/.well-known/jwks.json`（JWK 公鑰端點）**
+
+## 金鑰管理與安全
+
+### RSA 金鑰對配置
+```yaml
+jwt:
+  private-key: classpath:keys/private_key_pkcs8.pem  # PKCS#8 格式私鑰
+  public-key: classpath:keys/public_key.pem          # X.509 格式公鑰
+  key-id: fake-store-key-1                           # 金鑰 ID (支援金鑰輪換)
+  issuer: fake-store-api
+  access-token-expiration: 15    # 分鐘
+  refresh-token-expiration: 10080 # 分鐘 (7天)
+```
+
+### 金鑰生成命令
+```bash
+# 生成 RSA 私鑰並轉換為 PKCS#8 格式
+openssl genrsa -out private_key.pem 2048
+openssl pkcs8 -topk8 -inform PEM -outform PEM -in private_key.pem -out private_key_pkcs8.pem -nocrypt
+
+# 生成對應的公鑰
+openssl rsa -in private_key.pem -pubout -out public_key.pem
+```
 
 API Key（與 JWT 共用 Authorization 標頭）
 - 使用 `Authorization: Bearer <token>` 傳遞憑證。

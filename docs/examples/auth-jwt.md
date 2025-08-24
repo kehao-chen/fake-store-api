@@ -92,9 +92,14 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.SecretKey;
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -104,21 +109,53 @@ import java.util.stream.Collectors;
 @Service
 public class JwtService {
     
-    private final SecretKey secretKey;
+    private final PrivateKey privateKey;
+    private final PublicKey publicKey;
     private final long accessTokenExpiration;
     private final long refreshTokenExpiration;
     private final String issuer;
+    private final String keyId;
     
     public JwtService(
-            @Value("${jwt.secret}") String secret,
+            @Value("${jwt.private-key}") Resource privateKeyResource,
+            @Value("${jwt.public-key}") Resource publicKeyResource,
             @Value("${jwt.access-token-expiration:15}") long accessTokenExpiration,
             @Value("${jwt.refresh-token-expiration:10080}") long refreshTokenExpiration,
-            @Value("${jwt.issuer:fake-store-api}") String issuer) {
+            @Value("${jwt.issuer:fake-store-api}") String issuer,
+            @Value("${jwt.key-id:fake-store-key-1}") String keyId) throws Exception {
         
-        this.secretKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secret));
+        this.privateKey = loadPrivateKey(privateKeyResource);
+        this.publicKey = loadPublicKey(publicKeyResource);
         this.accessTokenExpiration = accessTokenExpiration;
         this.refreshTokenExpiration = refreshTokenExpiration;
         this.issuer = issuer;
+        this.keyId = keyId;
+    }
+    
+    private PrivateKey loadPrivateKey(Resource resource) throws Exception {
+        byte[] keyBytes = resource.getInputStream().readAllBytes();
+        String privateKeyPEM = new String(keyBytes)
+            .replace("-----BEGIN PRIVATE KEY-----", "")
+            .replace("-----END PRIVATE KEY-----", "")
+            .replaceAll("\\s", "");
+        
+        byte[] decoded = Base64.getDecoder().decode(privateKeyPEM);
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decoded);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        return keyFactory.generatePrivate(keySpec);
+    }
+    
+    private PublicKey loadPublicKey(Resource resource) throws Exception {
+        byte[] keyBytes = resource.getInputStream().readAllBytes();
+        String publicKeyPEM = new String(keyBytes)
+            .replace("-----BEGIN PUBLIC KEY-----", "")
+            .replace("-----END PUBLIC KEY-----", "")
+            .replaceAll("\\s", "");
+        
+        byte[] decoded = Base64.getDecoder().decode(publicKeyPEM);
+        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(decoded);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        return keyFactory.generatePublic(keySpec);
     }
     
     // 產生 Access Token
@@ -136,7 +173,8 @@ public class JwtService {
             .claim("email", email)
             .claim("roles", roles)
             .claim("type", "access")
-            .signWith(secretKey, SignatureAlgorithm.HS256)
+            .setHeaderParam("kid", keyId)
+            .signWith(privateKey, SignatureAlgorithm.RS256)
             .compact();
     }
     
@@ -152,7 +190,8 @@ public class JwtService {
             .setIssuedAt(Date.from(now))
             .setExpiration(Date.from(expiry))
             .claim("type", "refresh")
-            .signWith(secretKey, SignatureAlgorithm.HS256)
+            .setHeaderParam("kid", keyId)
+            .signWith(privateKey, SignatureAlgorithm.RS256)
             .compact();
     }
     
@@ -160,7 +199,7 @@ public class JwtService {
     public Claims validateToken(String token) {
         try {
             return Jwts.parserBuilder()
-                .setSigningKey(secretKey)
+                .setSigningKey(publicKey)
                 .requireIssuer(issuer)
                 .build()
                 .parseClaimsJws(token)
@@ -549,7 +588,145 @@ public class AuthService {
 }
 ```
 
-## 6. OAuth 2.0 整合
+## 6. JWK (JSON Web Key) 端點
+
+```java
+package com.fakestore.controller;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
+
+import java.security.KeyFactory;
+import java.security.PublicKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
+import java.util.List;
+
+@Slf4j
+@RestController
+@RequestMapping("/.well-known")
+public class JwkController {
+    
+    private final String keyId;
+    private final RSAPublicKey publicKey;
+    
+    public JwkController(
+            @Value("${jwt.public-key}") Resource publicKeyResource,
+            @Value("${jwt.key-id:fake-store-key-1}") String keyId) throws Exception {
+        this.keyId = keyId;
+        this.publicKey = loadRSAPublicKey(publicKeyResource);
+    }
+    
+    private RSAPublicKey loadRSAPublicKey(Resource resource) throws Exception {
+        byte[] keyBytes = resource.getInputStream().readAllBytes();
+        String publicKeyPEM = new String(keyBytes)
+            .replace("-----BEGIN PUBLIC KEY-----", "")
+            .replace("-----END PUBLIC KEY-----", "")
+            .replaceAll("\\s", "");
+        
+        byte[] decoded = Base64.getDecoder().decode(publicKeyPEM);
+        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(decoded);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        return (RSAPublicKey) keyFactory.generatePublic(keySpec);
+    }
+    
+    @GetMapping("/jwks.json")
+    public Mono<ResponseEntity<JwkSet>> getJwks() {
+        JwkKey jwkKey = new JwkKey(
+            "RSA",  // kty
+            "sig",  // use
+            "RS256", // alg
+            keyId,  // kid
+            Base64.getUrlEncoder().withoutPadding().encodeToString(publicKey.getModulus().toByteArray()),
+            Base64.getUrlEncoder().withoutPadding().encodeToString(publicKey.getPublicExponent().toByteArray())
+        );
+        
+        JwkSet jwkSet = new JwkSet(List.of(jwkKey));
+        
+        return Mono.just(ResponseEntity.ok()
+            .header("Cache-Control", "public, max-age=3600")
+            .body(jwkSet));
+    }
+    
+    @Data
+    @AllArgsConstructor
+    public static class JwkSet {
+        private List<JwkKey> keys;
+    }
+    
+    @Data
+    @AllArgsConstructor  
+    public static class JwkKey {
+        @JsonProperty("kty")
+        private String keyType;
+        
+        @JsonProperty("use")
+        private String use;
+        
+        @JsonProperty("alg")
+        private String algorithm;
+        
+        @JsonProperty("kid")
+        private String keyId;
+        
+        @JsonProperty("n")
+        private String modulus;
+        
+        @JsonProperty("e")
+        private String exponent;
+    }
+}
+}
+```
+
+## 7. RSA 金鑰配置與生成
+
+### 7.1 生成 RSA 金鑰對
+
+```bash
+# 生成私鑰 (PKCS#8 format)
+openssl genrsa -out private_key.pem 2048
+openssl pkcs8 -topk8 -inform PEM -outform PEM -in private_key.pem -out private_key_pkcs8.pem -nocrypt
+
+# 生成公鑰  
+openssl rsa -in private_key.pem -pubout -out public_key.pem
+
+# 檢查金鑰
+openssl rsa -in private_key_pkcs8.pem -text -noout
+openssl rsa -in public_key.pem -pubin -text -noout
+```
+
+### 7.2 Spring Boot 配置
+
+```yaml
+# application.yml
+jwt:
+  private-key: classpath:keys/private_key_pkcs8.pem
+  public-key: classpath:keys/public_key.pem
+  key-id: fake-store-key-1
+  issuer: fake-store-api
+  access-token-expiration: 15    # 分鐘
+  refresh-token-expiration: 10080 # 分鐘 (7天)
+```
+
+### 7.3 Security 配置更新
+
+```java
+// 更新 SecurityConfig 以允許 JWK 端點
+.pathMatchers("/.well-known/jwks.json").permitAll()
+```
+
+## 8. OAuth 2.0 整合
 
 ```java
 package com.fakestore.security.oauth;

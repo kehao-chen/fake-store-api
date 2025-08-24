@@ -12,7 +12,7 @@ auth_token:
       - OAuth 授權碼 (Google/GitHub)
       
       ## 令牌有效期
-      - 存取令牌：1 小時
+      - 存取令牌：15 分鐘
       - 刷新令牌：7 天
       
     operationId: createToken
