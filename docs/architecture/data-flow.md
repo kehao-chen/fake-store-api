@@ -435,14 +435,14 @@ graph LR
     Result --> Response[回應]
 ```
 
-## 效能優化策略
+## 效能最佳化策略
 
-### 查詢優化流程
+### 查詢最佳化流程
 
 ```mermaid
 graph TB
     Query[查詢請求] --> Parser[解析器]
-    Parser --> Optimizer[優化器]
+    Parser --> Optimizer[最佳化器]
     
     Optimizer --> IndexCheck{使用索引?}
     IndexCheck -->|是| IndexScan[索引掃描]
