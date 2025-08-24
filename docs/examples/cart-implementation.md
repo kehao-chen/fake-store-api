@@ -319,7 +319,7 @@ public class CartController {
             );
     }
     
-    @PostMapping(":clear")
+    @PostMapping(value = ":clear") // AIP-136 自訂方法：使用 value 屬性明確指定冒號路徑
     @Operation(
         summary = "清空購物車",
         description = "清空使用者購物車中的所有商品"
@@ -336,7 +336,7 @@ public class CartController {
             );
     }
     
-    @PostMapping(":checkout")
+    @PostMapping(value = ":checkout") // AIP-136 自訂方法：使用 value 屬性明確指定冒號路徑
     @Operation(
         summary = "購物車結帳",
         description = "將購物車內容轉換為訂單"

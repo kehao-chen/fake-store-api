@@ -297,7 +297,7 @@ public class ProductController {
             });
     }
     
-    @PostMapping(":batchGet")
+    @PostMapping(value = ":batchGet")
     @Operation(
         summary = "批量獲取產品",
         description = "根據 ID 列表批量獲取產品"
@@ -315,7 +315,7 @@ public class ProductController {
             );
     }
     
-    @PostMapping(":search")
+    @PostMapping(value = ":search")
     @Operation(
         summary = "搜尋產品",
         description = "全文搜尋產品"

@@ -320,7 +320,7 @@ GET /v1/auth/google/callback
 
 **API 端點**
 ```
-POST /v1/users/me/cart/checkout
+POST /v1/users/me/cart:checkout
 ```
 
 **請求內容**
