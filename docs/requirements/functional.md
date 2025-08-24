@@ -362,26 +362,69 @@ POST /v1/webhooks/stripe
 | P2 - 次要 | 支付整合 (PAY-01, PAY-02) | 第 4 週 | 16 小時 |
 | P3 - 可選 | OAuth 登入 (AUTH-02) | 第 4 週 | 8 小時 |
 
+#### PROD-04: 更新產品
+
+**功能描述**
+- 允許管理員更新現有產品資訊
+- 支援部分欄位更新，遵循 AIP-134 標準
+
+**接受條件**
+- [ ] 需要有效的 JWT Token
+- [ ] 需要管理員角色
+- [ ] 採用 `PATCH` + `updateMask` 進行部分欄位更新
+- [ ] 驗證更新欄位的有效性
+- [ ] 返回更新後的產品資訊
+
+**API 端點**
+```
+PATCH /v1/products/{id}?update_mask=name,price,stock_quantity
+```
+
+**請求內容**
+```json
+{
+  "name": "更新的產品名稱",
+  "price": 129.99,
+  "stock_quantity": 150
+}
+```
+
+#### PROD-05: 刪除產品
+
+**功能描述**
+- 允許管理員刪除產品（軟刪除）
+- 需要管理員權限
+
+**接受條件**
+- [ ] 需要有效的 JWT Token
+- [ ] 需要管理員角色
+- [ ] 執行軟刪除（標記為不可用）
+- [ ] 檢查產品是否在購物車或未完成訂單中
+- [ ] 成功返回 204 狀態碼
+
+**API 端點**
+```
+DELETE /v1/products/{id}
+```
+
+## 補充說明
+
+### 認證機制
+- 認證策略同時支援 JWT 與 API Key，皆透過 `Authorization: Bearer <token>` 傳遞
+- 一般註冊以 Google/GitHub OAuth 為主；帳密登入僅供教學體驗
+- OAuth2 採用 PKCE 流程：授權入口 `/v1/auth/google`，回調 `/v1/auth/google/callback`，以 `/v1/auth/token` 兌換 JWT
+
+### API 設計原則
+- 遵循 Google AIP 標準
+- 採用 RESTful 設計
+- 支援 AIP-160 篩選語法
+- 使用 AIP-134 部分更新模式
+
 ## 相關文件
 
 - [非功能需求](./non-functional.md) - 效能、安全、可用性要求
 - [API 設計規格](../api/design-spec.md) - 詳細 API 文件
 - [資料庫設計](../architecture/database-schema.md) - 資料模型設計
-#### PROD-04: 更新產品
-
-**補充說明**
-- 採用 `PATCH` + `updateMask`（AIP-134）進行部分欄位更新。
-
-**API 端點**
-```
-PATCH /v1/products/{id}
-```
-
-**補充說明**
-- 認證策略同時支援 JWT 與 API Key，皆透過 `Authorization: Bearer <token>` 傳遞。
-- 一般註冊以 Google/GitHub OAuth 為主；帳密登入僅供教學體驗。
-**補充說明**
-- 採用 OAuth2 + PKCE；授權入口 `/v1/auth/google`，回調 `/v1/auth/google/callback`，以 `/v1/auth/token` 兌換 JWT。
 - [測試策略](../implementation/testing-strategy.md) - 測試計畫
 
 ---
