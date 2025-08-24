@@ -42,7 +42,7 @@ Fake Store API 是一個功能完整的模擬電子商務 API 服務，專為個
 - 建立響應式 API 服務 (Spring WebFlux)
 - 實作完整的認證授權系統
 - 整合關聯式資料庫 (PostgreSQL)
-- 實作快取機制 (Valkey/Redis)
+- 實作快取機制 (Valkey)
 - 建立監控告警系統
 - 達成 80% 以上測試覆蓋率
 - **導入 ArchUnit 架構測試，確保模組邊界與設計原則**
@@ -98,7 +98,7 @@ graph LR
 - **後端框架**: Spring Boot 3.x with WebFlux
 - **程式語言**: Java 21
 - **資料庫**: PostgreSQL 15+
-- **快取**: Valkey (Redis 相容)
+- **快取**: Valkey (Redis-compatible)
 - **容器化**: Docker & Docker Compose
 - **API 閘道**: Spring Cloud Gateway
 - **監控**: Prometheus + Grafana

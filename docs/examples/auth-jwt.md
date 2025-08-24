@@ -225,14 +225,14 @@ public class JwtService {
             .build();
     }
     
-    // 撤銷 Token (需要配合 Redis 實作黑名單)
+    // 撤銷 Token (需要配合 Valkey 實作黑名單)
     public void revokeToken(String token) {
         Claims claims = validateToken(token);
         String jti = claims.getId();
         Instant expiry = claims.getExpiration().toInstant();
         
         // 將 Token ID 加入黑名單，直到過期
-        // redisTemplate.opsForValue().set("revoked:" + jti, true, Duration.between(Instant.now(), expiry));
+        // valkeyTemplate.opsForValue().set("revoked:" + jti, true, Duration.between(Instant.now(), expiry));
         log.info("Token 已撤銷: {}", jti);
     }
 }
