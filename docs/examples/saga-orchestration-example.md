@@ -352,7 +352,7 @@ class OrderSagaOrchestratorTest {
 
 ## 相關文件
 
-- [測試策略](../implementation/testing-strategy.md) - ArchUnit 架構測試
+- [測試策略](../implementation/testing-strategy.md) - 四維測試架構
 - [架構改進建議](../../ARCHITECTURE_IMPROVEMENTS.md) - Saga 技術決策
 - [購物車實作](./cart-implementation.md) - 購物車功能實作
 - [產品 API 實作](./product-api.md) - 產品管理功能
