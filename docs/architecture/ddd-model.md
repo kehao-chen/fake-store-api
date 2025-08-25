@@ -1,5 +1,16 @@
 # DDD 領域模型設計
 
+[← 返回文件中心](../README.md) | **DDD 領域模型**
+
+## 文件資訊
+
+- **版本**: 1.0.0
+- **最後更新**: 2025-08-25
+- **目標讀者**: 後端開發者, 架構師
+- **相關文件**: 
+  - [C4 架構模型](./c4-model.md)
+  - [資料流程圖](./data-flow.md)
+
 本文件描述 Fake Store API 的領域驅動設計（Domain-Driven Design）模型。
 
 ## 領域概覽
@@ -332,6 +343,10 @@ public interface PaymentService {
 ```
 
 ### 4. Saga 編排服務
+
+> **架構定位說明**：
+> `SagaOrchestrationService` 是一個**應用層服務**，而非純粹的領域服務。它的核心職責是實現 "Saga Orchestrator" 模式，協調跨越多個限界上下文（如訂單、庫存、支付）的領域操作，以完成一個完整的業務流程（如創建訂單）。它本身不包含核心業務規則，而是調用各個領域的服務來執行它們。
+
 ```java
 public interface SagaOrchestrationService {
     CompletableFuture<SagaResult> processOrderSaga(OrderCreationRequest request);
@@ -474,4 +489,6 @@ stateDiagram-v2
 
 ---
 
-最後更新：2025-08-20
+*本文件是 Fake Store API 專案的一部分*
+
+*最後更新: 2025-08-25*

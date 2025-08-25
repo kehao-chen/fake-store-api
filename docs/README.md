@@ -160,4 +160,6 @@ docs/
 
 ---
 
-*本文件是 Fake Store API 專案的一部分，採用 Apache License 2.0 授權條款*
+*本文件是 Fake Store API 專案的一部分*
+
+*最後更新: 2025-08-25*

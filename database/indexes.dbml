@@ -59,6 +59,9 @@ indexes {
   users.(last_login_at desc) [name: 'idx_users_last_login']
   users.(email) [name: 'uq_users_email_active', unique, where: 'deleted_at IS NULL']
   users.(username) [name: 'uq_users_username_active', unique, where: 'deleted_at IS NULL']
+
+  // JSONB 欄位索引 (範例)
+  users.(address) [name: 'idx_users_address_gin', type: 'gin', note: '用於加速對地址 JSON 內部欄位的查詢']
 }
 
 // OAuth 提供者整合

@@ -84,12 +84,7 @@ users_item:
           type: string
           pattern: '^user_[a-zA-Z0-9]+$'
           example: "user_123abc"
-      - name: include_deleted
-        in: query
-        description: 是否包含已軟刪除的資源（僅管理員）
-        schema:
-          type: boolean
-          default: false
+      - $ref: '../components/parameters/common.yaml#/View'
     responses:
       '200':
         description: 成功返回使用者資訊
@@ -145,18 +140,7 @@ users_cart:
         schema:
           type: string
           pattern: '^user_[a-zA-Z0-9]+$'
-      - name: include_deleted
-        in: query
-        description: 是否包含已軟刪除的資源（僅管理員）
-        schema:
-          type: boolean
-          default: false
-      - name: only_deleted
-        in: query
-        description: 僅返回已軟刪除的資源（僅管理員，與 include_deleted 互斥）
-        schema:
-          type: boolean
-          default: false
+      - $ref: '../components/parameters/common.yaml#/View'
     responses:
       '200':
         description: 成功返回購物車內容

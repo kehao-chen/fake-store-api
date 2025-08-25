@@ -94,3 +94,27 @@ OrderBy:
     oldest_first:
       summary: 最舊的在前面
       value: "created_at asc"
+
+View:
+  name: view
+  in: query
+  description: |
+    指定回傳的資源視圖，用於控制是否包含已軟刪除的項目。
+    - `ACTIVE`: (預設) 只返回活動資源。
+    - `ALL`: 返回所有資源，包含已軟刪除的項目 (僅管理員)。
+    - `DELETED_ONLY`: 只返回已軟刪除的資源 (僅管理員)。
+  required: false
+  schema:
+    type: string
+    enum:
+      - ACTIVE
+      - ALL
+      - DELETED_ONLY
+    default: ACTIVE
+  examples:
+    all_resources:
+      summary: 包含已刪除的資源
+      value: "ALL"
+    deleted_only:
+      summary: 僅查詢已刪除的資源
+      value: "DELETED_ONLY"

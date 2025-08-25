@@ -1,5 +1,16 @@
 # 效能調校
 
+[← 返回文件中心](../README.md) | [運維部署](./README.md) | **效能調校**
+
+## 文件資訊
+
+- **版本**: 1.0.0
+- **最後更新**: 2025-08-25
+- **目標讀者**: SRE, 效能工程師, 開發者
+- **相關文件**:
+  - [非功能需求](../requirements/non-functional.md)
+  - [資料庫索引策略](../../database/indexes.dbml)
+
 ## 查詢與索引對應（初稿）
 - 產品列表：
   - 索引：`idx_products_category`, `idx_products_price`, `idx_products_created_at`, `idx_products_stock`（皆含 `deleted_at IS NULL`）
@@ -53,3 +64,9 @@
   - DB：慢查詢、連線池使用率
   - 快取：命中率、eviction 次數
 - 日誌：結合 `X-Request-ID`、trace-id 與關鍵商務欄位（order_id/payment_intent_id）。
+
+---
+
+*本文件是 Fake Store API 專案的一部分*
+
+*最後更新: 2025-08-25*

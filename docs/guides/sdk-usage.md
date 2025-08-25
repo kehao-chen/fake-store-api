@@ -1,5 +1,15 @@
 # SDK 使用指南
 
+[← 返回文件中心](../README.md) | **SDK 使用**
+
+## 文件資訊
+
+- **版本**: 1.0.0
+- **最後更新**: 2025-08-25
+- **目標讀者**: 客戶端開發者
+- **相關文件**:
+  - [OpenAPI 規範](../api/openapi-standard.md)
+
 ## 生成 SDK（OpenAPI Generator）
 
 ### TypeScript Axios
@@ -34,3 +44,9 @@ console.log(res.data);
 ## 注意事項
 - 認證：JWT 或 API Key 皆放在 `Authorization: Bearer <token>`。
 - 端點與模型以 `openapi/main.yaml` 為準，更新規格後請重新生成。
+
+---
+
+*本文件是 Fake Store API 專案的一部分*
+
+*最後更新: 2025-08-25*

@@ -1,5 +1,16 @@
 # 資料庫架構設計
 
+[← 返回文件中心](../README.md) | [架構設計](./README.md) | **資料庫架構**
+
+## 文件資訊
+
+- **版本**: 1.0.0
+- **最後更新**: 2025-08-25
+- **目標讀者**: 後端開發者, 架構師
+- **相關文件**:
+  - [DBML 結構定義](../../database/schema.dbml)
+  - [C4 架構模型](./c4-model.md)
+
 本文件說明 Fake Store API 的資料庫架構設計。完整的資料庫定義請參考 [database 目錄](../../database/)。
 
 ## 概覽
@@ -79,6 +90,15 @@ CHECK ((user_id IS NOT NULL AND session_id IS NULL) OR
 - 只儲存 Key 雜湊與前綴；完整 Key 僅在建立時回傳。
 - 欄位建議：`id`、`user_id`、`name`、`prefix`、`key_hash`、`last_used_at`、`created_at`、`revoked_at`。
 
+### 5. JSONB 欄位使用策略
+
+在 `users` 表和 `orders` 表中，地址欄位（`address`, `billing_address`, `shipping_address`）使用了 `jsonb` 類型。
+
+- **優點**：提供了高度的靈活性，客戶端可以儲存不同結構的地址資料，無需修改資料庫結構。
+- **權衡**：犧牲了部分正規化，對 `jsonb` 內部欄位的複雜查詢（如按城市或郵遞區號篩選）效能可能不如獨立的正規化表格。
+- **未來考量**：如果未來出現頻繁的、基於地址欄位的複雜查詢和分析需求，應考慮將 `jsonb` 欄位重構為獨立的 `addresses` 表。
+- **效能提示**：對於 `jsonb` 欄位的查詢，可以利用 PostgreSQL 的 GIN 索引來提升效能。詳情請參考 [索引策略](../../database/indexes.dbml)。
+
 ## 效能考量
 
 ### 1. 索引策略
@@ -128,3 +148,9 @@ psql -U postgres -d fakestore -f init.sql
 - [C4 架構模型](./c4-model.md) - 系統整體架構
 - [DDD 領域模型](./ddd-model.md) - 領域驅動設計
 - [資料流程圖](./data-flow.md) - 資料流動說明
+
+---
+
+*本文件是 Fake Store API 專案的一部分*
+
+*最後更新: 2025-08-25*

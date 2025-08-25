@@ -1,4 +1,15 @@
-# 認證與授權（原則與流程）
+# 認證與授權
+
+[← 返回文件中心](../README.md) | [API 文件](../api/) | **認證與授權**
+
+## 文件資訊
+
+- **版本**: 1.0.0
+- **最後更新**: 2025-08-25
+- **目標讀者**: 開發者、架構師
+- **相關文件**:
+  - [API 設計規格](./design-spec.md)
+  - [OpenAPI 規範](./openapi-standard.md)
 
 本專案採用 **RS256 JWT** 與 **JWK** 標準，配合 OAuth2（授權碼 + PKCE）為主要註冊/登入方式；另提供教學用帳密登入與 API Key 構想，方便快速體驗。
 
@@ -114,3 +125,9 @@ API Key（擬定）
 
 審計欄位
 - `created_by/updated_by/deleted_by` 由伺服器端依當前使用者（或 system）注入；schema 標示 `readOnly`。
+
+---
+
+*本文件是 Fake Store API 專案的一部分*
+
+*最後更新: 2025-08-25*

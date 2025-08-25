@@ -195,18 +195,7 @@ products_collection:
     operationId: listProducts
     parameters:
       - $ref: '../components/parameters/common.yaml#/PageSize'
-      - name: include_deleted
-        in: query
-        description: 是否包含已軟刪除的資源（僅管理員）
-        schema:
-          type: boolean
-          default: false
-      - name: only_deleted
-        in: query
-        description: 僅返回已軟刪除的資源（僅管理員，與 include_deleted 互斥）
-        schema:
-          type: boolean
-          default: false
+      - $ref: '../components/parameters/common.yaml#/View'
       - $ref: '../components/parameters/common.yaml#/PageToken'
       - $ref: '../components/parameters/common.yaml#/Filter'
       - $ref: '../components/parameters/common.yaml#/OrderBy'
@@ -306,13 +295,7 @@ products_item:
           type: string
           pattern: '^prod_[a-zA-Z0-9]+$'
           example: "prod_1a2b3c"
-      - name: include_deleted
-        in: query
-        required: false
-        description: 是否包含已軟刪除的資源（僅管理員）
-        schema:
-          type: boolean
-          default: false
+      - $ref: '../components/parameters/common.yaml#/View'
     responses:
       '200':
         description: 成功返回產品詳情

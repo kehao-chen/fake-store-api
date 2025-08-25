@@ -1,5 +1,16 @@
 # 部署架構
 
+[← 返回文件中心](../README.md) | [運維部署](./README.md) | **部署架構**
+
+## 文件資訊
+
+- **版本**: 1.0.0
+- **最後更新**: 2025-08-25
+- **目標讀者**: DevOps 工程師, SRE
+- **相關文件**:
+  - [C4 架構模型](../architecture/c4-model.md)
+  - [CI/CD 流程](./cicd.md)
+
 ## 1. 目標環境
 - 單一 Docker Host（4~8GB）：學習/測試環境
 - 反向代理：Caddy（自動 HTTPS）
@@ -75,3 +86,9 @@ volumes:
 - `servers.url`: `https://{host}/v1`
 - `variables.host.enum`: `fakestore.happyhacking.ninja`, `staging.fakestore.happyhacking.ninja`, `localhost:8080`
 - 部署時以環境變數或 CI 參數替換 `host` 用於產出對應環境的 API 文件/SDK。
+
+---
+
+*本文件是 Fake Store API 專案的一部分*
+
+*最後更新: 2025-08-25*

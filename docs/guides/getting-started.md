@@ -1,5 +1,16 @@
 # 快速開始
 
+[← 返回文件中心](../README.md) | **快速開始**
+
+## 文件資訊
+
+- **版本**: 1.0.0
+- **最後更新**: 2025-08-25
+- **目標讀者**: 開發者
+- **相關文件**:
+  - [開發環境設置](./setup.md)
+  - [學習指南](./learning-guide.md)
+
 ## 1. 環境需求
 - Java 21、Docker 20.10+、Docker Compose 2+、Node/npm（可選，用於 lint/Redoc）
 
@@ -37,3 +48,9 @@ make redoc-build-openapi     # 產出 docs/api.html
 ## 7. 常見問題
 - 401：請檢查 Authorization 標頭（Bearer JWT 或 API Key）。
 - 429：限流，請參考 Retry-After。
+
+---
+
+*本文件是 Fake Store API 專案的一部分*
+
+*最後更新: 2025-08-25*

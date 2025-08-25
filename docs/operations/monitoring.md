@@ -1,4 +1,15 @@
-# 監控與對賬（Monitoring & Reconciliation）
+# 監控與對賬
+
+[← 返回文件中心](../README.md) | [運維部署](./README.md) | **監控與對賬**
+
+## 文件資訊
+
+- **版本**: 1.0.0
+- **最後更新**: 2025-08-25
+- **目標讀者**: SRE, 開發者
+- **相關文件**:
+  - [部署架構](./deployment.md)
+  - [支付整合範例](../examples/payments.md)
 
 本文件說明支付事件（Stripe）與系統訂單狀態之間的對賬流程（reconciliation），並補充監控建議。
 
@@ -86,3 +97,9 @@ scrape_configs:
 - 快取命中率與 eviction 次數
 
 可將上述指標組成單一 dashboard，以 `order_id/payment_intent_id/event.id` 為維度進行 drill-down。
+
+---
+
+*本文件是 Fake Store API 專案的一部分*
+
+*最後更新: 2025-08-25*

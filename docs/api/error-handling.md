@@ -1,4 +1,15 @@
-# 錯誤處理規範（AIP-193）
+# 錯誤處理規範
+
+[← 返回文件中心](../README.md) | [API 文件](./README.md) | **錯誤處理**
+
+## 文件資訊
+
+- **版本**: 1.0.0
+- **最後更新**: 2025-08-25
+- **目標讀者**: 開發者
+- **相關文件**:
+  - [API 設計規格](./design-spec.md)
+  - [OpenAPI 錯誤回應範本](../../openapi/components/responses/errors.yaml)
 
 本專案遵循 Google AIP-193 的錯誤格式，統一錯誤 envelope 與錯誤碼語義，並對應適當的 HTTP 狀態與標頭。
 
@@ -57,3 +68,9 @@
 ## 參考 OpenAPI 範例
 
 - `openapi/components/responses/errors.yaml` 定義了 BAD_REQUEST、UNAUTHORIZED、FORBIDDEN、NOT_FOUND、PAYMENT_REQUIRED 等回應與範例；請優先引用這些元件以保持一致。
+
+---
+
+*本文件是 Fake Store API 專案的一部分*
+
+*最後更新: 2025-08-25*

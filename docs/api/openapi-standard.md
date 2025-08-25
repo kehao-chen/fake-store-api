@@ -1,4 +1,15 @@
-# OpenAPI 規範（文件與規則）
+# OpenAPI 規範
+
+[← 返回文件中心](../README.md) | [API 文件](./README.md) | **OpenAPI 規範**
+
+## 文件資訊
+
+- **版本**: 1.0.0
+- **最後更新**: 2025-08-25
+- **目標讀者**: 開發者
+- **相關文件**:
+  - [API 設計規格](./design-spec.md)
+  - [OpenAPI 主文件](../../openapi/main.yaml)
 
 ## 檔案組織
 - 模組化結構：`openapi/main.yaml` 為入口；`paths/`、`components/` 各自拆分。
@@ -21,3 +32,9 @@
 ## 範例與 `nullable`
 - 當 `$ref` 欄位需 `nullable: true`，以 `allOf + $ref + type: object` 表示，避免工具誤判。
 - Examples：集中於 `components/examples/`，在對應 response/request 的 `examples` 中引用。
+
+---
+
+*本文件是 Fake Store API 專案的一部分*
+
+*最後更新: 2025-08-25*

@@ -1,5 +1,16 @@
 # 備份與災難復原
 
+[← 返回文件中心](../README.md) | [運維部署](./README.md) | **備份與復原**
+
+## 文件資訊
+
+- **版本**: 1.0.0
+- **最後更新**: 2025-08-25
+- **目標讀者**: DevOps 工程師, SRE
+- **相關文件**:
+  - [非功能需求](../requirements/non-functional.md)
+  - [部署架構](./deployment.md)
+
 ## 目標與指標
 - RPO：< 1 小時（見非功能需求）
 - RTO：< 15 分鐘（見非功能需求）
@@ -35,3 +46,9 @@ pg_restore -d fakestore_restore backups/fakestore_YYYY-MM-DD.dump
 ## 注意事項
 - 保護 `.env`、API 金鑰與 JWT 金鑰；避免與備份一起存放。
 - 還原後重新設定 webhook endpoint 與第三方憑證（Stripe/OAuth）。
+
+---
+
+*本文件是 Fake Store API 專案的一部分*
+
+*最後更新: 2025-08-25*
