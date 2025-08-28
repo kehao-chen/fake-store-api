@@ -1029,8 +1029,8 @@ spring.cache.type=redis
 spring.cache.redis.time-to-live=300000
 
 # JWT 測試配置
-jwt.access-token-expiration=15
-jwt.refresh-token-expiration=1440
+jwt.access-token-expiration=900
+jwt.refresh-token-expiration=604800
 jwt.key-id=test-key-1
 jwt.issuer=fake-store-test
 

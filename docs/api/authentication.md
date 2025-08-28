@@ -1,6 +1,6 @@
 # 認證與授權
 
-[← 返回文件中心](../README.md) | [API 文件](../api/) | **認證與授權**
+[← 返回文件中心](../README.md) | **認證與授權**
 
 ## 文件資訊
 
@@ -46,8 +46,8 @@ jwt:
   public-key: classpath:keys/public_key.pem          # X.509 格式公鑰
   key-id: fake-store-key-1                           # 金鑰 ID (支援金鑰輪換)
   issuer: fake-store-api
-  access-token-expiration: 15    # 分鐘
-  refresh-token-expiration: 10080 # 分鐘 (7天)
+  access-token-expiration: 900    # 秒 (15 分鐘)
+  refresh-token-expiration: 604800 # 秒 (7天)
 ```
 
 ### 金鑰生成命令

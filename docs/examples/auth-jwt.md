@@ -119,8 +119,8 @@ public class JwtService {
     public JwtService(
             @Value("${jwt.private-key}") Resource privateKeyResource,
             @Value("${jwt.public-key}") Resource publicKeyResource,
-            @Value("${jwt.access-token-expiration:15}") long accessTokenExpiration,
-            @Value("${jwt.refresh-token-expiration:10080}") long refreshTokenExpiration,
+            @Value("${jwt.access-token-expiration:900}") long accessTokenExpiration,
+            @Value("${jwt.refresh-token-expiration:604800}") long refreshTokenExpiration,
             @Value("${jwt.issuer:fake-store-api}") String issuer,
             @Value("${jwt.key-id:fake-store-key-1}") String keyId) throws Exception {
         
@@ -715,8 +715,8 @@ jwt:
   public-key: classpath:keys/public_key.pem
   key-id: fake-store-key-1
   issuer: fake-store-api
-  access-token-expiration: 15    # 分鐘
-  refresh-token-expiration: 10080 # 分鐘 (7天)
+  access-token-expiration: 900    # 秒 (15 分鐘)
+  refresh-token-expiration: 604800 # 秒 (7天)
 ```
 
 ### 7.3 Security 配置更新

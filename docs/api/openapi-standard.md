@@ -1,6 +1,6 @@
 # OpenAPI 規範
 
-[← 返回文件中心](../README.md) | [API 文件](./README.md) | **OpenAPI 規範**
+[← 返回文件中心](../README.md) | **OpenAPI 規範**
 
 ## 文件資訊
 

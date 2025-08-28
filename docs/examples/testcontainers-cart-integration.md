@@ -510,8 +510,8 @@ logging.level.org.springframework.web=DEBUG
 logging.level.org.hibernate.SQL=DEBUG
 
 # JWT 測試配置
-jwt.access-token-expiration=60
-jwt.refresh-token-expiration=1440
+jwt.access-token-expiration=900
+jwt.refresh-token-expiration=604800
 
 # 外部服務配置（由 WireMock 提供）
 stripe.api.timeout=5000

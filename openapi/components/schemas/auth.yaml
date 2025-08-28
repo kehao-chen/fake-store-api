@@ -9,7 +9,7 @@ TokenResponse:
     access_token:
       type: string
       description: JWT 存取令牌
-      example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+      example: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
       
     refresh_token:
       type: string
@@ -42,7 +42,7 @@ TokenResponse:
       example: "user_123abc"
       
   example:
-    access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    access_token: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
     refresh_token: "refresh_token_abc123"
     token_type: "Bearer"
     expires_in: 900
